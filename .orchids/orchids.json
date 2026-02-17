@@ -1,0 +1,8 @@
+{
+  "projectId": "a1945a38-4fce-4b9d-8359-21af038e17bc",
+  "createdAt": 1771353369221,
+  "version": "1.0",
+  "startupCommands": [
+    "cd frontend && bun install && npx vite --host 0.0.0.0 --port 5173"
+  ]
+}
