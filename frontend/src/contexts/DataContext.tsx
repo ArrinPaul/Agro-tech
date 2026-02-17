@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
 import type {
   User, Organization, Warehouse, Crop, Resource, CropResource,
-  Allocation, AuditLog, Suggestion, Role,
+  Allocation, AuditLog, Suggestion,
 } from "../types";
 
 function id() {

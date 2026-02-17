@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2, Search, AlertTriangle, CheckCircle } from "lucide-react";
+import { Plus, Search, AlertTriangle, CheckCircle } from "lucide-react";
 import { useData } from "../contexts/DataContext";
 import { useToast } from "../components/Toast";
 import Modal from "../components/Modal";

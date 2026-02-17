@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend,
+  PieChart, Pie, Cell, CartesianGrid,
 } from "recharts";
 import {
   Warehouse, Sprout, FlaskConical, GitMerge,
-  BrainCircuit, AlertTriangle, Info, TrendingUp, Plus,
+  BrainCircuit, AlertTriangle, Info, Plus,
 } from "lucide-react";
 import { useData } from "../contexts/DataContext";
 
