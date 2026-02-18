@@ -3,8 +3,9 @@ import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Warehouse, Sprout, FlaskConical,
   GitMerge, BrainCircuit, ClipboardList, FileBarChart2,
-  Menu, X, LogOut, ChevronRight, Leaf, Sun, Moon,
+  Menu, X, LogOut, ChevronRight, Leaf, Sun, Moon, User,
 } from "lucide-react";
+import { useClerk, useUser } from "@clerk/clerk-react";
 import { useData } from "../contexts/DataContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { useToast } from "../components/Toast";
@@ -29,7 +30,9 @@ const ROLE_COLORS: Record<string, string> = {
 export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { currentUser, organization, logout } = useData();
+  const { user } = useUser();
+  const { signOut } = useClerk();
+  const { organization } = useData();
   const { theme, toggleTheme } = useTheme();
   const { addToast } = useToast();
   const navigate = useNavigate();
@@ -49,8 +52,8 @@ export default function MainLayout() {
     return () => window.removeEventListener("resize", handler);
   }, []);
 
-  function handleLogout() {
-    logout();
+  async function handleLogout() {
+    await signOut();
     addToast("Logged out successfully", "info");
     navigate("/login");
   }
@@ -59,6 +62,10 @@ export default function MainLayout() {
     location.pathname === "/"
       ? "Dashboard"
       : location.pathname.slice(1).replace(/-/g, " ").split("/")[0];
+
+  const userName = user?.fullName || user?.primaryEmailAddress?.emailAddress || "User";
+  const userInitial = userName.charAt(0).toUpperCase();
+  const userRole = "OPERATOR"; // Default role, will be fetched from Convex later
 
   // Sidebar content shared between desktop and mobile
   const sidebarContent = (isDesktop: boolean) => (
@@ -120,13 +127,13 @@ export default function MainLayout() {
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
               <span className="text-white text-xs font-bold">
-                {currentUser.name.charAt(0)}
+                {userInitial}
               </span>
             </div>
             <div className="overflow-hidden">
-              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{currentUser.name}</p>
-              <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${ROLE_COLORS[currentUser.role]}`}>
-                {currentUser.role}
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{userName}</p>
+              <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${ROLE_COLORS[userRole]}`}>
+                {userRole}
               </span>
             </div>
           </div>

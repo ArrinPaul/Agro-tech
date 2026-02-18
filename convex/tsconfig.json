@@ -1,0 +1,15 @@
+{
+  "extends": "../frontend/tsconfig.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2021"],
+    "target": "ES2021",
+    "jsx": "preserve",
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "noImplicitReturns": true,
+    "skipLibCheck": true
+  },
+  "include": ["./**/*"]
+}

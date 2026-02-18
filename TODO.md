@@ -16,21 +16,21 @@
 - [x] Create initial `README.md`
 
 ### 0.2 — Service Account Setup
-- [ ] Create Clerk account → create new project
-- [ ] Enable Email/Password sign-in method
-- [ ] Enable Google OAuth (optional)
-- [ ] Copy Clerk Publishable Key & Secret Key
-- [ ] Create Convex account → create new project
-- [ ] Link Convex project to local workspace
-- [ ] Store all keys in `.env.local`
+- [x] Create Clerk account → create new project
+- [x] Enable Email/Password sign-in method
+- [x] Enable Google OAuth (optional)
+- [x] Copy Clerk Publishable Key & Secret Key
+- [x] Create Convex account → create new project
+- [x] Link Convex project to local workspace
+- [x] Store all keys in `.env.local`
 
 ### 0.3 — Project Scaffolding
 - [x] Initialize React app with Vite (`npm create vite@latest frontend -- --template react-ts`)
 - [x] Install Tailwind CSS + PostCSS + Autoprefixer
 - [x] Configure `tailwind.config.js`
-- [ ] Install Convex client (`npm install convex`)
-- [ ] Run `npx convex dev` to init Convex project
-- [ ] Install Clerk React SDK (`npm install @clerk/clerk-react`)
+- [x] Install Convex client (`npm install convex`)
+- [x] Run `npx convex dev` to init Convex project
+- [x] Install Clerk React SDK (`npm install @clerk/clerk-react`)
 - [x] Install React Router (`npm install react-router-dom`)
 - [x] Install Recharts (`npm install recharts`)
 - [x] Verify dev server boots cleanly
@@ -40,11 +40,11 @@
 ## PHASE 1 — Authentication & Base Layout (Week 1)
 
 ### 1.1 — Clerk Integration
-- [ ] Wrap app root with `<ClerkProvider>`
-- [ ] Create Sign In page (`/sign-in`)
-- [ ] Create Sign Up page (`/sign-up`)
-- [ ] Add `<SignedIn>` / `<SignedOut>` wrappers
-- [ ] Test login + signup flow end-to-end
+- [x] Wrap app root with `<ClerkProvider>`
+- [x] Create Sign In page (`/sign-in`)
+- [x] Create Sign Up page (`/sign-up`)
+- [x] Add `<SignedIn>` / `<SignedOut>` wrappers
+- [ ] Test login + signup flow end-to-end (requires Clerk account setup)
 - [ ] Verify JWT token generation
 
 ### 1.2 — Clerk → Convex User Sync
@@ -77,33 +77,33 @@
 ## PHASE 2 — Database Schema & CRUD Modules (Week 2)
 
 ### 2.1 — Convex Schema Definition
-- [ ] Create `convex/schema.ts`
-- [ ] Define `users` table (clerkId, email, role, organizationId, createdAt)
-- [ ] Define `organizations` table (name, createdAt)
-- [ ] Define `warehouses` table (name, location, totalCapacity, usedCapacity, organizationId, createdAt)
-- [ ] Define `crops` table (name, quantity, status, organizationId, createdAt)
-- [ ] Define `resources` table (name, type, stockQuantity, organizationId)
-- [ ] Define `crop_resource` table (cropId, resourceId, requiredQuantity)
-- [ ] Define `allocations` table (cropId, warehouseId, allocatedQuantity, createdBy, organizationId, createdAt)
-- [ ] Define `audit_logs` table (action, entityType, entityId, performedBy, timestamp)
-- [ ] Add indexes on: organizationId, clerkId, warehouseId, cropId
-- [ ] Push schema: `npx convex dev`
+- [x] Create `convex/schema.ts`
+- [x] Define `users` table (clerkId, email, role, organizationId, createdAt)
+- [x] Define `organizations` table (name, createdAt)
+- [x] Define `warehouses` table (name, location, totalCapacity, usedCapacity, organizationId, createdAt)
+- [x] Define `crops` table (name, quantity, status, organizationId, createdAt)
+- [x] Define `resources` table (name, type, stockQuantity, organizationId)
+- [x] Define `crop_resource` table (cropId, resourceId, requiredQuantity)
+- [x] Define `allocations` table (cropId, warehouseId, allocatedQuantity, createdBy, organizationId, createdAt)
+- [x] Define `audit_logs` table (action, entityType, entityId, performedBy, timestamp)
+- [x] Add indexes on: organizationId, clerkId, warehouseId, cropId
+- [ ] Push schema: `npx convex dev` (requires Convex account setup)
 
 ### 2.2 — Organizations Module
-- [ ] Create `convex/organizations.ts`
-- [ ] Mutation: `createOrganization(name)`
-- [ ] Query: `getOrganization(id)`
-- [ ] Query: `listOrganizations()`
+- [x] Create `convex/organizations.ts`
+- [x] Mutation: `createOrganization(name)`
+- [x] Query: `getOrganization(id)`
+- [x] Query: `listOrganizations()`
 - [ ] Frontend: Org selector / switcher component
 - [ ] Test org creation and listing
 
 ### 2.3 — Warehouses CRUD
-- [ ] Create `convex/warehouses.ts`
-- [ ] Mutation: `createWarehouse(name, location, totalCapacity, orgId)`
-- [ ] Mutation: `updateWarehouse(id, fields)`
-- [ ] Mutation: `deleteWarehouse(id)` — block if allocations exist
-- [ ] Query: `listWarehouses(orgId)` — with pagination
-- [ ] Query: `getWarehouse(id)`
+- [x] Create `convex/warehouses.ts`
+- [x] Mutation: `createWarehouse(name, location, totalCapacity, orgId)`
+- [x] Mutation: `updateWarehouse(id, fields)`
+- [x] Mutation: `deleteWarehouse(id)` — block if allocations exist
+- [x] Query: `listWarehouses(orgId)` — with pagination
+- [x] Query: `getWarehouse(id)`
 - [x] Validation: totalCapacity must be > 0
 - [x] Validation: usedCapacity cannot exceed totalCapacity
 - [x] Frontend: Warehouse list page (table with search/filter)
@@ -113,12 +113,12 @@
 - [x] Frontend: Capacity bar indicator (green/yellow/red)
 
 ### 2.4 — Crops CRUD
-- [ ] Create `convex/crops.ts`
-- [ ] Mutation: `createCrop(name, quantity, orgId)`
-- [ ] Mutation: `updateCrop(id, fields)`
-- [ ] Mutation: `deleteCrop(id)` — block if allocations exist
-- [ ] Query: `listCrops(orgId)` — with pagination
-- [ ] Query: `getCrop(id)`
+- [x] Create `convex/crops.ts`
+- [x] Mutation: `createCrop(name, quantity, orgId)`
+- [x] Mutation: `updateCrop(id, fields)`
+- [x] Mutation: `deleteCrop(id)` — block if allocations exist
+- [x] Query: `listCrops(orgId)` — with pagination
+- [x] Query: `getCrop(id)`
 - [x] Define crop statuses: `PLANTED`, `GROWING`, `HARVESTED`, `STORED`
 - [x] Mutation: `updateCropStatus(id, newStatus)`
 - [x] Frontend: Crop list page
@@ -127,12 +127,12 @@
 - [x] Frontend: Crop detail view
 
 ### 2.5 — Resources CRUD
-- [ ] Create `convex/resources.ts`
-- [ ] Mutation: `createResource(name, type, stockQuantity, orgId)`
-- [ ] Mutation: `updateResource(id, fields)`
-- [ ] Mutation: `deleteResource(id)` — block if linked to crops
-- [ ] Query: `listResources(orgId)` — filterable by type
-- [ ] Query: `getResource(id)`
+- [x] Create `convex/resources.ts`
+- [x] Mutation: `createResource(name, type, stockQuantity, orgId)`
+- [x] Mutation: `updateResource(id, fields)`
+- [x] Mutation: `deleteResource(id)` — block if linked to crops
+- [x] Query: `listResources(orgId)` — filterable by type
+- [x] Query: `getResource(id)`
 - [x] Define types: `FERTILIZER`, `PESTICIDE`
 - [x] Mutation: `adjustStock(id, delta)` — increment/decrement
 - [x] Frontend: Resource list page with type filter tabs
@@ -141,7 +141,7 @@
 - [x] Frontend: Low stock warning badge
 
 ### 2.6 — Crop–Resource Linking
-- [ ] Create mutations in `convex/resources.ts` or separate file
+- [x] Create mutations in `convex/resources.ts` or separate file
 - [x] Mutation: `linkResourceToCrop(cropId, resourceId, requiredQuantity)`
 - [x] Mutation: `unlinkResourceFromCrop(cropId, resourceId)`
 - [x] Query: `getResourcesForCrop(cropId)`
@@ -154,7 +154,7 @@
 ## PHASE 3 — Allocation Engine (Week 3)
 
 ### 3.1 — Core Allocation Logic
-- [ ] Create `convex/allocations.ts`
+- [x] Create `convex/allocations.ts`
 - [x] Mutation: `allocateCropToWarehouse(cropId, warehouseId, quantity, userId)`
   - [x] Step 1: Validate warehouse exists & belongs to org
   - [x] Step 2: Check `totalCapacity - usedCapacity >= quantity`
@@ -185,7 +185,7 @@
 - [x] Frontend: Deallocate button with confirmation
 
 ### 3.4 — Audit Logging
-- [ ] Create `convex/auditLogs.ts`
+- [x] Create `convex/auditLogs.ts`
 - [x] Mutation: `logAction(action, entityType, entityId, performedBy)`
 - [x] Query: `listAuditLogs(orgId)` — with pagination + filters
 - [x] Frontend: Audit log page (admin only)

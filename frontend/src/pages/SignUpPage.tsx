@@ -1,7 +1,7 @@
-import { SignIn } from "@clerk/clerk-react";
+import { SignUp } from "@clerk/clerk-react";
 import { Wheat } from "lucide-react";
 
-export default function LoginPage() {
+export default function SignUpPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-4">
       <div className="max-w-md w-full">
@@ -10,18 +10,18 @@ export default function LoginPage() {
             <Wheat className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Welcome to AgroTech
+            Join AgroTech
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Smart Crop & Warehouse Management Platform
+            Start managing your farm operations today
           </p>
         </div>
 
-        <SignIn 
-          path="/login"
+        <SignUp 
+          path="/sign-up"
           routing="path"
-          signUpUrl="/sign-up"
-          afterSignInUrl="/"
+          signInUrl="/login"
+          afterSignUpUrl="/"
           appearance={{
             elements: {
               rootBox: "mx-auto",
@@ -29,14 +29,6 @@ export default function LoginPage() {
             }
           }}
         />
-
-        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-          <div className="text-xs text-gray-500 dark:text-gray-400 text-center space-y-1">
-            <p>✨ Full CRUD operations</p>
-            <p>📊 Real-time dashboard analytics</p>
-            <p>🤖 AI-powered insights & suggestions</p>
-          </div>
-        </div>
       </div>
     </div>
   );

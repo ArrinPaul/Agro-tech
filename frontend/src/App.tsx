@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
-import { DataProvider, useData } from "./contexts/DataContext";
+import { SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
+import { DataProvider } from "./contexts/DataContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { ToastProvider } from "./components/Toast";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -15,22 +16,30 @@ import AIInsightsPage from "./pages/AIInsightsPage";
 import AuditLogPage from "./pages/AuditLogPage";
 import ReportsPage from "./pages/ReportsPage";
 import LoginPage from "./pages/LoginPage";
+import SignUpPage from "./pages/SignUpPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 
 function ProtectedRoute() {
-  const { isAuthenticated } = useData();
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  return <Outlet />;
+  return (
+    <>
+      <SignedIn>
+        <Outlet />
+      </SignedIn>
+      <SignedOut>
+        <Navigate to="/login" replace />
+      </SignedOut>
+    </>
+  );
 }
 
 function PublicRoute() {
-  const { isAuthenticated } = useData();
-  if (isAuthenticated) {
+  const { isSignedIn } = useAuth();
+  
+  if (isSignedIn) {
     return <Navigate to="/" replace />;
   }
+  
   return <Outlet />;
 }
 
@@ -45,6 +54,7 @@ function App() {
                 {/* Public routes */}
                 <Route element={<PublicRoute />}>
                   <Route path="/login" element={<LoginPage />} />
+                  <Route path="/sign-up" element={<SignUpPage />} />
                 </Route>
 
                 {/* Protected routes */}
