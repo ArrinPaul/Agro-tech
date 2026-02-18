@@ -252,3 +252,29 @@ export const getResourceStockSummary = query({
     };
   },
 });
+
+// List all crop-resource relationships for an organization
+export const listCropResources = query({
+  args: { organizationId: v.id("organizations") },
+  handler: async (ctx, args) => {
+    // Get all crops for the organization
+    const crops = await ctx.db
+      .query("crops")
+      .withIndex("by_organization", (q) => q.eq("organizationId", args.organizationId))
+      .collect();
+    
+    const cropIds = crops.map(c => c._id);
+    
+    // Get all crop-resource links for these crops
+    const allLinks = [];
+    for (const cropId of cropIds) {
+      const links = await ctx.db
+        .query("cropResources")
+        .withIndex("by_crop", (q) => q.eq("cropId", cropId))
+        .collect();
+      allLinks.push(...links);
+    }
+    
+    return allLinks;
+  },
+});

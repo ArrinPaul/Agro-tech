@@ -1,7 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
-import { DataProvider } from "./contexts/DataContext";
-import { ThemeProvider } from "./contexts/ThemeContext";
 import { ToastProvider } from "./components/Toast";
 import ErrorBoundary from "./components/ErrorBoundary";
 import MainLayout from "./layouts/MainLayout";
@@ -46,41 +44,37 @@ function PublicRoute() {
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider>
-        <BrowserRouter>
-          <ToastProvider>
-            <DataProvider>
-              <Routes>
-                {/* Public routes */}
-                <Route element={<PublicRoute />}>
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/sign-up" element={<SignUpPage />} />
-                </Route>
+      <BrowserRouter>
+        <ToastProvider>
+          <Routes>
+            {/* Public routes */}
+            <Route element={<PublicRoute />}>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/sign-up" element={<SignUpPage />} />
+            </Route>
 
-                {/* Protected routes */}
-                <Route element={<ProtectedRoute />}>
-                  <Route path="/" element={<MainLayout />}>
-                    <Route index element={<DashboardPage />} />
-                    <Route path="warehouses" element={<WarehousesPage />} />
-                    <Route path="crops" element={<CropsPage />} />
-                    <Route path="crops/:id" element={<CropDetailPage />} />
-                    <Route path="resources" element={<ResourcesPage />} />
-                    <Route path="allocations" element={<AllocationsPage />} />
-                    <Route path="allocations/:id" element={<AllocationDetailPage />} />
-                    <Route path="ai-insights" element={<AIInsightsPage />} />
-                    <Route path="audit-log" element={<AuditLogPage />} />
-                    <Route path="reports" element={<ReportsPage />} />
-                  </Route>
-                </Route>
+            {/* Protected routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<MainLayout />}>
+                <Route index element={<DashboardPage />} />
+                <Route path="warehouses" element={<WarehousesPage />} />
+                <Route path="crops" element={<CropsPage />} />
+                <Route path="crops/:id" element={<CropDetailPage />} />
+                <Route path="resources" element={<ResourcesPage />} />
+                <Route path="allocations" element={<AllocationsPage />} />
+                <Route path="allocations/:id" element={<AllocationDetailPage />} />
+                <Route path="ai-insights" element={<AIInsightsPage />} />
+                <Route path="audit-log" element={<AuditLogPage />} />
+                <Route path="reports" element={<ReportsPage />} />
+              </Route>
+            </Route>
 
-                {/* Error pages */}
-                <Route path="/unauthorized" element={<UnauthorizedPage />} />
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
-            </DataProvider>
-          </ToastProvider>
-        </BrowserRouter>
-      </ThemeProvider>
+            {/* Error pages */}
+            <Route path="/unauthorized" element={<UnauthorizedPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </ToastProvider>
+      </BrowserRouter>
     </ErrorBoundary>
   );
 }

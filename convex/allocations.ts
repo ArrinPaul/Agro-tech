@@ -6,11 +6,25 @@ export const allocateCropToWarehouse = mutation({
   args: {
     cropId: v.id("crops"),
     warehouseId: v.id("warehouses"),
-    allocatedQuantity: v.number(),
-    userId: v.id("users"),
+    quantity: v.number(),
     organizationId: v.id("organizations"),
   },
   handler: async (ctx, args) => {
+    // Get current user from auth
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+    
+    const currentUser = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+    
+    if (!currentUser) {
+      throw new Error("User not found");
+    }
+
     // Step 1: Validate warehouse exists and belongs to org
     const warehouse = await ctx.db.get(args.warehouseId);
     if (!warehouse) {
@@ -22,8 +36,8 @@ export const allocateCropToWarehouse = mutation({
 
     // Step 2: Check capacity
     const remainingCapacity = warehouse.totalCapacity - warehouse.usedCapacity;
-    if (remainingCapacity < args.allocatedQuantity) {
-      throw new Error(`Insufficient warehouse capacity. Available: ${remainingCapacity}, Required: ${args.allocatedQuantity}`);
+    if (remainingCapacity < args.quantity) {
+      throw new Error(`Insufficient warehouse capacity. Available: ${remainingCapacity}, Required: ${args.quantity}`);
     }
 
     // Step 3: Validate crop exists
@@ -52,7 +66,7 @@ export const allocateCropToWarehouse = mutation({
       const resource = await ctx.db.get(link.resourceId);
       if (!resource) continue;
       
-      const requiredTotal = link.requiredQuantity * args.allocatedQuantity;
+      const requiredTotal = link.requiredQuantity * args.quantity;
       if (resource.stockQuantity < requiredTotal) {
         insufficientResources.push({
           name: resource.name,
@@ -83,7 +97,7 @@ export const allocateCropToWarehouse = mutation({
 
     // Step 6: Increment warehouse used capacity
     await ctx.db.patch(args.warehouseId, {
-      usedCapacity: warehouse.usedCapacity + args.allocatedQuantity,
+      usedCapacity: warehouse.usedCapacity + args.quantity,
       updatedAt: Date.now(),
     });
 
@@ -91,8 +105,8 @@ export const allocateCropToWarehouse = mutation({
     const allocationId = await ctx.db.insert("allocations", {
       cropId: args.cropId,
       warehouseId: args.warehouseId,
-      allocatedQuantity: args.allocatedQuantity,
-      createdBy: args.userId,
+      allocatedQuantity: args.quantity,
+      createdBy: currentUser._id,
       organizationId: args.organizationId,
       createdAt: Date.now(),
     });
@@ -102,12 +116,12 @@ export const allocateCropToWarehouse = mutation({
       action: "ALLOCATION_CREATED",
       entityType: "allocation",
       entityId: allocationId,
-      performedBy: args.userId,
+      performedBy: currentUser._id,
       organizationId: args.organizationId,
       details: {
         cropId: args.cropId,
         warehouseId: args.warehouseId,
-        quantity: args.allocatedQuantity,
+        quantity: args.quantity,
       },
       timestamp: Date.now(),
     });
@@ -119,11 +133,25 @@ export const allocateCropToWarehouse = mutation({
 // Deallocate (remove allocation)
 export const deallocate = mutation({
   args: {
-    allocationId: v.id("allocations"),
-    userId: v.id("users"),
+    id: v.id("allocations"),
   },
   handler: async (ctx, args) => {
-    const allocation = await ctx.db.get(args.allocationId);
+    // Get current user from auth
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+    
+    const currentUser = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+    
+    if (!currentUser) {
+      throw new Error("User not found");
+    }
+
+    const allocation = await ctx.db.get(args.id);
     if (!allocation) {
       throw new Error("Allocation not found");
     }
@@ -137,7 +165,7 @@ export const deallocate = mutation({
       });
     }
 
-    // Restore resource stock (approximate - assumes resources weren't changed)
+    // Restore resource stock
     const cropResources = await ctx.db
       .query("cropResources")
       .withIndex("by_crop", (q) => q.eq("cropId", allocation.cropId))
@@ -155,14 +183,14 @@ export const deallocate = mutation({
     }
 
     // Delete allocation
-    await ctx.db.delete(args.allocationId);
+    await ctx.db.delete(args.id);
 
     // Log the action
     await ctx.db.insert("auditLogs", {
       action: "ALLOCATION_DELETED",
       entityType: "allocation",
-      entityId: args.allocationId,
-      performedBy: args.userId,
+      entityId: args.id,
+      performedBy: currentUser._id,
       organizationId: allocation.organizationId,
       details: {
         cropId: allocation.cropId,
@@ -172,7 +200,7 @@ export const deallocate = mutation({
       timestamp: Date.now(),
     });
 
-    return args.allocationId;
+    return args.id;
   },
 });
 

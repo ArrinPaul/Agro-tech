@@ -1,7 +1,8 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { requireAdmin, requireAuth, getCurrentUser } from "./lib/auth";
 
-// Create a new user
+// Create a new user (Admin only)
 export const createUser = mutation({
   args: {
     clerkId: v.string(),
@@ -11,6 +12,9 @@ export const createUser = mutation({
     organizationId: v.optional(v.id("organizations")),
   },
   handler: async (ctx, args) => {
+    // Require admin access
+    await requireAdmin(ctx);
+    
     const userId = await ctx.db.insert("users", {
       ...args,
       createdAt: Date.now(),
@@ -50,13 +54,16 @@ export const listUsers = query({
   },
 });
 
-// Update user role
+// Update user role (Admin only)
 export const updateUserRole = mutation({
   args: {
     userId: v.id("users"),
     role: v.union(v.literal("ADMIN"), v.literal("MANAGER"), v.literal("OPERATOR")),
   },
   handler: async (ctx, args) => {
+    // Require admin access
+    await requireAdmin(ctx);
+    
     await ctx.db.patch(args.userId, {
       role: args.role,
       updatedAt: Date.now(),
@@ -80,10 +87,13 @@ export const updateUserOrganization = mutation({
   },
 });
 
-// Delete user
+// Delete user (Admin only)
 export const deleteUser = mutation({
   args: { userId: v.id("users") },
   handler: async (ctx, args) => {
+    // Require admin access
+    await requireAdmin(ctx);
+    
     await ctx.db.delete(args.userId);
     return args.userId;
   },

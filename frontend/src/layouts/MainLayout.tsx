@@ -3,12 +3,15 @@ import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Warehouse, Sprout, FlaskConical,
   GitMerge, BrainCircuit, ClipboardList, FileBarChart2,
-  Menu, X, LogOut, ChevronRight, Leaf, Sun, Moon, User,
+  Menu, X, LogOut, ChevronRight, Leaf, Sun, Moon,
 } from "lucide-react";
 import { useClerk, useUser } from "@clerk/clerk-react";
-import { useData } from "../contexts/DataContext";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { useData } from "../contexts/ConvexDataContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { useToast } from "../components/Toast";
+import { OrganizationSelector } from "../components/OrganizationSelector";
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -32,11 +35,14 @@ export default function MainLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user } = useUser();
   const { signOut } = useClerk();
-  const { organization } = useData();
+  const { organizationName } = useData();
   const { theme, toggleTheme } = useTheme();
   const { addToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Get current user from Convex
+  const currentUser = useQuery(api.auth.getCurrentUser);
 
   // Close mobile sidebar on route change
   useEffect(() => {
@@ -62,7 +68,7 @@ export default function MainLayout() {
     location.pathname === "/"
       ? "Dashboard"
       : location.pathname.slice(1).replace(/-/g, " ").split("/")[0];
-
+currentUser?.role || "OPERATOR";
   const userName = user?.fullName || user?.primaryEmailAddress?.emailAddress || "User";
   const userInitial = userName.charAt(0).toUpperCase();
   const userRole = "OPERATOR"; // Default role, will be fetched from Convex later
@@ -78,7 +84,7 @@ export default function MainLayout() {
         {(isDesktop ? sidebarOpen : true) && (
           <div className="overflow-hidden">
             <p className="font-bold text-gray-900 dark:text-gray-100 text-sm leading-none">AgroTech</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{organization.name}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{organizationName || "No Organization"}</p>
           </div>
         )}
         {/* Close button on mobile */}
@@ -204,10 +210,15 @@ export default function MainLayout() {
             </span>
           </div>
 
+          {/* Organization selector */}
+          <div className="ml-auto hidden md:block">
+            <OrganizationSelector />
+          </div>
+
           {/* Mobile dark mode toggle */}
           <button
             onClick={toggleTheme}
-            className="ml-auto p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 md:hidden"
+            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 md:hidden"
           >
             {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </button>

@@ -1,0 +1,97 @@
+import { Building2, Check } from "lucide-react";
+import { useOrganization } from "../contexts/OrganizationContext";
+import type { Id } from "../../convex/_generated/dataModel";
+import { useState, useRef, useEffect } from "react";
+
+export function OrganizationSelector() {
+  const { currentOrgId, setCurrentOrgId, organizations, isLoading } = useOrganization();
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const currentOrg = organizations?.find((org) => org._id === currentOrgId);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [isOpen]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse">
+        <Building2 className="w-4 h-4 text-slate-400" />
+        <span className="text-sm text-slate-500">Loading...</span>
+      </div>
+    );
+  }
+
+  if (!organizations || organizations.length === 0) {
+    return (
+      <div className="flex items-center gap-2 px-3 py-2 bg-amber-100 dark:bg-amber-900/20 rounded-lg">
+        <Building2 className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+        <span className="text-sm text-amber-700 dark:text-amber-300">No organizations</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+      >
+        <Building2 className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          {currentOrg?.name || "Select Organization"}
+        </span>
+        <svg
+          className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full mt-2 right-0 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg overflow-hidden z-50">
+          <div className="px-3 py-2 border-b border-slate-200 dark:border-slate-700">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+              Select Organization
+            </p>
+          </div>
+          <div className="max-h-64 overflow-y-auto">
+            {organizations.map((org) => (
+              <button
+                key={org._id}
+                onClick={() => {
+                  setCurrentOrgId(org._id as Id<"organizations">);
+                  setIsOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors ${
+                  currentOrgId === org._id
+                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                    : "text-slate-700 dark:text-slate-300"
+                }`}
+              >
+                <span className="font-medium">{org.name}</span>
+                {currentOrgId === org._id && (
+                  <Check className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

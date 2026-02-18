@@ -1,0 +1,429 @@
+import { createContext, useContext, useMemo, useCallback, type ReactNode } from "react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import type { Id } from "../../convex/_generated/dataModel";
+import { useOrganization } from "./OrganizationContext";
+import { useAuth } from "@clerk/clerk-react";
+import type { 
+  Warehouse, Crop, Resource, Allocation, AuditLog, 
+  CropResource, Suggestion 
+} from "../types";
+
+// Smart warehouse recommendation type
+export interface WarehouseRecommendation {
+  warehouse: Warehouse;
+  remainingCapacity: number;
+  utilization: number;
+  reason: string;
+}
+
+interface DataContextType {
+  // Organization
+  organizationId: Id<"organizations"> | null;
+  organizationName: string | undefined;
+  
+  // Warehouses
+  warehouses: Warehouse[] | undefined;
+  createWarehouse: (data: { name: string; location: string; totalCapacity: number }) => Promise<void>;
+  updateWarehouse: (id: Id<"warehouses">, data: { name?: string; location?: string; totalCapacity?: number }) => Promise<void>;
+  deleteWarehouse: (id: Id<"warehouses">) => Promise<void>;
+  getWarehouse: (id: Id<"warehouses">) => Warehouse | undefined;
+  
+  // Crops
+  crops: Crop[] | undefined;
+  createCrop: (data: { name: string; quantity: number }) => Promise<void>;
+  updateCrop: (id: Id<"crops">, data: { name?: string; quantity?: number; status?: "PLANTED" | "GROWING" | "HARVESTED" | "STORED" }) => Promise<void>;
+  deleteCrop: (id: Id<"crops">) => Promise<void>;
+  getCrop: (id: Id<"crops">) => Crop | undefined;
+  
+  // Resources
+  resources: Resource[] | undefined;
+  createResource: (data: { name: string; type: "FERTILIZER" | "PESTICIDE"; stockQuantity: number }) => Promise<void>;
+  updateResource: (id: Id<"resources">, data: { name?: string; stockQuantity?: number }) => Promise<void>;
+  deleteResource: (id: Id<"resources">) => Promise<void>;
+  adjustStock: (id: Id<"resources">, delta: number) => Promise<void>;
+  getResource: (id: Id<"resources">) => Resource | undefined;
+  
+  // Crop-Resource linking
+  cropResources: CropResource[] | undefined;
+  linkResource: (cropId: Id<"crops">, resourceId: Id<"resources">, requiredQuantity: number) => Promise<void>;
+  unlinkResource: (cropId: Id<"crops">, resourceId: Id<"resources">) => Promise<void>;
+  getResourcesForCrop: (cropId: Id<"crops">) => Array<CropResource & { resource?: Resource }>;
+  getCropsForResource: (resourceId: Id<"resources">) => Array<CropResource & { crop?: Crop }>;
+  
+  // Allocations
+  allocations: Allocation[] | undefined;
+  allocate: (cropId: Id<"crops">, warehouseId: Id<"warehouses">, quantity: number) => Promise<void>;
+  deallocate: (id: Id<"allocations">) => Promise<void>;
+  getAllocationsForWarehouse: (warehouseId: Id<"warehouses">) => Allocation[];
+  getAllocationsForCrop: (cropId: Id<"crops">) => Allocation[];
+  
+  // Audit Logs
+  auditLogs: AuditLog[] | undefined;
+  
+  // AI Suggestions
+  suggestions: Suggestion[];
+  recommendWarehouse: (cropId: Id<"crops">, quantity: number) => WarehouseRecommendation[];
+  
+  // Loading states
+  isLoading: boolean;
+}
+
+const DataContext = createContext<DataContextType | null>(null);
+
+export function useData() {
+  const ctx = useContext(DataContext);
+  if (!ctx) throw new Error("useData must be used within DataProvider");
+  return ctx;
+}
+
+export function DataProvider({ children }: { children: ReactNode }) {
+  const { currentOrgId } = useOrganization();
+  const { userId } = useAuth();
+
+  // Queries
+  const warehouses = useQuery(
+    api.warehouses.listWarehouses,
+    currentOrgId ? { organizationId: currentOrgId } : "skip"
+  );
+  
+  const crops = useQuery(
+    api.crops.listCrops,
+    currentOrgId ? { organizationId: currentOrgId } : "skip"
+  );
+  
+  const resources = useQuery(
+    api.resources.listResources,
+    currentOrgId ? { organizationId: currentOrgId } : "skip"
+  );
+  
+  const cropResources = useQuery(
+    api.resources.listCropResources,
+    currentOrgId ? { organizationId: currentOrgId } : "skip"
+  );
+  
+  const allocations = useQuery(
+    api.allocations.listAllocations,
+    currentOrgId ? { organizationId: currentOrgId } : "skip"
+  );
+  
+  const auditLogs = useQuery(
+    api.auditLogs.listAuditLogs,
+    currentOrgId ? { organizationId: currentOrgId } : "skip"
+  );
+
+  const currentOrg = useQuery(
+    api.organizations.getOrganization,
+    currentOrgId ? { id: currentOrgId } : "skip"
+  );
+
+  // Mutations
+  const createWarehouseMutation = useMutation(api.warehouses.createWarehouse);
+  const updateWarehouseMutation = useMutation(api.warehouses.updateWarehouse);
+  const deleteWarehouseMutation = useMutation(api.warehouses.deleteWarehouse);
+  
+  const createCropMutation = useMutation(api.crops.createCrop);
+  const updateCropMutation = useMutation(api.crops.updateCrop);
+  const deleteCropMutation = useMutation(api.crops.deleteCrop);
+  
+  const createResourceMutation = useMutation(api.resources.createResource);
+  const updateResourceMutation = useMutation(api.resources.updateResource);
+  const deleteResourceMutation = useMutation(api.resources.deleteResource);
+  const adjustStockMutation = useMutation(api.resources.adjustStock);
+  
+  const linkResourceMutation = useMutation(api.resources.linkResourceToCrop);
+  const unlinkResourceMutation = useMutation(api.resources.unlinkResourceFromCrop);
+  
+  const allocateMutation = useMutation(api.allocations.allocateCropToWarehouse);
+  const deallocateMutation = useMutation(api.allocations.deallocate);
+
+  // Warehouse operations
+  const createWarehouse = useCallback(async (data: { name: string; location: string; totalCapacity: number }) => {
+    if (!currentOrgId) throw new Error("No organization selected");
+    await createWarehouseMutation({
+      ...data,
+      organizationId: currentOrgId,
+    });
+  }, [currentOrgId, createWarehouseMutation]);
+
+  const updateWarehouse = useCallback(async (id: Id<"warehouses">, data: { name?: string; location?: string; totalCapacity?: number }) => {
+    await updateWarehouseMutation({ id, ...data });
+  }, [updateWarehouseMutation]);
+
+  const deleteWarehouse = useCallback(async (id: Id<"warehouses">) => {
+    await deleteWarehouseMutation({ id });
+  }, [deleteWarehouseMutation]);
+
+  const getWarehouse = useCallback((id: Id<"warehouses">) => {
+    return warehouses?.find(w => w._id === id);
+  }, [warehouses]);
+
+  // Crop operations
+  const createCrop = useCallback(async (data: { name: string; quantity: number }) => {
+    if (!currentOrgId) throw new Error("No organization selected");
+    await createCropMutation({
+      ...data,
+      organizationId: currentOrgId,
+    });
+  }, [currentOrgId, createCropMutation]);
+
+  const updateCrop = useCallback(async (id: Id<"crops">, data: { name?: string; quantity?: number; status?: "PLANTED" | "GROWING" | "HARVESTED" | "STORED" }) => {
+    await updateCropMutation({ id, ...data });
+  }, [updateCropMutation]);
+
+  const deleteCrop = useCallback(async (id: Id<"crops">) => {
+    await deleteCropMutation({ id });
+  }, [deleteCropMutation]);
+
+  const getCrop = useCallback((id: Id<"crops">) => {
+    return crops?.find(c => c._id === id);
+  }, [crops]);
+
+  // Resource operations
+  const createResource = useCallback(async (data: { name: string; type: "FERTILIZER" | "PESTICIDE"; stockQuantity: number }) => {
+    if (!currentOrgId) throw new Error("No organization selected");
+    await createResourceMutation({
+      ...data,
+      organizationId: currentOrgId,
+    });
+  }, [currentOrgId, createResourceMutation]);
+
+  const updateResource = useCallback(async (id: Id<"resources">, data: { name?: string; stockQuantity?: number }) => {
+    await updateResourceMutation({ id, ...data });
+  }, [updateResourceMutation]);
+
+  const deleteResource = useCallback(async (id: Id<"resources">) => {
+    await deleteResourceMutation({ id });
+  }, [deleteResourceMutation]);
+
+  const adjustStock = useCallback(async (id: Id<"resources">, delta: number) => {
+    await adjustStockMutation({ id, delta });
+  }, [adjustStockMutation]);
+
+  const getResource = useCallback((id: Id<"resources">) => {
+    return resources?.find(r => r._id === id);
+  }, [resources]);
+
+  // Crop-Resource linking
+  const linkResource = useCallback(async (cropId: Id<"crops">, resourceId: Id<"resources">, requiredQuantity: number) => {
+    await linkResourceMutation({ cropId, resourceId, requiredQuantity });
+  }, [linkResourceMutation]);
+
+  const unlinkResource = useCallback(async (cropId: Id<"crops">, resourceId: Id<"resources">) => {
+    await unlinkResourceMutation({ cropId, resourceId });
+  }, [unlinkResourceMutation]);
+
+  const getResourcesForCrop = useCallback((cropId: Id<"crops">) => {
+    if (!cropResources || !resources) return [];
+    return cropResources
+      .filter(cr => cr.cropId === cropId)
+      .map(cr => ({
+        ...cr,
+        resource: resources.find(r => r._id === cr.resourceId),
+      }));
+  }, [cropResources, resources]);
+
+  const getCropsForResource = useCallback((resourceId: Id<"resources">) => {
+    if (!cropResources || !crops) return [];
+    return cropResources
+      .filter(cr => cr.resourceId === resourceId)
+      .map(cr => ({
+        ...cr,
+        crop: crops.find(c => c._id === cr.cropId),
+      }));
+  }, [cropResources, crops]);
+
+  // Allocation operations
+  const allocate = useCallback(async (cropId: Id<"crops">, warehouseId: Id<"warehouses">, quantity: number) => {
+    if (!currentOrgId) throw new Error("No organization selected");
+    await allocateMutation({
+      cropId,
+      warehouseId,
+      quantity,
+      organizationId: currentOrgId,
+    });
+  }, [currentOrgId, allocateMutation]);
+
+  const deallocate = useCallback(async (id: Id<"allocations">) => {
+    await deallocateMutation({ id });
+  }, [deallocateMutation]);
+
+  const getAllocationsForWarehouse = useCallback((warehouseId: Id<"warehouses">) => {
+    if (!allocations) return [];
+    return allocations.filter(a => a.warehouseId === warehouseId);
+  }, [allocations]);
+
+  const getAllocationsForCrop = useCallback((cropId: Id<"crops">) => {
+    if (!allocations) return [];
+    return allocations.filter(a => a.cropId === cropId);
+  }, [allocations]);
+
+  // Smart warehouse recommendation (Phase 4.4)
+  const recommendWarehouse = useCallback((cropId: Id<"crops">, quantity: number): WarehouseRecommendation[] => {
+    if (!warehouses) return [];
+    
+    return warehouses
+      .map(wh => {
+        const remaining = wh.totalCapacity - wh.usedCapacity;
+        const util = wh.totalCapacity > 0 ? Math.round((wh.usedCapacity / wh.totalCapacity) * 100) : 100;
+        let reason = "";
+        if (remaining >= quantity) {
+          if (util < 50) reason = "Low utilization — plenty of room";
+          else if (util < 80) reason = "Good balance of space available";
+          else reason = "Tight fit but sufficient capacity";
+        }
+        return { warehouse: wh, remainingCapacity: remaining, utilization: util, reason };
+      })
+      .filter(r => r.remainingCapacity >= quantity && r.reason)
+      .sort((a, b) => a.utilization - b.utilization)
+      .slice(0, 3);
+  }, [warehouses]);
+
+  // AI Suggestions — auto-refresh on data changes (Phase 4.6)
+  const suggestions: Suggestion[] = useMemo(() => {
+    if (!warehouses || !resources || !crops || !allocations) return [];
+    
+    const s: Suggestion[] = [];
+
+    // Warehouse utilization warnings (4.2)
+    for (const wh of warehouses) {
+      const util = wh.totalCapacity > 0 ? (wh.usedCapacity / wh.totalCapacity) * 100 : 0;
+      if (util > 95) {
+        s.push({
+          type: "OPTIMIZATION",
+          title: `Critical: ${wh.name} nearly full`,
+          message: `${wh.name} is at ${util.toFixed(1)}% capacity. Immediate redistribution recommended.`,
+          severity: "critical",
+        });
+      } else if (util > 80) {
+        s.push({
+          type: "OPTIMIZATION",
+          title: `High utilization: ${wh.name}`,
+          message: `${wh.name} is at ${util.toFixed(1)}% capacity. Consider redistributing.`,
+          severity: "warning",
+        });
+      } else if (util < 20 && wh.usedCapacity > 0) {
+        s.push({
+          type: "OPTIMIZATION",
+          title: `Underutilized: ${wh.name}`,
+          message: `${wh.name} is only at ${util.toFixed(1)}% capacity. Consider consolidating.`,
+          severity: "info",
+        });
+      }
+    }
+
+    // Resource depletion warnings (4.3)
+    for (const r of resources) {
+      if (r.stockQuantity <= 0) {
+        s.push({
+          type: "DEPLETION_WARNING",
+          title: `Out of stock: ${r.name}`,
+          message: `${r.name} (${r.type}) is completely depleted. Restock immediately.`,
+          severity: "critical",
+        });
+      } else if (r.stockQuantity < 50) {
+        s.push({
+          type: "DEPLETION_WARNING",
+          title: `Low stock: ${r.name}`,
+          message: `${r.name} has only ${r.stockQuantity} units remaining. Consider restocking.`,
+          severity: "warning",
+        });
+      }
+    }
+
+    // Redistribution targets (4.2 enhancement)
+    const overloaded = warehouses.filter(wh => wh.totalCapacity > 0 && (wh.usedCapacity / wh.totalCapacity) > 0.9);
+    const underutilized = warehouses
+      .filter(wh => wh.totalCapacity > 0 && (wh.usedCapacity / wh.totalCapacity) < 0.5)
+      .sort((a, b) => (a.usedCapacity / a.totalCapacity) - (b.usedCapacity / b.totalCapacity));
+
+    if (overloaded.length > 0 && underutilized.length > 0) {
+      s.push({
+        type: "RECOMMENDATION",
+        title: "Redistribution opportunity",
+        message: `Move stock from ${overloaded.map(w => w.name).join(", ")} to ${underutilized.slice(0, 2).map(w => `${w.name} (${(w.totalCapacity - w.usedCapacity).toLocaleString()} free)`).join(", ")}.`,
+        severity: "warning",
+        data: { overloaded: overloaded.map(w => w._id), targets: underutilized.slice(0, 2).map(w => w._id) },
+      });
+    }
+
+    // Best warehouses for new allocations
+    const bestOptions = warehouses
+      .filter(wh => wh.totalCapacity > 0 && (wh.usedCapacity / wh.totalCapacity) < 0.5)
+      .sort((a, b) => (a.usedCapacity / a.totalCapacity) - (b.usedCapacity / b.totalCapacity))
+      .slice(0, 3);
+    if (bestOptions.length > 0) {
+      s.push({
+        type: "RECOMMENDATION",
+        title: "Best warehouses for new allocations",
+        message: `Top picks: ${bestOptions.map(w => `${w.name} (${Math.round((w.usedCapacity / w.totalCapacity) * 100)}% used)`).join(", ")}`,
+        severity: "info",
+      });
+    }
+
+    // Demand forecast (4.5)
+    for (const crop of crops) {
+      const ca = allocations.filter(a => a.cropId === crop._id);
+      if (ca.length >= 2) {
+        const total = ca.reduce((sum, a) => sum + a.allocatedQuantity, 0);
+        const avgAllocation = total / ca.length;
+        const sorted = [...ca].sort((a, b) => a.createdAt - b.createdAt);
+        const daySpan = Math.max(1, (sorted[sorted.length - 1].createdAt - sorted[0].createdAt) / 86400000);
+        const dailyRate = total / daySpan;
+        const forecast30 = Math.round(dailyRate * 30);
+        s.push({
+          type: "FORECAST",
+          title: `Demand trend: ${crop.name}`,
+          message: `Avg allocation: ${avgAllocation.toFixed(0)} units. Estimated 30-day demand: ~${forecast30.toLocaleString()} units based on ${ca.length} allocations over ${Math.round(daySpan)} days.`,
+          severity: "info",
+          data: { cropId: crop._id, dailyRate, forecast30 },
+        });
+      }
+    }
+
+    return s;
+  }, [warehouses, resources, crops, allocations]);
+
+  const isLoading = warehouses === undefined || crops === undefined || resources === undefined;
+
+  return (
+    <DataContext.Provider
+      value={{
+        organizationId: currentOrgId,
+        organizationName: currentOrg?.name,
+        warehouses,
+        createWarehouse,
+        updateWarehouse,
+        deleteWarehouse,
+        getWarehouse,
+        crops,
+        createCrop,
+        updateCrop,
+        deleteCrop,
+        getCrop,
+        resources,
+        createResource,
+        updateResource,
+        deleteResource,
+        adjustStock,
+        getResource,
+        cropResources,
+        linkResource,
+        unlinkResource,
+        getResourcesForCrop,
+        getCropsForResource,
+        allocations,
+        allocate,
+        deallocate,
+        getAllocationsForWarehouse,
+        getAllocationsForCrop,
+        auditLogs,
+        suggestions,
+        recommendWarehouse,
+        isLoading,
+      }}
+    >
+      {children}
+    </DataContext.Provider>
+  );
+}
