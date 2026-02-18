@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { 
   Trash2, 
-  Archive, 
   Download, 
   Plus,
   Check,
@@ -58,7 +57,7 @@ export default function BulkActions({
   const [loading, setLoading] = useState<string | null>(null);
   
   const { createOperation, updateProgress, setResult, setError } = useBulkOperations();
-  const { addOptimisticUpdate, removeOptimisticUpdate } = useOptimisticUpdates();
+  const { applyOptimisticUpdate, clearOptimisticUpdate } = useOptimisticUpdates();
 
   const statusConfigs = statusOptions || STATUS_CONFIGS[itemType];
 
@@ -76,8 +75,8 @@ export default function BulkActions({
     const operationId = createOperation(`Update status to ${status}`, selectedIds.length);
 
     // Add optimistic updates
-    const optimisticUpdates = selectedIds.map(id => 
-      addOptimisticUpdate('status', id, { status })
+    selectedIds.forEach(id => 
+      applyOptimisticUpdate(id, { status } as Partial<{ _id: string }>)
     );
 
     try {
@@ -106,7 +105,7 @@ export default function BulkActions({
 
     } catch (error) {
       // Remove optimistic updates on error
-      optimisticUpdates.forEach(updateId => removeOptimisticUpdate(updateId));
+      selectedIds.forEach(id => clearOptimisticUpdate(id));
       setError(operationId, (error as Error).message);
     } finally {
       setLoading(null);
@@ -123,8 +122,8 @@ export default function BulkActions({
     const operationId = createOperation(`Delete ${itemType}`, selectedIds.length);
 
     // Add optimistic updates (mark as deleted)
-    const optimisticUpdates = selectedIds.map(id => 
-      addOptimisticUpdate('delete', id, { deleted: true })
+    selectedIds.forEach(id => 
+      applyOptimisticUpdate(id, { deleted: true } as Partial<{ _id: string }>)
     );
 
     try {
@@ -151,7 +150,7 @@ export default function BulkActions({
 
     } catch (error) {
       // Remove optimistic updates on error
-      optimisticUpdates.forEach(updateId => removeOptimisticUpdate(updateId));
+      selectedIds.forEach(id => clearOptimisticUpdate(id));
       setError(operationId, (error as Error).message);
     } finally {
       setLoading(null);

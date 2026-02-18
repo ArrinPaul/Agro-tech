@@ -85,32 +85,32 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const warehouses = useQuery(
     api.warehouses.listWarehouses,
     currentOrgId ? { organizationId: currentOrgId } : "skip"
-  );
+  ) as Warehouse[] | undefined;
   
   const crops = useQuery(
     api.crops.listCrops,
     currentOrgId ? { organizationId: currentOrgId } : "skip"
-  );
+  ) as Crop[] | undefined;
   
   const resources = useQuery(
     api.resources.listResources,
     currentOrgId ? { organizationId: currentOrgId } : "skip"
-  );
+  ) as Resource[] | undefined;
   
   const cropResources = useQuery(
     api.resources.listCropResources,
     currentOrgId ? { organizationId: currentOrgId } : "skip"
-  );
+  ) as CropResource[] | undefined;
   
   const allocations = useQuery(
     api.allocations.listAllocations,
     currentOrgId ? { organizationId: currentOrgId } : "skip"
-  );
+  ) as Allocation[] | undefined;
   
   const auditLogs = useQuery(
     api.auditLogs.listAuditLogs,
     currentOrgId ? { organizationId: currentOrgId } : "skip"
-  );
+  ) as AuditLog[] | undefined;
 
   const currentOrg = useQuery(
     api.organizations.getOrganization,

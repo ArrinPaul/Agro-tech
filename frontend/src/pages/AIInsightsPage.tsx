@@ -4,9 +4,9 @@ import { useData } from "../contexts/DataContext";
 import type { Suggestion } from "../types";
 
 const SEV_CONFIG = {
-  critical: { bg: "bg-red-50", border: "border-red-400", text: "text-red-800", badge: "bg-red-100 text-red-700", icon: AlertTriangle, iconColor: "text-red-600" },
-  warning:  { bg: "bg-yellow-50", border: "border-yellow-400", text: "text-yellow-800", badge: "bg-yellow-100 text-yellow-700", icon: AlertTriangle, iconColor: "text-yellow-600" },
-  info:     { bg: "bg-blue-50", border: "border-blue-400", text: "text-blue-800", badge: "bg-blue-100 text-blue-700", icon: Info, iconColor: "text-blue-600" },
+  critical: { bg: "bg-red-50 dark:bg-red-900/30", border: "border-red-400 dark:border-red-700", text: "text-red-800 dark:text-red-300", badge: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300", icon: AlertTriangle, iconColor: "text-red-600 dark:text-red-400" },
+  warning:  { bg: "bg-yellow-50 dark:bg-yellow-900/30", border: "border-yellow-400 dark:border-yellow-700", text: "text-yellow-800 dark:text-yellow-300", badge: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300", icon: AlertTriangle, iconColor: "text-yellow-600 dark:text-yellow-400" },
+  info:     { bg: "bg-blue-50 dark:bg-blue-900/30", border: "border-blue-400 dark:border-blue-700", text: "text-blue-800 dark:text-blue-300", badge: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300", icon: Info, iconColor: "text-blue-600 dark:text-blue-400" },
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -28,7 +28,7 @@ function SuggestionCard({ s, onDismiss }: { s: Suggestion & { id: number }; onDi
   const TypeIcon = TYPE_ICONS[s.type] ?? Info;
   return (
     <div className={`rounded-xl border-l-4 ${cfg.border} ${cfg.bg} p-4 relative`}>
-      <button onClick={() => onDismiss(s.id)} className="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
+      <button onClick={() => onDismiss(s.id)} className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
         <X size={15} />
       </button>
       <div className="flex items-start gap-3">
@@ -41,11 +41,11 @@ function SuggestionCard({ s, onDismiss }: { s: Suggestion & { id: number }; onDi
             <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.badge}`}>
               {s.severity.toUpperCase()}
             </span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium">
               {TYPE_LABELS[s.type]}
             </span>
           </div>
-          <p className="text-sm text-gray-700">{s.message}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300">{s.message}</p>
         </div>
       </div>
     </div>
@@ -75,10 +75,10 @@ export default function AIInsightsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <BrainCircuit className="text-purple-600" size={26} /> AI Insights
           </h1>
-          <p className="text-sm text-gray-500 mt-0.5">Smart suggestions based on your data</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Smart suggestions based on your data</p>
         </div>
         {dismissed.size > 0 && (
           <button onClick={() => setDismissed(new Set())} className="text-sm text-blue-600 hover:underline">
@@ -89,13 +89,13 @@ export default function AIInsightsPage() {
 
       {/* Summary badges */}
       <div className="flex gap-3 flex-wrap">
-        <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-sm text-red-700">
+        <div className="flex items-center gap-2 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg px-3 py-2 text-sm text-red-700 dark:text-red-300">
           <AlertTriangle size={14} /> {critCount} Critical
         </div>
-        <div className="flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 text-sm text-yellow-700">
+        <div className="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg px-3 py-2 text-sm text-yellow-700 dark:text-yellow-300">
           <AlertTriangle size={14} /> {warnCount} Warning
         </div>
-        <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 text-sm text-blue-700">
+        <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg px-3 py-2 text-sm text-blue-700 dark:text-blue-300">
           <Info size={14} /> {infoCount} Info
         </div>
       </div>
@@ -105,7 +105,7 @@ export default function AIInsightsPage() {
         <div className="flex gap-1">
           {["ALL", "OPTIMIZATION", "DEPLETION_WARNING", "RECOMMENDATION", "FORECAST"].map((t) => (
             <button key={t} onClick={() => setTypeFilter(t)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${typeFilter === t ? "bg-purple-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"}`}>
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${typeFilter === t ? "bg-purple-600 text-white" : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"}`}>
               {t === "ALL" ? "All Types" : TYPE_LABELS[t]}
             </button>
           ))}
@@ -113,7 +113,7 @@ export default function AIInsightsPage() {
         <div className="flex gap-1">
           {["ALL", "critical", "warning", "info"].map((s) => (
             <button key={s} onClick={() => setSevFilter(s)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors capitalize ${sevFilter === s ? "bg-gray-800 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"}`}>
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors capitalize ${sevFilter === s ? "bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900" : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"}`}>
               {s === "ALL" ? "All Severity" : s}
             </button>
           ))}
@@ -121,10 +121,10 @@ export default function AIInsightsPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-200 py-16 text-center">
-          <BrainCircuit size={40} className="mx-auto text-gray-300 mb-3" />
-          <p className="text-gray-500 font-medium">No insights to show</p>
-          <p className="text-sm text-gray-400 mt-1">All clear! Or try adjusting filters.</p>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 py-16 text-center">
+          <BrainCircuit size={40} className="mx-auto text-gray-300 dark:text-gray-600 mb-3" />
+          <p className="text-gray-500 dark:text-gray-400 font-medium">No insights to show</p>
+          <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">All clear! Or try adjusting filters.</p>
         </div>
       ) : (
         <div className="space-y-3">

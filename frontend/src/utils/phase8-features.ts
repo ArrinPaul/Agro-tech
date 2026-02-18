@@ -1,7 +1,6 @@
 // Phase 8 Advanced Features - Notifications & Bulk Operations
 
-import { useState, useEffect, useCallback } from "react";
-import { useToast } from "../components/Toast";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 // Notification types for Phase 8
 export interface Notification {
@@ -29,7 +28,7 @@ export class NotificationManager {
     if (saved) {
       try {
         this.notifications = JSON.parse(saved);
-      } catch (e) {
+      } catch {
         console.warn("Failed to load notifications from storage");
       }
     }
@@ -128,7 +127,7 @@ export function useNotifications() {
 // CSV Import/Export utilities
 export interface CSVImportResult<T> {
   success: T[];
-  errors: Array<{ row: number; error: string; data: any }>;
+  errors: Array<{ row: number; error: string; data: Record<string, string> }>;
   summary: {
     total: number;
     successful: number;
@@ -138,7 +137,7 @@ export interface CSVImportResult<T> {
 
 export async function parseCSVFile<T>(
   file: File,
-  validator: (row: any, index: number) => { isValid: boolean; data?: T; error?: string },
+  validator: (row: Record<string, string>, index: number) => { isValid: boolean; data?: T; error?: string },
   expectedHeaders?: string[]
 ): Promise<CSVImportResult<T>> {
   const text = await file.text();
@@ -158,11 +157,11 @@ export async function parseCSVFile<T>(
   }
 
   const success: T[] = [];
-  const errors: Array<{ row: number; error: string; data: any }> = [];
+  const errors: Array<{ row: number; error: string; data: Record<string, string> }> = [];
 
   for (let i = 1; i < lines.length; i++) {
     const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
-    const rowData: any = {};
+    const rowData: Record<string, string> = {};
     
     headers.forEach((header, index) => {
       rowData[header] = values[index] || '';
@@ -198,7 +197,7 @@ export interface BulkOperation {
   status: "pending" | "running" | "completed" | "failed";
   progress: number;
   total: number;
-  result?: any;
+  result?: unknown;
   error?: string;
   createdAt: number;
 }
@@ -256,7 +255,7 @@ export class BulkOperationManager {
     }
   }
 
-  setResult(id: string, result: any) {
+  setResult(id: string, result: unknown) {
     const operation = this.operations.get(id);
     if (operation) {
       operation.status = "completed";
@@ -294,10 +293,8 @@ export function useBulkOperations() {
 
 // Auto-notification triggers for common events
 export function createAutoNotifications() {
-  const { addToast } = useToast();
-
   // Critical capacity warnings
-  const checkWarehouseCapacity = (warehouses: any[]) => {
+  const checkWarehouseCapacity = (warehouses: Array<{ _id: string; name: string; usedCapacity: number; totalCapacity: number }>) => {
     warehouses.forEach(warehouse => {
       const utilizationPct = (warehouse.usedCapacity / warehouse.totalCapacity) * 100;
       
@@ -337,7 +334,7 @@ export function createAutoNotifications() {
   };
 
   // Resource depletion warnings
-  const checkResourceDepletion = (resources: any[]) => {
+  const checkResourceDepletion = (resources: Array<{ _id: string; name: string; stockQuantity: number }>) => {
     resources.forEach(resource => {
       if (resource.stockQuantity <= 10) {
         notificationManager.addNotification({
@@ -366,10 +363,10 @@ export function createAutoNotifications() {
 export function useAdvancedSearch<T>(
   data: T[],
   searchFields: (keyof T)[],
-  filterFields?: Partial<Record<keyof T, any>>
+  filterFields?: Partial<Record<keyof T, unknown>>
 ) {
   const [query, setQuery] = useState("");
-  const [filters, setFilters] = useState<Partial<Record<keyof T, any>>>(filterFields || {});
+  const [filters, setFilters] = useState<Partial<Record<keyof T, unknown>>>(filterFields || {});
 
   const filteredData = useMemo(() => {
     return data.filter(item => {
@@ -397,7 +394,7 @@ export function useAdvancedSearch<T>(
     query,
     setQuery,
     filters,
-    setFilter: (key: keyof T, value: any) => {
+    setFilter: (key: keyof T, value: unknown) => {
       setFilters(prev => ({ ...prev, [key]: value }));
     },
     clearFilters: () => setFilters({}),
@@ -407,10 +404,10 @@ export function useAdvancedSearch<T>(
 
 // Cache management for expensive operations
 export class CacheManager {
-  private cache = new Map<string, { value: any; expiry: number; lastAccessed: number }>();
+  private cache = new Map<string, { value: unknown; expiry: number; lastAccessed: number }>();
   private defaultTTL = 5 * 60 * 1000; // 5 minutes
 
-  set(key: string, value: any, ttl: number = this.defaultTTL) {
+  set(key: string, value: unknown, ttl: number = this.defaultTTL) {
     this.cache.set(key, {
       value,
       expiry: Date.now() + ttl,
@@ -418,7 +415,7 @@ export class CacheManager {
     });
   }
 
-  get(key: string): any {
+  get(key: string): unknown {
     const cached = this.cache.get(key);
     if (!cached) return null;
 
@@ -446,9 +443,9 @@ export class CacheManager {
   // Clean up expired entries
   cleanup() {
     const now = Date.now();
-    for (const [key, cached] of this.cache.entries()) {
+    for (const [_key, cached] of this.cache.entries()) {
       if (now > cached.expiry) {
-        this.cache.delete(key);
+        this.cache.delete(_key);
       }
     }
   }
@@ -460,7 +457,7 @@ export class CacheManager {
     let expired = 0;
     let totalSize = 0;
 
-    for (const [key, cached] of this.cache.entries()) {
+    for (const [, cached] of this.cache.entries()) {
       totalSize += JSON.stringify(cached.value).length;
       if (now > cached.expiry) {
         expired++;

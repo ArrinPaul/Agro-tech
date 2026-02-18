@@ -13,6 +13,7 @@ import { useData } from "../contexts/ConvexDataContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { useToast } from "../components/Toast";
 import { OrganizationSelector } from "../components/OrganizationSelector";
+import NotificationPanel from "../components/NotificationPanel";
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -216,8 +217,11 @@ export default function MainLayout() {
           </div>
 
           {/* Organization selector */}
-          <div className="ml-auto hidden md:block">
-            <OrganizationSelector />
+          <div className="ml-auto flex items-center gap-2">
+            <NotificationPanel />
+            <div className="hidden md:block">
+              <OrganizationSelector />
+            </div>
           </div>
 
           {/* Mobile dark mode toggle */}

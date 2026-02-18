@@ -64,15 +64,15 @@ export function useKeyboardShortcuts(shortcuts: Record<string, () => void>) {
 }
 
 // Advanced form validation hook
-export function useFormValidation<T extends Record<string, any>>(
+export function useFormValidation<T extends Record<string, unknown>>(
   initialValues: T,
-  validators: Partial<Record<keyof T, (value: any, formData: T) => string | null>>
+  validators: Partial<Record<keyof T, (value: T[keyof T], formData: T) => string | null>>
 ) {
   const [values, setValues] = useState<T>(initialValues);
   const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
   const [touched, setTouched] = useState<Partial<Record<keyof T, boolean>>>({});
 
-  const setValue = useCallback((field: keyof T, value: any) => {
+  const setValue = useCallback((field: keyof T, value: T[keyof T]) => {
     setValues(prev => ({ ...prev, [field]: value }));
     
     // Clear error when user starts typing
@@ -162,7 +162,7 @@ export function useCachedData<T>(
             setData(cachedData);
             return;
           }
-        } catch (e) {
+        } catch {
           // Invalid cache, continue with fetch
         }
       }

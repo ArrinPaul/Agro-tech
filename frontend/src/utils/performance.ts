@@ -1,5 +1,14 @@
 // Performance optimization utilities for AgroTech platform
 
+export interface PaginatedResult<T> {
+  items: T[];
+  totalPages: number;
+  currentPage: number;
+  totalItems: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
 /**
  * Pagination helper for large datasets
  * @param items - Array of items to paginate
@@ -11,14 +20,7 @@ export function paginate<T>(
   items: T[],
   page: number = 1,
   pageSize: number = 25
-): {
-  items: T[];
-  totalPages: number;
-  currentPage: number;
-  totalItems: number;
-  hasNext: boolean;
-  hasPrev: boolean;
-} {
+): PaginatedResult<T> {
   const totalItems = items.length;
   const totalPages = Math.ceil(totalItems / pageSize);
   const currentPage = Math.max(1, Math.min(page, totalPages));
@@ -46,7 +48,7 @@ export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number = 300
 ): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout | null = null;
+  let timeout: ReturnType<typeof setTimeout> | null = null;
 
   return (...args: Parameters<T>) => {
     if (timeout) clearTimeout(timeout);

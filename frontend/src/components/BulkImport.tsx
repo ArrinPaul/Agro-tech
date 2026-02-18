@@ -1,11 +1,11 @@
 import { useState, useRef } from "react";
-import { Upload, Download, FileText, AlertCircle, CheckCircle, X, Eye } from "lucide-react";
+import { Upload, Download, FileText, AlertCircle, X, Eye } from "lucide-react";
 import { parseCSVFile, useBulkOperations, type CSVImportResult } from "../utils/phase8-features";
 import { validateStringLength, validateNumberRange } from "../utils/security";
 import Modal from "./Modal";
 
 interface BulkImportProps {
-  onImport: (items: any[]) => Promise<void>;
+  onImport: (items: unknown[]) => Promise<void>;
   importType: "crops" | "warehouses" | "resources";
   isOpen: boolean;
   onClose: () => void;
@@ -42,7 +42,7 @@ const IMPORT_TEMPLATES = {
 };
 
 const VALIDATORS = {
-  crops: (row: any, index: number) => {
+  crops: (row: Record<string, string>) => {
     const errors: string[] = [];
     
     // Validate name
@@ -74,7 +74,7 @@ const VALIDATORS = {
     };
   },
   
-  warehouses: (row: any, index: number) => {
+  warehouses: (row: Record<string, string>) => {
     const errors: string[] = [];
     
     // Validate name
@@ -104,7 +104,7 @@ const VALIDATORS = {
     };
   },
   
-  resources: (row: any, index: number) => {
+  resources: (row: Record<string, string>) => {
     const errors: string[] = [];
     
     // Validate name
@@ -142,7 +142,7 @@ export default function BulkImport({ onImport, importType, isOpen, onClose }: Bu
   const [file, setFile] = useState<File | null>(null);
   const [parsing, setParsing] = useState(false);
   const [importing, setImporting] = useState(false);
-  const [result, setResult] = useState<CSVImportResult<any> | null>(null);
+  const [result, setResult] = useState<CSVImportResult<unknown> | null>(null);
   const [showErrors, setShowErrors] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { createOperation, updateProgress, setError: setBulkError, setResult: setBulkResult } = useBulkOperations();
@@ -204,7 +204,8 @@ export default function BulkImport({ onImport, importType, isOpen, onClose }: Bu
     setResult(null);
 
     try {
-      const parseResult = await parseCSVFile(selectedFile, validator, template.headers);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const parseResult = await parseCSVFile(selectedFile, validator as any, template.headers);
       setResult(parseResult);
     } catch (error) {
       alert(`Error parsing CSV: ${error}`);
@@ -263,7 +264,7 @@ export default function BulkImport({ onImport, importType, isOpen, onClose }: Bu
   };
 
   return (
-    <Modal open={isOpen} onClose={handleClose} title={`Bulk Import ${importType.charAt(0).toUpperCase() + importType.slice(1)}`} size="lg">
+    <Modal open={isOpen} onClose={handleClose} title={`Bulk Import ${importType.charAt(0).toUpperCase() + importType.slice(1)}`}>
       <div className="space-y-6">
         {/* Step 1: Download Template */}
         <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">

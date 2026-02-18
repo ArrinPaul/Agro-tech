@@ -226,7 +226,7 @@ export interface AuditLogEntry {
   entityId: string;
   userId: string;
   timestamp: number;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   ipAddress?: string;
   userAgent?: string;
 }
@@ -236,7 +236,7 @@ export function createAuditLogEntry(
   entityType: string,
   entityId: string,
   userId: string,
-  details?: Record<string, any>
+  details?: Record<string, unknown>
 ): Omit<AuditLogEntry, "timestamp"> {
   return {
     action,

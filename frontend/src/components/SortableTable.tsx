@@ -1,8 +1,8 @@
-import { useState, useMemo, ReactNode } from "react";
-import { ChevronUp, ChevronDown, Filter, Eye, EyeOff } from "lucide-react";
-import Skeleton from "./Skeleton";
+import { useState, useMemo, type ReactNode } from "react";
+import { ChevronUp, ChevronDown, Filter, EyeOff } from "lucide-react";
+import { Skeleton } from "./Skeleton";
 
-export interface BaseSortableTableColumn<T = any> {
+export interface BaseSortableTableColumn<T = unknown> {
   key: string;
   label: string;
   sortable?: boolean;
@@ -14,12 +14,12 @@ export interface BaseSortableTableColumn<T = any> {
   filterOptions?: { value: string; label: string }[];
 }
 
-export interface SortableTableProps<T = any> {
+export interface SortableTableProps<T = unknown> {
   columns: BaseSortableTableColumn<T>[];
   data: T[];
   loading?: boolean;
   onSort?: (key: string, direction: "asc" | "desc") => void;
-  onFilter?: (filters: Record<string, any>) => void;
+  onFilter?: (filters: Record<string, unknown>) => void;
   selectable?: boolean;
   selectedIds?: string[];
   onSelectionChange?: (ids: string[]) => void;
@@ -31,7 +31,7 @@ export interface SortableTableProps<T = any> {
   maxHeight?: string;
 }
 
-export default function SortableTable<T extends Record<string, any>>({
+export default function SortableTable<T extends Record<string, unknown>>({
   columns: initialColumns,
   data,
   loading = false,
@@ -49,7 +49,7 @@ export default function SortableTable<T extends Record<string, any>>({
 }: SortableTableProps<T>) {
   const [sortKey, setSortKey] = useState<string>("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [filters, setFilters] = useState<Record<string, any>>({});
+  const [filters, setFilters] = useState<Record<string, unknown>>({});
   const [hiddenColumns, setHiddenColumns] = useState<Set<string>>(new Set());
   const [showColumnMenu, setShowColumnMenu] = useState(false);
 
@@ -73,7 +73,7 @@ export default function SortableTable<T extends Record<string, any>>({
   };
 
   // Handle filtering
-  const handleFilterChange = (key: string, value: any) => {
+  const handleFilterChange = (key: string, value: unknown) => {
     const newFilters = { ...filters, [key]: value };
     if (!value || value === "") {
       delete newFilters[key];
@@ -90,7 +90,7 @@ export default function SortableTable<T extends Record<string, any>>({
     if (isAllSelected) {
       onSelectionChange?.([]);
     } else {
-      const allIds = data.map(item => item[idKey]);
+      const allIds = data.map(item => String(item[idKey]));
       onSelectionChange?.(allIds);
     }
   };
@@ -114,7 +114,7 @@ export default function SortableTable<T extends Record<string, any>>({
   };
 
   const renderFilterInput = (column: BaseSortableTableColumn<T>) => {
-    const value = filters[column.key] || "";
+    const value = (filters[column.key] as string) || "";
     
     switch (column.filterType) {
       case "select":
@@ -282,7 +282,7 @@ export default function SortableTable<T extends Record<string, any>>({
                     {column.filterable && (
                       <div className="relative">
                         {renderFilterInput(column)}
-                        {filters[column.key] && (
+                        {!!filters[column.key] && (
                           <Filter size={12} className="absolute right-2 top-1/2 transform -translate-y-1/2 text-blue-600 dark:text-blue-400" />
                         )}
                       </div>
@@ -319,7 +319,7 @@ export default function SortableTable<T extends Record<string, any>>({
             ) : (
               // Data rows
               data.map((item, index) => {
-                const itemId = item[idKey];
+                const itemId = String(item[idKey]);
                 const isSelected = selectedIds.includes(itemId);
                 
                 return (
@@ -344,7 +344,7 @@ export default function SortableTable<T extends Record<string, any>>({
                     {/* Data cells */}
                     {visibleColumns.map((column) => (
                       <td key={column.key} className={`p-3 ${column.className || ""}`}>
-                        {column.render ? column.render(item, index) : item[column.key]}
+                        {column.render ? column.render(item, index) : String(item[column.key] ?? "")}
                       </td>
                     ))}
                   </tr>

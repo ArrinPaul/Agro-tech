@@ -161,8 +161,8 @@ export default function ReportsPage() {
         return (
             <div className="flex items-center justify-center h-64">
                 <div className="text-center">
-                    <AlertCircle className="text-gray-400 mx-auto mb-3" size={32} />
-                    <p className="text-gray-500">Please select an organization</p>
+                    <AlertCircle className="text-gray-400 dark:text-gray-500 mx-auto mb-3" size={32} />
+                    <p className="text-gray-500 dark:text-gray-400">Please select an organization</p>
                 </div>
             </div>
         );
@@ -173,7 +173,7 @@ export default function ReportsPage() {
             <div className="flex items-center justify-center h-64">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mx-auto mb-3"></div>
-                    <p className="text-gray-500">Loading report...</p>
+                    <p className="text-gray-500 dark:text-gray-400">Loading report...</p>
                 </div>
             </div>
         );
@@ -184,10 +184,10 @@ export default function ReportsPage() {
             {/* Header */}
             <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                         <FileBarChart2 className="text-green-600" size={24} /> Reports
                     </h1>
-                    <p className="text-sm text-gray-500 mt-0.5">Generate and export detailed reports</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Generate and export detailed reports</p>
                 </div>
                 <button
                     onClick={handleExport}
@@ -205,7 +205,7 @@ export default function ReportsPage() {
                         onClick={() => setTab(key)}
                         className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${tab === key
                             ? "bg-green-600 text-white"
-                            : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                            : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                             }`}
                     >
                         <Icon size={16} /> {label}
@@ -217,32 +217,32 @@ export default function ReportsPage() {
             {tab !== "dashboard" && (
                 <div className="flex items-center justify-between flex-wrap gap-3">
                     <div className="flex items-center gap-2 text-sm">
-                        <Calendar size={15} className="text-gray-400" />
+                        <Calendar size={15} className="text-gray-400 dark:text-gray-500" />
                         <input
                             type="date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
-                            className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                            className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
-                        <span className="text-gray-400">to</span>
+                        <span className="text-gray-400 dark:text-gray-500">to</span>
                         <input
                             type="date"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
-                            className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                            className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
                     </div>
 
                     {tab === "allocation" && (
                         <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-600 font-medium">Group by:</span>
+                            <span className="text-sm text-gray-600 dark:text-gray-300 font-medium">Group by:</span>
                             {(["crop", "warehouse", "date"] as GroupBy[]).map((g) => (
                                 <button
                                     key={g}
                                     onClick={() => setGroupBy(g)}
                                     className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors capitalize ${groupBy === g
                                         ? "bg-green-600 text-white"
-                                        : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                                        : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                                         }`}
                                 >
                                     {g}
@@ -258,44 +258,44 @@ export default function ReportsPage() {
                 <>
                     {/* Summary Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="bg-white rounded-xl border border-gray-200 p-4">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm text-gray-500">Total Warehouses</p>
-                                    <p className="text-2xl font-bold text-gray-900 mt-1">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Total Warehouses</p>
+                                    <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
                                         {dashboardSummary.summary.totalWarehouses}
                                     </p>
                                 </div>
                                 <Warehouse className="text-blue-600" size={32} />
                             </div>
                         </div>
-                        <div className="bg-white rounded-xl border border-gray-200 p-4">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm text-gray-500">Total Crops</p>
-                                    <p className="text-2xl font-bold text-gray-900 mt-1">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Total Crops</p>
+                                    <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
                                         {dashboardSummary.summary.totalCrops}
                                     </p>
                                 </div>
                                 <TrendingUp className="text-green-600" size={32} />
                             </div>
                         </div>
-                        <div className="bg-white rounded-xl border border-gray-200 p-4">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm text-gray-500">Total Allocations</p>
-                                    <p className="text-2xl font-bold text-gray-900 mt-1">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Total Allocations</p>
+                                    <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
                                         {dashboardSummary.summary.totalAllocations}
                                     </p>
                                 </div>
                                 <GitMerge className="text-purple-600" size={32} />
                             </div>
                         </div>
-                        <div className="bg-white rounded-xl border border-gray-200 p-4">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm text-gray-500">Avg Utilization</p>
-                                    <p className="text-2xl font-bold text-gray-900 mt-1">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Avg Utilization</p>
+                                    <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
                                         {dashboardSummary.summary.avgUtilization.toFixed(1)}%
                                     </p>
                                 </div>
@@ -306,8 +306,8 @@ export default function ReportsPage() {
 
                     {/* Warehouse Utilization Chart */}
                     {dashboardSummary.warehouseUtilization && dashboardSummary.warehouseUtilization.length > 0 && (
-                        <div className="bg-white rounded-xl border border-gray-200 p-5">
-                            <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+                            <h2 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                                 <Warehouse size={18} /> Warehouse Utilization
                             </h2>
                             <ResponsiveContainer width="100%" height={250}>
@@ -328,26 +328,26 @@ export default function ReportsPage() {
 
                     {/* Resource Status */}
                     {dashboardSummary.resourceStatus && (
-                        <div className="bg-white rounded-xl border border-gray-200 p-5">
-                            <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+                            <h2 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                                 <FlaskConical size={18} /> Resource Status
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                                    <p className="text-sm text-green-700 font-medium">In Stock</p>
-                                    <p className="text-3xl font-bold text-green-900 mt-2">
+                                <div className="p-4 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-800">
+                                    <p className="text-sm text-green-700 dark:text-green-400 font-medium">In Stock</p>
+                                    <p className="text-3xl font-bold text-green-900 dark:text-green-300 mt-2">
                                         {dashboardSummary.resourceStatus.inStock || 0}
                                     </p>
                                 </div>
-                                <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                                    <p className="text-sm text-yellow-700 font-medium">Low Stock</p>
-                                    <p className="text-3xl font-bold text-yellow-900 mt-2">
+                                <div className="p-4 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                                    <p className="text-sm text-yellow-700 dark:text-yellow-400 font-medium">Low Stock</p>
+                                    <p className="text-3xl font-bold text-yellow-900 dark:text-yellow-300 mt-2">
                                         {dashboardSummary.resourceStatus.lowStock || 0}
                                     </p>
                                 </div>
-                                <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                                    <p className="text-sm text-red-700 font-medium">Out of Stock</p>
-                                    <p className="text-3xl font-bold text-red-900 mt-2">
+                                <div className="p-4 bg-red-50 dark:bg-red-900/30 rounded-lg border border-red-200 dark:border-red-800">
+                                    <p className="text-sm text-red-700 dark:text-red-400 font-medium">Out of Stock</p>
+                                    <p className="text-3xl font-bold text-red-900 dark:text-red-300 mt-2">
                                         {dashboardSummary.resourceStatus.outOfStock || 0}
                                     </p>
                                 </div>
@@ -362,8 +362,8 @@ export default function ReportsPage() {
                 <>
                     {/* Utilization Chart */}
                     {warehouseReport.warehouses && warehouseReport.warehouses.length > 0 && (
-                        <div className="bg-white rounded-xl border border-gray-200 p-5">
-                            <h2 className="font-semibold text-gray-900 mb-4">Warehouse Utilization (%)</h2>
+                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+                            <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Warehouse Utilization (%)</h2>
                             <ResponsiveContainer width="100%" height={250}>
                                 <BarChart data={warehouseReport.warehouses} barSize={40}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
@@ -381,46 +381,46 @@ export default function ReportsPage() {
                     )}
 
                     {/* Warehouse Table */}
-                    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b border-gray-100 bg-gray-50">
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Name</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Location</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Total Capacity</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Used Capacity</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Utilization</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Status</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Allocations</th>
+                                <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Name</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Location</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Total Capacity</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Used Capacity</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Utilization</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Status</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Allocations</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {!warehouseReport.warehouses || warehouseReport.warehouses.length === 0 ? (
-                                    <tr><td colSpan={7} className="text-center py-10 text-gray-400">No warehouses found</td></tr>
+                                    <tr><td colSpan={7} className="text-center py-10 text-gray-400 dark:text-gray-500">No warehouses found</td></tr>
                                 ) : warehouseReport.warehouses.map((w: any) => (
-                                    <tr key={w._id} className="border-b border-gray-50 hover:bg-gray-50">
-                                        <td className="px-5 py-3 font-medium text-gray-900">{w.name}</td>
-                                        <td className="px-5 py-3 text-gray-500">{w.location}</td>
-                                        <td className="px-5 py-3">{w.totalCapacity.toLocaleString()}</td>
-                                        <td className="px-5 py-3">{w.usedCapacity.toLocaleString()}</td>
+                                    <tr key={w._id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                        <td className="px-5 py-3 font-medium text-gray-900 dark:text-white">{w.name}</td>
+                                        <td className="px-5 py-3 text-gray-500 dark:text-gray-400">{w.location}</td>
+                                        <td className="px-5 py-3 dark:text-gray-300">{w.totalCapacity.toLocaleString()}</td>
+                                        <td className="px-5 py-3 dark:text-gray-300">{w.usedCapacity.toLocaleString()}</td>
                                         <td className="px-5 py-3">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-16 bg-gray-200 rounded-full h-2">
+                                                <div className="w-16 bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                                                     <div
                                                         className="h-2 rounded-full transition-all"
                                                         style={{ width: `${Math.min(w.utilizationPercent, 100)}%`, backgroundColor: UTIL_COLOR(w.utilizationPercent) }}
                                                     />
                                                 </div>
-                                                <span className="text-xs font-medium text-gray-600">{w.utilizationPercent}%</span>
+                                                <span className="text-xs font-medium text-gray-600 dark:text-gray-300">{w.utilizationPercent}%</span>
                                             </div>
                                         </td>
                                         <td className="px-5 py-3">
-                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${w.status === "ACTIVE" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
+                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${w.status === "ACTIVE" ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                                                 }`}>
                                                 {w.status}
                                             </span>
                                         </td>
-                                        <td className="px-5 py-3 text-gray-600">{w.totalAllocations}</td>
+                                        <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{w.totalAllocations}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -434,8 +434,8 @@ export default function ReportsPage() {
                 <>
                     {/* Trend Chart */}
                     {allocationReport.allocations && allocationReport.allocations.length > 0 && (
-                        <div className="bg-white rounded-xl border border-gray-200 p-5">
-                            <h2 className="font-semibold text-gray-900 mb-4">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+                            <h2 className="font-semibold text-gray-900 dark:text-white mb-4">
                                 Allocation Trends (Grouped by {groupBy})
                             </h2>
                             <ResponsiveContainer width="100%" height={250}>
@@ -453,25 +453,25 @@ export default function ReportsPage() {
                     )}
 
                     {/* Allocation Table */}
-                    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b border-gray-100 bg-gray-50">
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Group</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Count</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Total Quantity</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Avg Quantity</th>
+                                <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Group</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Count</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Total Quantity</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Avg Quantity</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {!allocationReport.allocations || allocationReport.allocations.length === 0 ? (
-                                    <tr><td colSpan={4} className="text-center py-10 text-gray-400">No allocations in this date range</td></tr>
+                                    <tr><td colSpan={4} className="text-center py-10 text-gray-400 dark:text-gray-500">No allocations in this date range</td></tr>
                                 ) : allocationReport.allocations.map((a: any, idx: number) => (
-                                    <tr key={idx} className="border-b border-gray-50 hover:bg-gray-50">
-                                        <td className="px-5 py-3 font-medium text-gray-900">{a.groupKey}</td>
-                                        <td className="px-5 py-3 text-gray-600">{a.count}</td>
-                                        <td className="px-5 py-3">{a.totalQuantity.toLocaleString()}</td>
-                                        <td className="px-5 py-3">{a.avgQuantity.toFixed(2)}</td>
+                                    <tr key={idx} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                        <td className="px-5 py-3 font-medium text-gray-900 dark:text-white">{a.groupKey}</td>
+                                        <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{a.count}</td>
+                                        <td className="px-5 py-3 dark:text-gray-300">{a.totalQuantity.toLocaleString()}</td>
+                                        <td className="px-5 py-3 dark:text-gray-300">{a.avgQuantity.toFixed(2)}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -485,8 +485,8 @@ export default function ReportsPage() {
                 <>
                     {/* Stock Chart */}
                     {resourceReport.resources && resourceReport.resources.length > 0 && (
-                        <div className="bg-white rounded-xl border border-gray-200 p-5">
-                            <h2 className="font-semibold text-gray-900 mb-4">Resource Stock Levels</h2>
+                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+                            <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Resource Stock Levels</h2>
                             <ResponsiveContainer width="100%" height={250}>
                                 <BarChart data={resourceReport.resources} barSize={40}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
@@ -507,33 +507,33 @@ export default function ReportsPage() {
                     )}
 
                     {/* Resource Table with Depletion Warnings */}
-                    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b border-gray-100 bg-gray-50">
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Name</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Type</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Current Stock</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Total Used</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Avg Daily Usage</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Days Until Depletion</th>
+                                <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Name</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Type</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Current Stock</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Total Used</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Avg Daily Usage</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Days Until Depletion</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {!resourceReport.resources || resourceReport.resources.length === 0 ? (
-                                    <tr><td colSpan={6} className="text-center py-10 text-gray-400">No resources found</td></tr>
+                                    <tr><td colSpan={6} className="text-center py-10 text-gray-400 dark:text-gray-500">No resources found</td></tr>
                                 ) : resourceReport.resources.map((r: any) => (
-                                    <tr key={r._id} className="border-b border-gray-50 hover:bg-gray-50">
-                                        <td className="px-5 py-3 font-medium text-gray-900">{r.name}</td>
+                                    <tr key={r._id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                        <td className="px-5 py-3 font-medium text-gray-900 dark:text-white">{r.name}</td>
                                         <td className="px-5 py-3">
-                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${r.type === "FERTILIZER" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
+                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${r.type === "FERTILIZER" ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400" : "bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400"
                                                 }`}>
                                                 {r.type}
                                             </span>
                                         </td>
-                                        <td className="px-5 py-3">{r.currentStock.toLocaleString()}</td>
-                                        <td className="px-5 py-3">{r.totalUsed.toLocaleString()}</td>
-                                        <td className="px-5 py-3">{r.avgDailyUsage.toFixed(2)}</td>
+                                        <td className="px-5 py-3 dark:text-gray-300">{r.currentStock.toLocaleString()}</td>
+                                        <td className="px-5 py-3 dark:text-gray-300">{r.totalUsed.toLocaleString()}</td>
+                                        <td className="px-5 py-3 dark:text-gray-300">{r.avgDailyUsage.toFixed(2)}</td>
                                         <td className="px-5 py-3">
                                             {r.daysUntilDepletion !== null ? (
                                                 <div className="flex items-center gap-2">
@@ -545,7 +545,7 @@ export default function ReportsPage() {
                                                     </span>
                                                 </div>
                                             ) : (
-                                                <span className="text-gray-400">N/A</span>
+                                                <span className="text-gray-400 dark:text-gray-500">N/A</span>
                                             )}
                                         </td>
                                     </tr>
@@ -561,8 +561,8 @@ export default function ReportsPage() {
                 <>
                     {/* Distribution Pie Chart */}
                     {cropReport.crops && cropReport.crops.length > 0 && (
-                        <div className="bg-white rounded-xl border border-gray-200 p-5">
-                            <h2 className="font-semibold text-gray-900 mb-4">Crop Distribution</h2>
+                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+                            <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Crop Distribution</h2>
                             <ResponsiveContainer width="100%" height={300}>
                                 <PieChart>
                                     <Pie
@@ -586,34 +586,34 @@ export default function ReportsPage() {
                     )}
 
                     {/* Crop Table with Performance Metrics */}
-                    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b border-gray-100 bg-gray-50">
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Name</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Status</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Total Quantity</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Allocations</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Allocation Rate</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Resources Used</th>
+                                <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Name</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Status</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Total Quantity</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Allocations</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Allocation Rate</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Resources Used</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {!cropReport.crops || cropReport.crops.length === 0 ? (
-                                    <tr><td colSpan={6} className="text-center py-10 text-gray-400">No crops found</td></tr>
+                                    <tr><td colSpan={6} className="text-center py-10 text-gray-400 dark:text-gray-500">No crops found</td></tr>
                                 ) : cropReport.crops.map((c: any) => (
-                                    <tr key={c._id} className="border-b border-gray-50 hover:bg-gray-50">
-                                        <td className="px-5 py-3 font-medium text-gray-900">{c.name}</td>
+                                    <tr key={c._id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                        <td className="px-5 py-3 font-medium text-gray-900 dark:text-white">{c.name}</td>
                                         <td className="px-5 py-3">
-                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${c.status === "ACTIVE" ? "bg-green-100 text-green-700" :
-                                                c.status === "HARVESTING" ? "bg-blue-100 text-blue-700" :
-                                                    "bg-gray-100 text-gray-700"
+                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${c.status === "ACTIVE" ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400" :
+                                                c.status === "HARVESTING" ? "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400" :
+                                                    "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                                                 }`}>
                                                 {c.status}
                                             </span>
                                         </td>
-                                        <td className="px-5 py-3">{c.totalQuantity.toLocaleString()}</td>
-                                        <td className="px-5 py-3">{c.allocationCount}</td>
+                                        <td className="px-5 py-3 dark:text-gray-300">{c.totalQuantity.toLocaleString()}</td>
+                                        <td className="px-5 py-3 dark:text-gray-300">{c.allocationCount}</td>
                                         <td className="px-5 py-3">
                                             <div className="flex items-center gap-2">
                                                 {c.allocationRate > 75 ? (
@@ -624,7 +624,7 @@ export default function ReportsPage() {
                                                 <span>{c.allocationRate.toFixed(1)}%</span>
                                             </div>
                                         </td>
-                                        <td className="px-5 py-3 text-gray-600">{c.resourceCount}</td>
+                                        <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{c.resourceCount}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -634,8 +634,8 @@ export default function ReportsPage() {
             )}
 
             {/* Summary footer */}
-            <div className="bg-white rounded-xl border border-gray-200 p-4">
-                <div className="flex items-center justify-between text-sm text-gray-500 flex-wrap gap-2">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 flex-wrap gap-2">
                     <span>
                         {tab === "dashboard" && dashboardSummary && `Dashboard Summary - ${dashboardSummary.summary.totalWarehouses} warehouses, ${dashboardSummary.summary.totalCrops} crops`}
                         {tab === "warehouse" && warehouseReport && `${warehouseReport.warehouses?.length || 0} warehouses`}
@@ -643,7 +643,7 @@ export default function ReportsPage() {
                         {tab === "resource" && resourceReport && `${resourceReport.resources?.length || 0} resources`}
                         {tab === "crop" && cropReport && `${cropReport.crops?.length || 0} crops`}
                     </span>
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-gray-400 dark:text-gray-500">
                         Report generated: {new Date().toLocaleString("en-IN")}
                     </span>
                 </div>

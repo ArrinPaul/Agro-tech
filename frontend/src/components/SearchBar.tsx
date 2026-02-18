@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { 
   Search, 
-  Filter, 
   X, 
   ChevronDown, 
   Calendar,

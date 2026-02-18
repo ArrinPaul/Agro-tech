@@ -22,13 +22,13 @@ const SEV_ICON: Record<string, typeof Info> = { critical: AlertTriangle, warning
 
 function StatCard({ label, value, icon: Icon, color }: { label: string; value: number | string; icon: typeof Warehouse; color: string }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 flex items-center gap-4">
       <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
         <Icon size={22} className="text-white" />
       </div>
       <div>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
-        <p className="text-sm text-gray-500">{label}</p>
+        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
       </div>
     </div>
   );
@@ -82,8 +82,8 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Overview of your agricultural operations</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Overview of your agricultural operations</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -112,8 +112,8 @@ export default function DashboardPage() {
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Warehouse utilization */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="font-semibold text-gray-900 mb-4">Warehouse Utilization</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Warehouse Utilization</h2>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={warehouseUtilData} barSize={28}>
               <XAxis dataKey="name" tick={{ fontSize: 11 }} />
@@ -130,8 +130,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Crop status distribution */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="font-semibold text-gray-900 mb-4">Crop Status Distribution</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Crop Status Distribution</h2>
           <div className="flex items-center justify-center gap-6">
             <ResponsiveContainer width={160} height={160}>
               <PieChart>
@@ -147,8 +147,8 @@ export default function DashboardPage() {
               {cropStatusData.map((entry) => (
                 <div key={entry.name} className="flex items-center gap-2 text-sm">
                   <div className="w-3 h-3 rounded-sm" style={{ background: STATUS_COLORS[entry.name] ?? "#94a3b8" }} />
-                  <span className="text-gray-600">{entry.name}</span>
-                  <span className="font-semibold text-gray-900">{entry.value}</span>
+                  <span className="text-gray-600 dark:text-gray-400">{entry.name}</span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">{entry.value}</span>
                 </div>
               ))}
             </div>
@@ -159,8 +159,8 @@ export default function DashboardPage() {
       {/* Resource stock + allocation history */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Resource stock chart */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="font-semibold text-gray-900 mb-4">Resource Stock Levels</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Resource Stock Levels</h2>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={resourceData} barSize={36}>
               <XAxis dataKey="name" tick={{ fontSize: 11 }} />
@@ -177,8 +177,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Allocation history line chart */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="font-semibold text-gray-900 mb-4">Allocation History</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Allocation History</h2>
           {allocationHistoryData.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-12">No allocation data yet</p>
           ) : (
@@ -199,9 +199,9 @@ export default function DashboardPage() {
       {/* Bottom row: recent allocations + AI suggestions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Recent allocations */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-gray-900">Recent Allocations</h2>
+            <h2 className="font-semibold text-gray-900 dark:text-gray-100">Recent Allocations</h2>
             <button onClick={() => navigate("/allocations")} className="text-xs text-green-600 hover:underline">View all</button>
           </div>
           {recentAllocations.length === 0 ? (
@@ -211,14 +211,14 @@ export default function DashboardPage() {
               {recentAllocations.map((al) => (
                 <div
                   key={al._id}
-                  className="flex items-center justify-between text-sm cursor-pointer hover:bg-gray-50 rounded-lg px-2 py-1 -mx-2 transition-colors"
+                  className="flex items-center justify-between text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg px-2 py-1 -mx-2 transition-colors"
                   onClick={() => navigate(`/allocations/${al._id}`)}
                 >
                   <div>
-                    <p className="font-medium text-gray-800">{al.cropName} → {al.warehouseName}</p>
-                    <p className="text-xs text-gray-400">{new Date(al.createdAt).toLocaleDateString()}</p>
+                    <p className="font-medium text-gray-800 dark:text-gray-200">{al.cropName} → {al.warehouseName}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{new Date(al.createdAt).toLocaleDateString()}</p>
                   </div>
-                  <span className="font-semibold text-gray-900">{al.allocatedQuantity} units</span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">{al.allocatedQuantity} units</span>
                 </div>
               ))}
             </div>
@@ -226,9 +226,9 @@ export default function DashboardPage() {
         </div>
 
         {/* AI Suggestions */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+            <h2 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
               <BrainCircuit size={16} className="text-purple-600" /> AI Insights
             </h2>
             <button onClick={() => navigate("/ai-insights")} className="text-xs text-green-600 hover:underline">View all</button>
