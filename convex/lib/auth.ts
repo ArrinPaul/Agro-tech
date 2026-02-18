@@ -1,6 +1,6 @@
 // Helper functions for role-based access control
 
-import { QueryCtx, MutationCtx } from "./_generated/server";
+import type { QueryCtx, MutationCtx } from "../_generated/server";
 
 export type Role = "ADMIN" | "MANAGER" | "OPERATOR";
 
@@ -11,7 +11,7 @@ export async function getCurrentUser(ctx: QueryCtx | MutationCtx) {
   
   return await ctx.db
     .query("users")
-    .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+    .withIndex("by_clerk_id", (q: any) => q.eq("clerkId", identity.subject))
     .unique();
 }
 

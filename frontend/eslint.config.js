@@ -19,5 +19,11 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // Allow context files to export both Provider components and hooks
+      'react-refresh/only-export-components': ['warn', { allowExportNames: ['useAuthContext', 'useData', 'useOrganization', 'useHasRole', 'useCurrentUser'] }],
+      // Allow explicit any in utility functions with proper generic constraints
+      '@typescript-eslint/no-explicit-any': 'warn',
+    },
   },
 ])

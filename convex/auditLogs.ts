@@ -52,11 +52,11 @@ export const listAuditLogs = query({
     }
     
     // Filter by date range
-    if (args.startDate) {
-      logs = logs.filter(log => log.timestamp >= args.startDate);
+    if (args.startDate !== undefined) {
+      logs = logs.filter((log) => log.timestamp >= args.startDate!);
     }
-    if (args.endDate) {
-      logs = logs.filter(log => log.timestamp <= args.endDate);
+    if (args.endDate !== undefined) {
+      logs = logs.filter((log) => log.timestamp <= args.endDate!);
     }
     
     // Enrich with user details

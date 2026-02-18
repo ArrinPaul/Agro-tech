@@ -1,0 +1,359 @@
+import { useState, useMemo, ReactNode } from "react";
+import { ChevronUp, ChevronDown, Filter, Eye, EyeOff } from "lucide-react";
+import Skeleton from "./Skeleton";
+
+export interface BaseSortableTableColumn<T = any> {
+  key: string;
+  label: string;
+  sortable?: boolean;
+  filterable?: boolean;
+  width?: string;
+  className?: string;
+  render?: (item: T, index: number) => ReactNode;
+  filterType?: "text" | "select" | "number" | "date";
+  filterOptions?: { value: string; label: string }[];
+}
+
+export interface SortableTableProps<T = any> {
+  columns: BaseSortableTableColumn<T>[];
+  data: T[];
+  loading?: boolean;
+  onSort?: (key: string, direction: "asc" | "desc") => void;
+  onFilter?: (filters: Record<string, any>) => void;
+  selectable?: boolean;
+  selectedIds?: string[];
+  onSelectionChange?: (ids: string[]) => void;
+  idKey?: string;
+  emptyStateText?: string;
+  className?: string;
+  showColumnVisibility?: boolean;
+  stickyHeader?: boolean;
+  maxHeight?: string;
+}
+
+export default function SortableTable<T extends Record<string, any>>({
+  columns: initialColumns,
+  data,
+  loading = false,
+  onSort,
+  onFilter,
+  selectable = false,
+  selectedIds = [],
+  onSelectionChange,
+  idKey = "_id",
+  emptyStateText = "No data available",
+  className = "",
+  showColumnVisibility = true,
+  stickyHeader = true,
+  maxHeight = "max-h-96",
+}: SortableTableProps<T>) {
+  const [sortKey, setSortKey] = useState<string>("");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [filters, setFilters] = useState<Record<string, any>>({});
+  const [hiddenColumns, setHiddenColumns] = useState<Set<string>>(new Set());
+  const [showColumnMenu, setShowColumnMenu] = useState(false);
+
+  // Filter visible columns
+  const visibleColumns = useMemo(() => 
+    initialColumns.filter(col => !hiddenColumns.has(col.key)),
+    [initialColumns, hiddenColumns]
+  );
+
+  // Handle sorting
+  const handleSort = (key: string) => {
+    let newDirection: "asc" | "desc" = "asc";
+    
+    if (sortKey === key) {
+      newDirection = sortDirection === "asc" ? "desc" : "asc";
+    }
+    
+    setSortKey(key);
+    setSortDirection(newDirection);
+    onSort?.(key, newDirection);
+  };
+
+  // Handle filtering
+  const handleFilterChange = (key: string, value: any) => {
+    const newFilters = { ...filters, [key]: value };
+    if (!value || value === "") {
+      delete newFilters[key];
+    }
+    setFilters(newFilters);
+    onFilter?.(newFilters);
+  };
+
+  // Handle selection
+  const isAllSelected = selectedIds.length > 0 && selectedIds.length === data.length;
+  const isIndeterminate = selectedIds.length > 0 && selectedIds.length < data.length;
+
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      onSelectionChange?.([]);
+    } else {
+      const allIds = data.map(item => item[idKey]);
+      onSelectionChange?.(allIds);
+    }
+  };
+
+  const handleSelectItem = (id: string) => {
+    if (selectedIds.includes(id)) {
+      onSelectionChange?.(selectedIds.filter(selectedId => selectedId !== id));
+    } else {
+      onSelectionChange?.([...selectedIds, id]);
+    }
+  };
+
+  const toggleColumnVisibility = (columnKey: string) => {
+    const newHidden = new Set(hiddenColumns);
+    if (newHidden.has(columnKey)) {
+      newHidden.delete(columnKey);
+    } else {
+      newHidden.add(columnKey);
+    }
+    setHiddenColumns(newHidden);
+  };
+
+  const renderFilterInput = (column: BaseSortableTableColumn<T>) => {
+    const value = filters[column.key] || "";
+    
+    switch (column.filterType) {
+      case "select":
+        return (
+          <select
+            value={value}
+            onChange={(e) => handleFilterChange(column.key, e.target.value)}
+            className="w-full px-2 py-1 text-xs border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+          >
+            <option value="">All</option>
+            {column.filterOptions?.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        );
+      
+      case "number":
+        return (
+          <input
+            type="number"
+            value={value}
+            onChange={(e) => handleFilterChange(column.key, e.target.value)}
+            placeholder="Filter..."
+            className="w-full px-2 py-1 text-xs border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+          />
+        );
+      
+      case "date":
+        return (
+          <input
+            type="date"
+            value={value}
+            onChange={(e) => handleFilterChange(column.key, e.target.value)}
+            className="w-full px-2 py-1 text-xs border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+          />
+        );
+      
+      default: // text
+        return (
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => handleFilterChange(column.key, e.target.value)}
+            placeholder="Filter..."
+            className="w-full px-2 py-1 text-xs border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+          />
+        );
+    }
+  };
+
+  return (
+    <div className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm ${className}`}>
+      {/* Table Header Controls */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-600">
+        <div className="flex items-center gap-3">
+          {selectable && selectedIds.length > 0 && (
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              {selectedIds.length} selected
+            </span>
+          )}
+        </div>
+        
+        {showColumnVisibility && (
+          <div className="relative">
+            <button
+              onClick={() => setShowColumnMenu(!showColumnMenu)}
+              className="flex items-center gap-2 px-3 py-1 text-sm border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              <EyeOff size={14} />
+              Columns
+            </button>
+            
+            {showColumnMenu && (
+              <>
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setShowColumnMenu(false)}
+                />
+                <div className="absolute top-full right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg py-2 z-20 min-w-[180px]">
+                  {initialColumns.map((column) => (
+                    <label
+                      key={column.key}
+                      className="flex items-center gap-2 px-3 py-1 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={!hiddenColumns.has(column.key)}
+                        onChange={() => toggleColumnVisibility(column.key)}
+                        className="rounded"
+                      />
+                      <span className="text-sm">{column.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Table */}
+      <div className={`overflow-auto ${maxHeight}`}>
+        <table className="w-full">
+          <thead className={`${stickyHeader ? "sticky top-0 z-10" : ""} bg-gray-50 dark:bg-gray-700`}>
+            <tr>
+              {/* Selection checkbox */}
+              {selectable && (
+                <th className="w-12 p-3 text-left">
+                  <input
+                    type="checkbox"
+                    checked={isAllSelected}
+                    ref={(ref) => {
+                      if (ref) ref.indeterminate = isIndeterminate;
+                    }}
+                    onChange={handleSelectAll}
+                    className="rounded"
+                  />
+                </th>
+              )}
+              
+              {/* Column headers */}
+              {visibleColumns.map((column) => (
+                <th
+                  key={column.key}
+                  className={`p-3 text-left ${column.className || ""}`}
+                  style={{ width: column.width }}
+                >
+                  <div className="space-y-2">
+                    {/* Header with sorting */}
+                    <div className="flex items-center justify-between">
+                      <span
+                        className={`font-medium text-gray-900 dark:text-gray-100 ${
+                          column.sortable ? "cursor-pointer hover:text-blue-600 dark:hover:text-blue-400" : ""
+                        }`}
+                        onClick={() => column.sortable && handleSort(column.key)}
+                      >
+                        {column.label}
+                      </span>
+                      
+                      {column.sortable && (
+                        <div className="flex flex-col">
+                          <ChevronUp
+                            size={12}
+                            className={`${
+                              sortKey === column.key && sortDirection === "asc"
+                                ? "text-blue-600 dark:text-blue-400"
+                                : "text-gray-400"
+                            }`}
+                          />
+                          <ChevronDown
+                            size={12}
+                            className={`-mt-1 ${
+                              sortKey === column.key && sortDirection === "desc"
+                                ? "text-blue-600 dark:text-blue-400"
+                                : "text-gray-400"
+                            }`}
+                          />
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Filter input */}
+                    {column.filterable && (
+                      <div className="relative">
+                        {renderFilterInput(column)}
+                        {filters[column.key] && (
+                          <Filter size={12} className="absolute right-2 top-1/2 transform -translate-y-1/2 text-blue-600 dark:text-blue-400" />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
+            {loading ? (
+              // Loading skeleton
+              Array.from({ length: 5 }).map((_, index) => (
+                <tr key={index}>
+                  {selectable && <td className="p-3"><Skeleton className="w-4 h-4" /></td>}
+                  {visibleColumns.map((column) => (
+                    <td key={column.key} className="p-3">
+                      <Skeleton className="h-4 w-full" />
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : data.length === 0 ? (
+              // Empty state
+              <tr>
+                <td colSpan={(selectable ? 1 : 0) + visibleColumns.length} className="p-8 text-center">
+                  <div className="text-gray-500 dark:text-gray-400">
+                    <div className="text-4xl mb-2">📊</div>
+                    <div className="font-medium">{emptyStateText}</div>
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              // Data rows
+              data.map((item, index) => {
+                const itemId = item[idKey];
+                const isSelected = selectedIds.includes(itemId);
+                
+                return (
+                  <tr
+                    key={itemId}
+                    className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                      isSelected ? "bg-blue-50 dark:bg-blue-900/20" : ""
+                    }`}
+                  >
+                    {/* Selection checkbox */}
+                    {selectable && (
+                      <td className="p-3">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleSelectItem(itemId)}
+                          className="rounded"
+                        />
+                      </td>
+                    )}
+                    
+                    {/* Data cells */}
+                    {visibleColumns.map((column) => (
+                      <td key={column.key} className={`p-3 ${column.className || ""}`}>
+                        {column.render ? column.render(item, index) : item[column.key]}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

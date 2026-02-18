@@ -88,7 +88,7 @@ export const allocateCropToWarehouse = mutation({
       const resource = await ctx.db.get(link.resourceId);
       if (!resource) continue;
       
-      const requiredTotal = link.requiredQuantity * args.allocatedQuantity;
+      const requiredTotal = link.requiredQuantity * args.quantity;
       await ctx.db.patch(link.resourceId, {
         stockQuantity: resource.stockQuantity - requiredTotal,
         updatedAt: Date.now(),
@@ -113,7 +113,7 @@ export const allocateCropToWarehouse = mutation({
 
     // Step 7.5: Track resource usage for analytics (Phase 4.3)
     for (const link of cropResources) {
-      const requiredTotal = link.requiredQuantity * args.allocatedQuantity;
+      const requiredTotal = link.requiredQuantity * args.quantity;
       await ctx.db.insert("resourceUsageHistory", {
         resourceId: link.resourceId,
         quantityUsed: requiredTotal,
