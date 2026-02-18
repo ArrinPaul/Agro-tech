@@ -1,4 +1,3 @@
-import { v } from "convex/values";
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { internal } from "./_generated/api";
@@ -25,7 +24,7 @@ http.route({
         headers: { "Content-Type": "application/json" },
       });
     } catch (error: any) {
-      console.error("Webhook error:", error);
+      // Webhook error occurred
       return new Response(JSON.stringify({ error: error.message }), {
         status: 500,
         headers: { "Content-Type": "application/json" },

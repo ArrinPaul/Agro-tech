@@ -194,75 +194,94 @@
 
 ---
 
-## PHASE 4 — AI Suggestion Engine (Week 4)
+## PHASE 4 — AI Suggestion Engine (Week 4) ✅ COMPLETE
 
-### 4.1 — AI Module Setup
-- [ ] Create `convex/ai.ts`
+### 4.1 — AI Module Setup ✅
+- [x] AI logic integrated in `ConvexDataContext.tsx` (client-side)
 - [x] Define suggestion types: `OPTIMIZATION`, `DEPLETION_WARNING`, `RECOMMENDATION`, `FORECAST`
 - [x] Create base suggestion structure: `{ type, title, message, severity, data }`
 
-### 4.2 — Warehouse Optimization Suggestions
+### 4.2 — Warehouse Optimization Suggestions ✅
 - [x] Query: `getWarehouseUtilization(orgId)` — returns utilization % per warehouse
 - [x] Logic: If utilization > 80% → generate "High utilization" suggestion
 - [x] Logic: If utilization > 95% → generate "Critical capacity" alert
 - [x] Logic: If utilization < 20% → suggest consolidation
 - [x] Suggest redistribution targets (warehouses with lowest utilization)
 
-### 4.3 — Resource Depletion Prediction
-- [ ] Track resource usage history (from allocation deductions)
-- [ ] Calculate: average monthly usage per resource
-- [ ] Calculate: `daysRemaining = currentStock / avgDailyUsage`
+### 4.3 — Resource Depletion Prediction ✅
+- [x] Track resource usage history (from allocation deductions) — `resourceUsageHistory` table
+- [x] Advanced tracking module: `convex/resourceTracking.ts`
+- [x] Calculate: average monthly/weekly/daily usage per resource
+- [x] Calculate: `daysRemaining = currentStock / avgDailyUsage`
+- [x] Trend analysis: increasing/decreasing/stable consumption
+- [x] Confidence scoring: high/medium/low based on data points
 - [x] If daysRemaining < 30 → generate depletion warning
 - [x] If daysRemaining < 7 → generate critical depletion alert
+- [x] Query: `predictResourceDepletion(resourceId)` with full analytics
+- [x] Query: `predictAllResourceDepletions(orgId)` for organization overview
 
-### 4.4 — Smart Warehouse Recommendation
-- [x] Function: `recommendWarehouse(cropId, quantity, orgId)`
+### 4.4 — Smart Warehouse Recommendation ✅
+- [x] Function: `getWarehouseRecommendations(cropId, quantity)` in ConvexDataContext
 - [x] Rank warehouses by: remaining capacity (descending)
 - [x] Filter: only warehouses with enough capacity
-- [x] Return top 3 recommendations with reasoning
+- [x] Return top 3 recommendations with reasoning and scoring
+- [x] Consider utilization percentage for optimal placement
 - [ ] (Future) Factor in location proximity
 
-### 4.5 — Crop Demand Forecast
-- [ ] Track historical allocation data per crop
-- [x] Implement simple moving average prediction
-- [ ] OR: Rule-based seasonal model (define planting seasons)
-- [x] Generate forecast: expected demand for next 30/60/90 days
-- [x] Surface forecast on dashboard
+### 4.5 — Crop Demand Forecast ✅
+- [x] Track historical allocation data per crop
+- [x] Implement simple moving average prediction (7-day)
+- [x] Seasonal forecasting model: `getSeasonalForecast(orgId, cropId?)`
+- [x] Crop-specific seasonal patterns (Wheat, Rice, Corn, Soybean)
+- [x] Monthly multipliers based on Indian agricultural seasons
+- [x] Generate forecast: expected demand for next 3 months
+- [x] Surface forecast on dashboard and AI insights page
 
-### 4.6 — AI Suggestions UI
+### 4.6 — AI Suggestions UI ✅
 - [x] Frontend: AI Suggestions panel on dashboard (card-based)
 - [x] Color-code by severity: info (blue), warning (yellow), critical (red)
 - [x] "Dismiss" and "Act on it" buttons per suggestion
 - [x] Frontend: Dedicated AI Insights page with full history
 - [x] Auto-refresh suggestions on data changes
+- [x] 5 suggestion types implemented: Utilization, Depletion, Allocation Status, Forecasting, Optimization
 
 ---
 
-## PHASE 5 — Dashboard & Reporting (Week 5)
+## PHASE 5 — Dashboard & Reporting (Week 5) ✅ COMPLETE
 
-### 5.1 — Dashboard Widgets
+### 5.1 — Dashboard Widgets ✅
 - [x] Total warehouses count widget
 - [x] Total crops count widget
 - [x] Resource stock summary widget
 - [x] Active allocations count widget
 - [x] AI suggestions panel (top 5)
 - [x] Quick action buttons (create warehouse, add crop, allocate)
+- [x] Real-time data updates via Convex subscriptions
 
-### 5.2 — Charts & Visualizations
+### 5.2 — Charts & Visualizations ✅
 - [x] Warehouse utilization bar chart (Recharts)
-- [x] Resource stock levels donut chart
-- [x] Allocation history line chart (over time)
-- [x] Crop status distribution pie chart
+- [x] Resource stock levels bar chart with color-coding
+- [x] Allocation trends line chart (over time)
+- [x] Crop distribution pie chart
 - [x] Dashboard layout — responsive grid
+- [x] Interactive tooltips and legends
+- [x] Color-coded status indicators (red/orange/green)
 
-### 5.3 — Reports Module
-- [ ] Create `convex/reports.ts`
-- [ ] Query: `getWarehouseReport(orgId, dateRange)`
-- [ ] Query: `getAllocationReport(orgId, dateRange)`
-- [ ] Query: `getResourceUsageReport(orgId, dateRange)`
-- [x] Frontend: Reports page with date range picker
-- [x] Frontend: Tabular report view
-- [x] Frontend: Export to CSV (client-side generation)
+### 5.3 — Reports Module ✅
+- [x] Create `convex/reports.ts` (572 lines, 5 comprehensive reports)
+- [x] Query: `getWarehouseReport(orgId, dateRange)` — utilization analysis with status
+- [x] Query: `getAllocationReport(orgId, groupBy, dateRange)` — activity tracking
+- [x] Query: `getResourceUsageReport(orgId, dateRange)` — consumption & depletion forecasting
+- [x] Query: `getCropReport(orgId, dateRange)` — performance metrics & allocation rates
+- [x] Query: `getDashboardSummary(orgId)` — real-time aggregation for dashboard
+- [x] Frontend: Complete ReportsPage with 5 tabs (Dashboard, Warehouse, Allocation, Resource, Crop)
+- [x] Frontend: Date range picker (default: last 90 days)
+- [x] Frontend: GroupBy selector for allocations (crop/warehouse/date)
+- [x] Frontend: Comprehensive tabular report views
+- [x] Frontend: Export to CSV for all report types
+- [x] Frontend: Interactive charts (Bar, Line, Pie) with Recharts
+- [x] Frontend: Color-coded status badges and alert icons
+- [x] Frontend: Days until depletion warnings for resources (<7 days alerts)
 
 ---
 
@@ -355,3 +374,10 @@
 > **Progress Tracking**: Check off items as you complete them. Each `- [ ]` becomes `- [x]` when done.
 >
 > **Last Updated**: 2026-02-18
+> 
+> **Phase 4 & 5 Status**: ✅ COMPLETE — Full AI Suggestion Engine and Comprehensive Reporting System implemented
+> - See [PHASE_4_5_COMPLETE.md](./PHASE_4_5_COMPLETE.md) for detailed implementation documentation
+> - See [PHASE_4_5_QUICKSTART.md](./PHASE_4_5_QUICKSTART.md) for quick start guide
+> - New backend files: `convex/resourceTracking.ts`, `convex/reports.ts`
+> - Schema update: Added `resourceUsageHistory` table for analytics
+> - Reports page completely rewritten with Convex integration

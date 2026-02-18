@@ -100,4 +100,18 @@ export default defineSchema({
     .index("by_organization", ["organizationId"])
     .index("by_entity", ["entityType", "entityId"])
     .index("by_user", ["performedBy"]),
+
+  // Resource usage history table (for tracking and predictions)
+  resourceUsageHistory: defineTable({
+    resourceId: v.id("resources"),
+    quantityUsed: v.number(),
+    allocationId: v.id("allocations"),
+    cropId: v.id("crops"),
+    organizationId: v.id("organizations"),
+    timestamp: v.number(),
+  })
+    .index("by_resource", ["resourceId"])
+    .index("by_organization", ["organizationId"])
+    .index("by_allocation", ["allocationId"])
+    .index("by_timestamp", ["timestamp"]),
 });

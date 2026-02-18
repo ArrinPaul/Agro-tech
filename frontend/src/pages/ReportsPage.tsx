@@ -1,15 +1,20 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { useOrganization } from "../contexts/OrganizationContext";
 import {
     FileBarChart2, Download, Calendar, Warehouse,
-    GitMerge, FlaskConical,
+    GitMerge, FlaskConical, TrendingUp, TrendingDown, AlertCircle,
 } from "lucide-react";
 import {
     BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-    CartesianGrid, Cell,
+    CartesianGrid, Cell, LineChart, Line, Legend, PieChart, Pie,
 } from "recharts";
-import { useData } from "../contexts/DataContext";
 
-type Tab = "warehouse" | "allocation" | "resource";
+type Tab = "dashboard" | "warehouse" | "allocation" | "resource" | "crop";
+type GroupBy = "crop" | "warehouse" | "date";
+
+const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
 
 function formatDate(ts: number) {
     return new Date(ts).toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric" });
@@ -32,8 +37,9 @@ function downloadCSV(filename: string, csv: string) {
 }
 
 export default function ReportsPage() {
-    const { warehouses, allocations, resources, crops } = useData();
-    const [tab, setTab] = useState<Tab>("warehouse");
+    const { selectedOrganization } = useOrganization();
+    const [tab, setTab] = useState<Tab>("dashboard");
+    const [groupBy, setGroupBy] = useState<GroupBy>("crop");
 
     // Date range — default last 90 days
     const now = Date.now();
@@ -46,85 +52,132 @@ export default function ReportsPage() {
     const startTs = new Date(startDate).getTime();
     const endTs = new Date(endDate).getTime() + 86400000; // inclusive end
 
-    // ── Warehouse Report ──
-    const warehouseReport = useMemo(() =>
-        warehouses.map((w) => {
-            const util = w.totalCapacity > 0 ? Math.round((w.usedCapacity / w.totalCapacity) * 100) : 0;
-            const allocCount = allocations.filter((a) => a.warehouseId === w._id).length;
-            return { ...w, util, allocCount };
-        }),
-        [warehouses, allocations]);
+    // Query Convex reports
+    const warehouseReport = useQuery(
+        api.reports.getWarehouseReport,
+        tab === "warehouse" && selectedOrganization
+            ? { organizationId: selectedOrganization._id, startDate: startTs, endDate: endTs }
+            : "skip"
+    );
 
-    // ── Allocation Report ──
-    const allocationReport = useMemo(() =>
-        allocations
-            .filter((a) => a.createdAt >= startTs && a.createdAt < endTs)
-            .sort((a, b) => b.createdAt - a.createdAt),
-        [allocations, startTs, endTs]);
+    const allocationReport = useQuery(
+        api.reports.getAllocationReport,
+        tab === "allocation" && selectedOrganization
+            ? { organizationId: selectedOrganization._id, groupBy, startDate: startTs, endDate: endTs }
+            : "skip"
+    );
 
-    // ── Resource Report ──
-    const resourceReport = useMemo(() =>
-        resources.map((r) => {
-            const linkedCrops = crops.filter((c) =>
-                allocations.some((a) => a.cropId === c._id)
-            ).length;
-            return { ...r, linkedCrops };
-        }),
-        [resources, crops, allocations]);
+    const resourceReport = useQuery(
+        api.reports.getResourceUsageReport,
+        tab === "resource" && selectedOrganization
+            ? { organizationId: selectedOrganization._id, startDate: startTs, endDate: endTs }
+            : "skip"
+    );
 
-    // ── Chart data ──
-    const chartData = useMemo(() => {
-        if (tab === "warehouse") {
-            return warehouseReport.map((w) => ({
-                name: w.name.length > 14 ? w.name.slice(0, 14) + "…" : w.name,
-                utilization: w.util,
-            }));
-        }
-        if (tab === "resource") {
-            return resourceReport.map((r) => ({
-                name: r.name.length > 14 ? r.name.slice(0, 14) + "…" : r.name,
-                stock: r.stockQuantity,
-            }));
-        }
-        // allocation — group by day
-        const dayMap: Record<string, number> = {};
-        allocationReport.forEach((a) => {
-            const day = new Date(a.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" });
-            dayMap[day] = (dayMap[day] ?? 0) + a.allocatedQuantity;
-        });
-        return Object.entries(dayMap).map(([name, qty]) => ({ name, quantity: qty }));
-    }, [tab, warehouseReport, resourceReport, allocationReport]);
+    const cropReport = useQuery(
+        api.reports.getCropReport,
+        tab === "crop" && selectedOrganization
+            ? { organizationId: selectedOrganization._id, startDate: startTs, endDate: endTs }
+            : "skip"
+    );
 
-    // ── Export handlers ──
+    const dashboardSummary = useQuery(
+        api.reports.getDashboardSummary,
+        tab === "dashboard" && selectedOrganization
+            ? { organizationId: selectedOrganization._id }
+            : "skip"
+    );
+
+    // Export handlers
     function handleExport() {
-        if (tab === "warehouse") {
+        if (tab === "warehouse" && warehouseReport) {
             const csv = toCSV(
-                ["Name", "Location", "Total Capacity", "Used Capacity", "Utilization %", "Allocations"],
-                warehouseReport.map((w) => [w.name, w.location, String(w.totalCapacity), String(w.usedCapacity), `${w.util}%`, String(w.allocCount)])
+                ["Name", "Location", "Total Capacity", "Used Capacity", "Utilization %", "Status", "Allocations"],
+                warehouseReport.warehouses.map((w: any) => [
+                    w.name, w.location, String(w.totalCapacity), String(w.usedCapacity),
+                    `${w.utilizationPercent}%`, w.status, String(w.totalAllocations)
+                ])
             );
             downloadCSV("warehouse_report.csv", csv);
-        } else if (tab === "allocation") {
+        } else if (tab === "allocation" && allocationReport) {
             const csv = toCSV(
-                ["Date", "Crop", "Warehouse", "Quantity", "Created By"],
-                allocationReport.map((a) => [formatDate(a.createdAt), a.cropName ?? "", a.warehouseName ?? "", String(a.allocatedQuantity), a.createdByName ?? ""])
+                ["Group", "Count", "Total Quantity", "Avg Quantity"],
+                allocationReport.allocations.map((a: any) => [
+                    a.groupKey, String(a.count), String(a.totalQuantity), String(a.avgQuantity)
+                ])
             );
             downloadCSV("allocation_report.csv", csv);
-        } else {
+        } else if (tab === "resource" && resourceReport) {
             const csv = toCSV(
-                ["Name", "Type", "Stock Quantity"],
-                resourceReport.map((r) => [r.name, r.type, String(r.stockQuantity)])
+                ["Name", "Type", "Stock", "Used", "Avg Daily", "Days Until Depletion"],
+                resourceReport.resources.map((r: any) => [
+                    r.name, r.type, String(r.currentStock), String(r.totalUsed),
+                    String(r.avgDailyUsage), r.daysUntilDepletion !== null ? String(r.daysUntilDepletion) : "N/A"
+                ])
             );
-            downloadCSV("resource_report.csv", csv);
+            downloadCSV("resource_usage_report.csv", csv);
+        } else if (tab === "crop" && cropReport) {
+            const csv = toCSV(
+                ["Name", "Status", "Quantity", "Allocations", "Allocation Rate %", "Resources"],
+                cropReport.crops.map((c: any) => [
+                    c.name, c.status, String(c.totalQuantity), String(c.allocationCount),
+                    String(c.allocationRate), String(c.resourceCount)
+                ])
+            );
+            downloadCSV("crop_report.csv", csv);
+        } else if (tab === "dashboard" && dashboardSummary) {
+            const csv = toCSV(
+                ["Metric", "Value"],
+                [
+                    ["Total Warehouses", String(dashboardSummary.summary.totalWarehouses)],
+                    ["Total Crops", String(dashboardSummary.summary.totalCrops)],
+                    ["Total Allocations", String(dashboardSummary.summary.totalAllocations)],
+                    ["Avg Utilization %", String(dashboardSummary.summary.avgUtilization)],
+                ]
+            );
+            downloadCSV("dashboard_summary.csv", csv);
         }
     }
 
     const tabs: { key: Tab; label: string; icon: typeof Warehouse }[] = [
+        { key: "dashboard", label: "Dashboard", icon: FileBarChart2 },
         { key: "warehouse", label: "Warehouses", icon: Warehouse },
         { key: "allocation", label: "Allocations", icon: GitMerge },
         { key: "resource", label: "Resources", icon: FlaskConical },
+        { key: "crop", label: "Crops", icon: TrendingUp },
     ];
 
     const UTIL_COLOR = (pct: number) => pct > 95 ? "#dc2626" : pct > 80 ? "#d97706" : "#16a34a";
+
+    // Loading states
+    const isLoading =
+        (tab === "dashboard" && !dashboardSummary) ||
+        (tab === "warehouse" && !warehouseReport) ||
+        (tab === "allocation" && !allocationReport) ||
+        (tab === "resource" && !resourceReport) ||
+        (tab === "crop" && !cropReport);
+
+    if (!selectedOrganization) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="text-center">
+                    <AlertCircle className="text-gray-400 mx-auto mb-3" size={32} />
+                    <p className="text-gray-500">Please select an organization</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mx-auto mb-3"></div>
+                    <p className="text-gray-500">Loading report...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-5">
@@ -144,188 +197,451 @@ export default function ReportsPage() {
                 </button>
             </div>
 
-            {/* Tabs + Date Range */}
-            <div className="flex items-center justify-between flex-wrap gap-3">
-                <div className="flex gap-1">
-                    {tabs.map(({ key, label, icon: Icon }) => (
-                        <button
-                            key={key}
-                            onClick={() => setTab(key)}
-                            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${tab === key
-                                ? "bg-green-600 text-white"
-                                : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
-                                }`}
-                        >
-                            <Icon size={16} /> {label}
-                        </button>
-                    ))}
-                </div>
-
-                <div className="flex items-center gap-2 text-sm">
-                    <Calendar size={15} className="text-gray-400" />
-                    <input
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                    <span className="text-gray-400">to</span>
-                    <input
-                        type="date"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                </div>
+            {/* Tabs */}
+            <div className="flex gap-1 flex-wrap">
+                {tabs.map(({ key, label, icon: Icon }) => (
+                    <button
+                        key={key}
+                        onClick={() => setTab(key)}
+                        className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${tab === key
+                            ? "bg-green-600 text-white"
+                            : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                            }`}
+                    >
+                        <Icon size={16} /> {label}
+                    </button>
+                ))}
             </div>
 
-            {/* Chart */}
-            {chartData.length > 0 && (
-                <div className="bg-white rounded-xl border border-gray-200 p-5">
-                    <h2 className="font-semibold text-gray-900 mb-4">
-                        {tab === "warehouse" ? "Warehouse Utilization (%)" : tab === "resource" ? "Resource Stock Levels" : "Allocation Quantities Over Time"}
-                    </h2>
-                    <ResponsiveContainer width="100%" height={200}>
-                        <BarChart data={chartData} barSize={32}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                            <YAxis tick={{ fontSize: 11 }} />
-                            <Tooltip />
-                            {tab === "warehouse" && (
-                                <Bar dataKey="utilization" name="Utilization %" radius={[4, 4, 0, 0]}>
-                                    {chartData.map((entry: any, i: number) => (
-                                        <Cell key={i} fill={UTIL_COLOR(entry.utilization)} />
-                                    ))}
-                                </Bar>
-                            )}
-                            {tab === "resource" && (
-                                <Bar dataKey="stock" name="Stock" fill="#16a34a" radius={[4, 4, 0, 0]}>
-                                    {chartData.map((entry: any, i: number) => (
-                                        <Cell key={i} fill={(entry.stock ?? 0) === 0 ? "#dc2626" : (entry.stock ?? 0) < 50 ? "#d97706" : "#16a34a"} />
-                                    ))}
-                                </Bar>
-                            )}
-                            {tab === "allocation" && (
-                                <Bar dataKey="quantity" name="Quantity" fill="#7c3aed" radius={[4, 4, 0, 0]} />
-                            )}
-                        </BarChart>
-                    </ResponsiveContainer>
+            {/* Date Range + GroupBy for Allocation */}
+            {tab !== "dashboard" && (
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                    <div className="flex items-center gap-2 text-sm">
+                        <Calendar size={15} className="text-gray-400" />
+                        <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+                        <span className="text-gray-400">to</span>
+                        <input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+                    </div>
+
+                    {tab === "allocation" && (
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-600 font-medium">Group by:</span>
+                            {(["crop", "warehouse", "date"] as GroupBy[]).map((g) => (
+                                <button
+                                    key={g}
+                                    onClick={() => setGroupBy(g)}
+                                    className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors capitalize ${groupBy === g
+                                        ? "bg-green-600 text-white"
+                                        : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                                        }`}
+                                >
+                                    {g}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
 
-            {/* Table */}
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                {tab === "warehouse" && (
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="border-b border-gray-100 bg-gray-50">
-                                <th className="text-left px-5 py-3 font-medium text-gray-600">Name</th>
-                                <th className="text-left px-5 py-3 font-medium text-gray-600">Location</th>
-                                <th className="text-left px-5 py-3 font-medium text-gray-600">Total Cap.</th>
-                                <th className="text-left px-5 py-3 font-medium text-gray-600">Used Cap.</th>
-                                <th className="text-left px-5 py-3 font-medium text-gray-600">Utilization</th>
-                                <th className="text-left px-5 py-3 font-medium text-gray-600">Allocations</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {warehouseReport.length === 0 ? (
-                                <tr><td colSpan={6} className="text-center py-10 text-gray-400">No warehouses found</td></tr>
-                            ) : warehouseReport.map((w) => (
-                                <tr key={w._id} className="border-b border-gray-50 hover:bg-gray-50">
-                                    <td className="px-5 py-3 font-medium text-gray-900">{w.name}</td>
-                                    <td className="px-5 py-3 text-gray-500">{w.location}</td>
-                                    <td className="px-5 py-3">{w.totalCapacity.toLocaleString()}</td>
-                                    <td className="px-5 py-3">{w.usedCapacity.toLocaleString()}</td>
-                                    <td className="px-5 py-3">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-16 bg-gray-200 rounded-full h-2">
-                                                <div
-                                                    className="h-2 rounded-full transition-all"
-                                                    style={{ width: `${Math.min(w.util, 100)}%`, backgroundColor: UTIL_COLOR(w.util) }}
-                                                />
+            {/* DASHBOARD TAB */}
+            {tab === "dashboard" && dashboardSummary && (
+                <>
+                    {/* Summary Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="bg-white rounded-xl border border-gray-200 p-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-500">Total Warehouses</p>
+                                    <p className="text-2xl font-bold text-gray-900 mt-1">
+                                        {dashboardSummary.summary.totalWarehouses}
+                                    </p>
+                                </div>
+                                <Warehouse className="text-blue-600" size={32} />
+                            </div>
+                        </div>
+                        <div className="bg-white rounded-xl border border-gray-200 p-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-500">Total Crops</p>
+                                    <p className="text-2xl font-bold text-gray-900 mt-1">
+                                        {dashboardSummary.summary.totalCrops}
+                                    </p>
+                                </div>
+                                <TrendingUp className="text-green-600" size={32} />
+                            </div>
+                        </div>
+                        <div className="bg-white rounded-xl border border-gray-200 p-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-500">Total Allocations</p>
+                                    <p className="text-2xl font-bold text-gray-900 mt-1">
+                                        {dashboardSummary.summary.totalAllocations}
+                                    </p>
+                                </div>
+                                <GitMerge className="text-purple-600" size={32} />
+                            </div>
+                        </div>
+                        <div className="bg-white rounded-xl border border-gray-200 p-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-500">Avg Utilization</p>
+                                    <p className="text-2xl font-bold text-gray-900 mt-1">
+                                        {dashboardSummary.summary.avgUtilization.toFixed(1)}%
+                                    </p>
+                                </div>
+                                <FileBarChart2 className="text-orange-600" size={32} />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Warehouse Utilization Chart */}
+                    {dashboardSummary.warehouseUtilization && dashboardSummary.warehouseUtilization.length > 0 && (
+                        <div className="bg-white rounded-xl border border-gray-200 p-5">
+                            <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <Warehouse size={18} /> Warehouse Utilization
+                            </h2>
+                            <ResponsiveContainer width="100%" height={250}>
+                                <BarChart data={dashboardSummary.warehouseUtilization} barSize={40}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                                    <YAxis tick={{ fontSize: 11 }} label={{ value: '%', position: 'insideLeft' }} />
+                                    <Tooltip />
+                                    <Bar dataKey="utilization" name="Utilization %" radius={[4, 4, 0, 0]}>
+                                        {dashboardSummary.warehouseUtilization.map((entry: any, i: number) => (
+                                            <Cell key={i} fill={UTIL_COLOR(entry.utilization)} />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    )}
+
+                    {/* Resource Status */}
+                    {dashboardSummary.resourceStatus && (
+                        <div className="bg-white rounded-xl border border-gray-200 p-5">
+                            <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <FlaskConical size={18} /> Resource Status
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                                    <p className="text-sm text-green-700 font-medium">In Stock</p>
+                                    <p className="text-3xl font-bold text-green-900 mt-2">
+                                        {dashboardSummary.resourceStatus.inStock || 0}
+                                    </p>
+                                </div>
+                                <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                    <p className="text-sm text-yellow-700 font-medium">Low Stock</p>
+                                    <p className="text-3xl font-bold text-yellow-900 mt-2">
+                                        {dashboardSummary.resourceStatus.lowStock || 0}
+                                    </p>
+                                </div>
+                                <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                                    <p className="text-sm text-red-700 font-medium">Out of Stock</p>
+                                    <p className="text-3xl font-bold text-red-900 mt-2">
+                                        {dashboardSummary.resourceStatus.outOfStock || 0}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </>
+            )}
+
+            {/* WAREHOUSE TAB */}
+            {tab === "warehouse" && warehouseReport && (
+                <>
+                    {/* Utilization Chart */}
+                    {warehouseReport.warehouses && warehouseReport.warehouses.length > 0 && (
+                        <div className="bg-white rounded-xl border border-gray-200 p-5">
+                            <h2 className="font-semibold text-gray-900 mb-4">Warehouse Utilization (%)</h2>
+                            <ResponsiveContainer width="100%" height={250}>
+                                <BarChart data={warehouseReport.warehouses} barSize={40}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                                    <YAxis tick={{ fontSize: 11 }} />
+                                    <Tooltip />
+                                    <Bar dataKey="utilizationPercent" name="Utilization %" radius={[4, 4, 0, 0]}>
+                                        {warehouseReport.warehouses.map((w: any, i: number) => (
+                                            <Cell key={i} fill={UTIL_COLOR(w.utilizationPercent)} />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    )}
+
+                    {/* Warehouse Table */}
+                    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b border-gray-100 bg-gray-50">
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Name</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Location</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Total Capacity</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Used Capacity</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Utilization</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Status</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Allocations</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {!warehouseReport.warehouses || warehouseReport.warehouses.length === 0 ? (
+                                    <tr><td colSpan={7} className="text-center py-10 text-gray-400">No warehouses found</td></tr>
+                                ) : warehouseReport.warehouses.map((w: any) => (
+                                    <tr key={w._id} className="border-b border-gray-50 hover:bg-gray-50">
+                                        <td className="px-5 py-3 font-medium text-gray-900">{w.name}</td>
+                                        <td className="px-5 py-3 text-gray-500">{w.location}</td>
+                                        <td className="px-5 py-3">{w.totalCapacity.toLocaleString()}</td>
+                                        <td className="px-5 py-3">{w.usedCapacity.toLocaleString()}</td>
+                                        <td className="px-5 py-3">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-16 bg-gray-200 rounded-full h-2">
+                                                    <div
+                                                        className="h-2 rounded-full transition-all"
+                                                        style={{ width: `${Math.min(w.utilizationPercent, 100)}%`, backgroundColor: UTIL_COLOR(w.utilizationPercent) }}
+                                                    />
+                                                </div>
+                                                <span className="text-xs font-medium text-gray-600">{w.utilizationPercent}%</span>
                                             </div>
-                                            <span className="text-xs font-medium text-gray-600">{w.util}%</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-5 py-3 text-gray-600">{w.allocCount}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
+                                        </td>
+                                        <td className="px-5 py-3">
+                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${w.status === "ACTIVE" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
+                                                }`}>
+                                                {w.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-5 py-3 text-gray-600">{w.totalAllocations}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </>
+            )}
 
-                {tab === "allocation" && (
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="border-b border-gray-100 bg-gray-50">
-                                <th className="text-left px-5 py-3 font-medium text-gray-600">Date</th>
-                                <th className="text-left px-5 py-3 font-medium text-gray-600">Crop</th>
-                                <th className="text-left px-5 py-3 font-medium text-gray-600">Warehouse</th>
-                                <th className="text-left px-5 py-3 font-medium text-gray-600">Quantity</th>
-                                <th className="text-left px-5 py-3 font-medium text-gray-600">Created By</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {allocationReport.length === 0 ? (
-                                <tr><td colSpan={5} className="text-center py-10 text-gray-400">No allocations in this date range</td></tr>
-                            ) : allocationReport.map((a) => (
-                                <tr key={a._id} className="border-b border-gray-50 hover:bg-gray-50">
-                                    <td className="px-5 py-3 text-gray-400 whitespace-nowrap">{formatDate(a.createdAt)}</td>
-                                    <td className="px-5 py-3 font-medium text-gray-900">{a.cropName}</td>
-                                    <td className="px-5 py-3 text-gray-600">{a.warehouseName}</td>
-                                    <td className="px-5 py-3">{a.allocatedQuantity.toLocaleString()} units</td>
-                                    <td className="px-5 py-3 text-gray-600">{a.createdByName}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
+            {/* ALLOCATION TAB */}
+            {tab === "allocation" && allocationReport && (
+                <>
+                    {/* Trend Chart */}
+                    {allocationReport.allocations && allocationReport.allocations.length > 0 && (
+                        <div className="bg-white rounded-xl border border-gray-200 p-5">
+                            <h2 className="font-semibold text-gray-900 mb-4">
+                                Allocation Trends (Grouped by {groupBy})
+                            </h2>
+                            <ResponsiveContainer width="100%" height={250}>
+                                <LineChart data={allocationReport.allocations}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                                    <XAxis dataKey="groupKey" tick={{ fontSize: 11 }} />
+                                    <YAxis tick={{ fontSize: 11 }} />
+                                    <Tooltip />
+                                    <Legend />
+                                    <Line type="monotone" dataKey="totalQuantity" name="Total Quantity" stroke="#7c3aed" strokeWidth={2} />
+                                    <Line type="monotone" dataKey="count" name="Count" stroke="#3b82f6" strokeWidth={2} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                    )}
 
-                {tab === "resource" && (
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="border-b border-gray-100 bg-gray-50">
-                                <th className="text-left px-5 py-3 font-medium text-gray-600">Name</th>
-                                <th className="text-left px-5 py-3 font-medium text-gray-600">Type</th>
-                                <th className="text-left px-5 py-3 font-medium text-gray-600">Stock Qty</th>
-                                <th className="text-left px-5 py-3 font-medium text-gray-600">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {resourceReport.length === 0 ? (
-                                <tr><td colSpan={4} className="text-center py-10 text-gray-400">No resources found</td></tr>
-                            ) : resourceReport.map((r) => (
-                                <tr key={r._id} className="border-b border-gray-50 hover:bg-gray-50">
-                                    <td className="px-5 py-3 font-medium text-gray-900">{r.name}</td>
-                                    <td className="px-5 py-3">
-                                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${r.type === "FERTILIZER" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
-                                            }`}>
-                                            {r.type}
-                                        </span>
-                                    </td>
-                                    <td className="px-5 py-3">{r.stockQuantity.toLocaleString()}</td>
-                                    <td className="px-5 py-3">
-                                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${r.stockQuantity === 0 ? "bg-red-100 text-red-700" :
-                                            r.stockQuantity < 50 ? "bg-yellow-100 text-yellow-700" :
-                                                "bg-green-100 text-green-700"
-                                            }`}>
-                                            {r.stockQuantity === 0 ? "Out of Stock" : r.stockQuantity < 50 ? "Low Stock" : "In Stock"}
-                                        </span>
-                                    </td>
+                    {/* Allocation Table */}
+                    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b border-gray-100 bg-gray-50">
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Group</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Count</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Total Quantity</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Avg Quantity</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
-            </div>
+                            </thead>
+                            <tbody>
+                                {!allocationReport.allocations || allocationReport.allocations.length === 0 ? (
+                                    <tr><td colSpan={4} className="text-center py-10 text-gray-400">No allocations in this date range</td></tr>
+                                ) : allocationReport.allocations.map((a: any, idx: number) => (
+                                    <tr key={idx} className="border-b border-gray-50 hover:bg-gray-50">
+                                        <td className="px-5 py-3 font-medium text-gray-900">{a.groupKey}</td>
+                                        <td className="px-5 py-3 text-gray-600">{a.count}</td>
+                                        <td className="px-5 py-3">{a.totalQuantity.toLocaleString()}</td>
+                                        <td className="px-5 py-3">{a.avgQuantity.toFixed(2)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </>
+            )}
+
+            {/* RESOURCE TAB */}
+            {tab === "resource" && resourceReport && (
+                <>
+                    {/* Stock Chart */}
+                    {resourceReport.resources && resourceReport.resources.length > 0 && (
+                        <div className="bg-white rounded-xl border border-gray-200 p-5">
+                            <h2 className="font-semibold text-gray-900 mb-4">Resource Stock Levels</h2>
+                            <ResponsiveContainer width="100%" height={250}>
+                                <BarChart data={resourceReport.resources} barSize={40}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                                    <YAxis tick={{ fontSize: 11 }} />
+                                    <Tooltip />
+                                    <Bar dataKey="currentStock" name="Current Stock" radius={[4, 4, 0, 0]}>
+                                        {resourceReport.resources.map((r: any, i: number) => (
+                                            <Cell
+                                                key={i}
+                                                fill={r.currentStock === 0 ? "#dc2626" : r.currentStock < 50 ? "#d97706" : "#16a34a"}
+                                            />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    )}
+
+                    {/* Resource Table with Depletion Warnings */}
+                    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b border-gray-100 bg-gray-50">
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Name</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Type</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Current Stock</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Total Used</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Avg Daily Usage</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Days Until Depletion</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {!resourceReport.resources || resourceReport.resources.length === 0 ? (
+                                    <tr><td colSpan={6} className="text-center py-10 text-gray-400">No resources found</td></tr>
+                                ) : resourceReport.resources.map((r: any) => (
+                                    <tr key={r._id} className="border-b border-gray-50 hover:bg-gray-50">
+                                        <td className="px-5 py-3 font-medium text-gray-900">{r.name}</td>
+                                        <td className="px-5 py-3">
+                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${r.type === "FERTILIZER" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
+                                                }`}>
+                                                {r.type}
+                                            </span>
+                                        </td>
+                                        <td className="px-5 py-3">{r.currentStock.toLocaleString()}</td>
+                                        <td className="px-5 py-3">{r.totalUsed.toLocaleString()}</td>
+                                        <td className="px-5 py-3">{r.avgDailyUsage.toFixed(2)}</td>
+                                        <td className="px-5 py-3">
+                                            {r.daysUntilDepletion !== null ? (
+                                                <div className="flex items-center gap-2">
+                                                    {r.daysUntilDepletion < 7 && (
+                                                        <AlertCircle className="text-red-600" size={14} />
+                                                    )}
+                                                    <span className={r.daysUntilDepletion < 7 ? "text-red-600 font-medium" : ""}>
+                                                        {r.daysUntilDepletion} days
+                                                    </span>
+                                                </div>
+                                            ) : (
+                                                <span className="text-gray-400">N/A</span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </>
+            )}
+
+            {/* CROP TAB */}
+            {tab === "crop" && cropReport && (
+                <>
+                    {/* Distribution Pie Chart */}
+                    {cropReport.crops && cropReport.crops.length > 0 && (
+                        <div className="bg-white rounded-xl border border-gray-200 p-5">
+                            <h2 className="font-semibold text-gray-900 mb-4">Crop Distribution</h2>
+                            <ResponsiveContainer width="100%" height={300}>
+                                <PieChart>
+                                    <Pie
+                                        data={cropReport.crops}
+                                        dataKey="totalQuantity"
+                                        nameKey="name"
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius={100}
+                                        label={(entry) => `${entry.name}: ${entry.totalQuantity}`}
+                                    >
+                                        {cropReport.crops.map((_: any, index: number) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip />
+                                    <Legend />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+                    )}
+
+                    {/* Crop Table with Performance Metrics */}
+                    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b border-gray-100 bg-gray-50">
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Name</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Status</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Total Quantity</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Allocations</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Allocation Rate</th>
+                                    <th className="text-left px-5 py-3 font-medium text-gray-600">Resources Used</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {!cropReport.crops || cropReport.crops.length === 0 ? (
+                                    <tr><td colSpan={6} className="text-center py-10 text-gray-400">No crops found</td></tr>
+                                ) : cropReport.crops.map((c: any) => (
+                                    <tr key={c._id} className="border-b border-gray-50 hover:bg-gray-50">
+                                        <td className="px-5 py-3 font-medium text-gray-900">{c.name}</td>
+                                        <td className="px-5 py-3">
+                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${c.status === "ACTIVE" ? "bg-green-100 text-green-700" :
+                                                c.status === "HARVESTING" ? "bg-blue-100 text-blue-700" :
+                                                    "bg-gray-100 text-gray-700"
+                                                }`}>
+                                                {c.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-5 py-3">{c.totalQuantity.toLocaleString()}</td>
+                                        <td className="px-5 py-3">{c.allocationCount}</td>
+                                        <td className="px-5 py-3">
+                                            <div className="flex items-center gap-2">
+                                                {c.allocationRate > 75 ? (
+                                                    <TrendingUp className="text-green-600" size={14} />
+                                                ) : c.allocationRate < 25 ? (
+                                                    <TrendingDown className="text-red-600" size={14} />
+                                                ) : null}
+                                                <span>{c.allocationRate.toFixed(1)}%</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-5 py-3 text-gray-600">{c.resourceCount}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </>
+            )}
 
             {/* Summary footer */}
             <div className="bg-white rounded-xl border border-gray-200 p-4">
-                <div className="flex items-center justify-between text-sm text-gray-500">
+                <div className="flex items-center justify-between text-sm text-gray-500 flex-wrap gap-2">
                     <span>
-                        {tab === "warehouse" && `${warehouseReport.length} warehouses`}
-                        {tab === "allocation" && `${allocationReport.length} allocations in range`}
-                        {tab === "resource" && `${resourceReport.length} resources`}
+                        {tab === "dashboard" && dashboardSummary && `Dashboard Summary - ${dashboardSummary.summary.totalWarehouses} warehouses, ${dashboardSummary.summary.totalCrops} crops`}
+                        {tab === "warehouse" && warehouseReport && `${warehouseReport.warehouses?.length || 0} warehouses`}
+                        {tab === "allocation" && allocationReport && `${allocationReport.allocations?.length || 0} allocation groups`}
+                        {tab === "resource" && resourceReport && `${resourceReport.resources?.length || 0} resources`}
+                        {tab === "crop" && cropReport && `${cropReport.crops?.length || 0} crops`}
                     </span>
                     <span className="text-xs text-gray-400">
                         Report generated: {new Date().toLocaleString("en-IN")}

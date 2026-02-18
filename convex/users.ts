@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { requireAdmin, requireAuth, getCurrentUser } from "./lib/auth";
+import { requireAdmin } from "./lib/auth";
 
 // Create a new user (Admin only)
 export const createUser = mutation({

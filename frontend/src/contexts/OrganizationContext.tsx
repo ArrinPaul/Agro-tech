@@ -32,7 +32,7 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
       // Try to restore from localStorage
       const saved = localStorage.getItem("agrotech_current_org");
       if (saved) {
-        const found = organizations.find(o => o._id === saved);
+        const found = organizations.find((o: any) => o._id === saved);
         if (found) {
           setCurrentOrgId(found._id);
           return;

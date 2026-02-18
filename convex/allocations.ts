@@ -111,6 +111,19 @@ export const allocateCropToWarehouse = mutation({
       createdAt: Date.now(),
     });
 
+    // Step 7.5: Track resource usage for analytics (Phase 4.3)
+    for (const link of cropResources) {
+      const requiredTotal = link.requiredQuantity * args.allocatedQuantity;
+      await ctx.db.insert("resourceUsageHistory", {
+        resourceId: link.resourceId,
+        quantityUsed: requiredTotal,
+        allocationId: allocationId,
+        cropId: args.cropId,
+        organizationId: args.organizationId,
+        timestamp: Date.now(),
+      });
+    }
+
     // Step 8: Log the action
     await ctx.db.insert("auditLogs", {
       action: "ALLOCATION_CREATED",

@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 import { mutation, query, internalMutation } from "./_generated/server";
-import { internal } from "./_generated/api";
 
 // Internal webhook handler (called from http.ts)
 export const handleWebhook = internalMutation({
@@ -24,7 +23,7 @@ export const handleWebhook = internalMutation({
         updatedAt: Date.now(),
       });
       
-      console.log("User created:", userId);
+      // User created successfully
       return userId;
     }
 

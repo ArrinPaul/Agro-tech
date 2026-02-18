@@ -266,7 +266,7 @@ export const listCropResources = query({
     const cropIds = crops.map(c => c._id);
     
     // Get all crop-resource links for these crops
-    const allLinks = [];
+    const allLinks: any[] = [];
     for (const cropId of cropIds) {
       const links = await ctx.db
         .query("cropResources")
