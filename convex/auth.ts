@@ -41,8 +41,6 @@ export const handleWebhook = internalMutation({
             : data.first_name || data.username || user.name,
           updatedAt: Date.now(),
         });
-        
-        console.log("User updated:", user._id);
       }
     }
 
@@ -54,7 +52,6 @@ export const handleWebhook = internalMutation({
       
       if (user) {
         await ctx.db.delete(user._id);
-        console.log("User deleted:", user._id);
       }
     }
     

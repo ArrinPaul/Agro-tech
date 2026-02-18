@@ -1,18 +1,17 @@
+import { lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, CartesianGrid, LineChart, Line,
-} from "recharts";
 import {
   Warehouse, Sprout, FlaskConical, GitMerge,
   BrainCircuit, AlertTriangle, Info, Plus,
 } from "lucide-react";
 import { useData } from "../contexts/DataContext";
 
-const STATUS_COLORS: Record<string, string> = {
-  PLANTED: "#16a34a", GROWING: "#2563eb", HARVESTED: "#d97706", STORED: "#7c3aed",
-};
-const UTIL_COLOR = (pct: number) => pct > 95 ? "#dc2626" : pct > 80 ? "#d97706" : "#16a34a";
+// Lazy load chart components for better initial load performance
+const LazyWarehouseChart = lazy(() => import("../components/charts/WarehouseUtilChart"));
+const LazyCropPieChart = lazy(() => import("../components/charts/CropPieChart"));
+const LazyResourceStockChart = lazy(() => import("../components/charts/ResourceStockChart"));
+const LazyAllocationHistoryChart = lazy(() => import("../components/charts/AllocationHistoryChart"));
+
 const SEV_STYLES: Record<string, string> = {
   critical: "bg-red-50 border-l-4 border-red-500",
   warning: "bg-yellow-50 border-l-4 border-yellow-400",
@@ -114,45 +113,17 @@ export default function DashboardPage() {
         {/* Warehouse utilization */}
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
           <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Warehouse Utilization</h2>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={warehouseUtilData} barSize={28}>
-              <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip formatter={(v, n) => [v, n === "used" ? "Used" : "Free"]} />
-              <Bar dataKey="used" name="Used" stackId="a" radius={[0, 0, 4, 4]}>
-                {warehouseUtilData.map((entry, i) => (
-                  <Cell key={i} fill={UTIL_COLOR(entry.pct)} />
-                ))}
-              </Bar>
-              <Bar dataKey="free" name="Free" stackId="a" fill="#e5e7eb" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <Suspense fallback={<div className="h-[200px] flex items-center justify-center"><div className="w-6 h-6 border-2 border-green-600 border-t-transparent rounded-full animate-spin" /></div>}>
+            <LazyWarehouseChart data={warehouseUtilData} />
+          </Suspense>
         </div>
 
         {/* Crop status distribution */}
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
           <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Crop Status Distribution</h2>
-          <div className="flex items-center justify-center gap-6">
-            <ResponsiveContainer width={160} height={160}>
-              <PieChart>
-                <Pie data={cropStatusData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value" paddingAngle={3}>
-                  {cropStatusData.map((entry, i) => (
-                    <Cell key={i} fill={STATUS_COLORS[entry.name] ?? "#94a3b8"} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="space-y-2">
-              {cropStatusData.map((entry) => (
-                <div key={entry.name} className="flex items-center gap-2 text-sm">
-                  <div className="w-3 h-3 rounded-sm" style={{ background: STATUS_COLORS[entry.name] ?? "#94a3b8" }} />
-                  <span className="text-gray-600 dark:text-gray-400">{entry.name}</span>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">{entry.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <Suspense fallback={<div className="h-[160px] flex items-center justify-center"><div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" /></div>}>
+            <LazyCropPieChart data={cropStatusData} />
+          </Suspense>
         </div>
       </div>
 
@@ -161,38 +132,17 @@ export default function DashboardPage() {
         {/* Resource stock chart */}
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
           <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Resource Stock Levels</h2>
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={resourceData} barSize={36}>
-              <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip />
-              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-              <Bar dataKey="stock" name="Stock" fill="#16a34a" radius={[4, 4, 0, 0]}>
-                {resourceData.map((entry, i) => (
-                  <Cell key={i} fill={entry.stock === 0 ? "#dc2626" : entry.stock < 50 ? "#d97706" : "#16a34a"} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+          <Suspense fallback={<div className="h-[180px] flex items-center justify-center"><div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" /></div>}>
+            <LazyResourceStockChart data={resourceData} />
+          </Suspense>
         </div>
 
         {/* Allocation history line chart */}
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
           <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Allocation History</h2>
-          {allocationHistoryData.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-12">No allocation data yet</p>
-          ) : (
-            <ResponsiveContainer width="100%" height={180}>
-              <LineChart data={allocationHistoryData}>
-                <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                <Tooltip />
-                <Line type="monotone" dataKey="cumulative" name="Cumulative" stroke="#7c3aed" strokeWidth={2} dot={{ r: 4 }} />
-                <Line type="monotone" dataKey="daily" name="Daily" stroke="#16a34a" strokeWidth={2} dot={{ r: 4 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
+          <Suspense fallback={<div className="h-[180px] flex items-center justify-center"><div className="w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" /></div>}>
+            <LazyAllocationHistoryChart data={allocationHistoryData} />
+          </Suspense>
         </div>
       </div>
 

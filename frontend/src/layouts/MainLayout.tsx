@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Warehouse, Sprout, FlaskConical,
   GitMerge, BrainCircuit, ClipboardList, FileBarChart2,
-  Menu, X, LogOut, ChevronRight, Leaf, Sun, Moon,
+  Menu, X, LogOut, ChevronRight, Leaf, Sun, Moon, Keyboard,
 } from "lucide-react";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { useQuery } from "convex/react";
@@ -13,7 +13,8 @@ import { useData } from "../contexts/ConvexDataContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { useToast } from "../components/Toast";
 import { OrganizationSelector } from "../components/OrganizationSelector";
-import NotificationPanel from "../components/NotificationPanel";
+import NotificationPanel from "../components/ConvexNotificationPanel";
+import { useGlobalKeyboardShortcuts, SkipNavLink, AriaLiveRegions, KeyboardShortcutsHelp } from "../hooks/useAccessibility";
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -35,6 +36,7 @@ const ROLE_COLORS: Record<string, string> = {
 export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const { user } = useUser();
   const { signOut } = useClerk();
   const { organizationName } = useData();
@@ -45,6 +47,14 @@ export default function MainLayout() {
   
   // Get current user from Convex
   const currentUser = useQuery(api.auth.getCurrentUser);
+
+  // Global keyboard shortcuts
+  const handleNavigation = useCallback((path: string) => { navigate(path); }, [navigate]);
+  useGlobalKeyboardShortcuts({
+    onNavigate: handleNavigation,
+    onToggleTheme: toggleTheme,
+    onShowShortcuts: () => setShortcutsOpen(true),
+  });
 
   // Close mobile sidebar on route change
   const pathname = location.pathname;
@@ -163,6 +173,11 @@ export default function MainLayout() {
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
+      {/* Accessibility */}
+      <SkipNavLink />
+      <AriaLiveRegions />
+      <KeyboardShortcutsHelp isOpen={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+
       {/* Mobile backdrop */}
       {mobileOpen && (
         <div
@@ -218,6 +233,13 @@ export default function MainLayout() {
 
           {/* Organization selector */}
           <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={() => setShortcutsOpen(true)}
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hidden md:block"
+              title="Keyboard shortcuts (?)"
+            >
+              <Keyboard size={16} />
+            </button>
             <NotificationPanel />
             <div className="hidden md:block">
               <OrganizationSelector />
@@ -234,7 +256,7 @@ export default function MainLayout() {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+        <main id="main-content" className="flex-1 overflow-y-auto p-4 md:p-6">
           <Outlet />
         </main>
       </div>

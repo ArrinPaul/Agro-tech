@@ -4,21 +4,25 @@ import { api } from "../../convex/_generated/api";
 import { useOrganization } from "../contexts/OrganizationContext";
 import {
     FileBarChart2, Download, Calendar, Warehouse,
-    GitMerge, FlaskConical, TrendingUp, TrendingDown, AlertCircle,
+    GitMerge, FlaskConical, TrendingUp, TrendingDown, AlertCircle, FileText,
 } from "lucide-react";
 import {
     BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
     CartesianGrid, Cell, LineChart, Line, Legend, PieChart, Pie,
 } from "recharts";
+import { useToast } from "../components/Toast";
+import {
+    exportWarehouseReportPDF,
+    exportAllocationReportPDF,
+    exportResourceReportPDF,
+    exportCropReportPDF,
+    exportDashboardSummaryPDF,
+} from "../utils/pdfExport";
 
 type Tab = "dashboard" | "warehouse" | "allocation" | "resource" | "crop";
 type GroupBy = "crop" | "warehouse" | "date";
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
-
-function formatDate(ts: number) {
-    return new Date(ts).toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric" });
-}
 
 function toCSV(headers: string[], rows: string[][]) {
     const escape = (s: string) => `"${s.replace(/"/g, '""')}"`;
@@ -38,16 +42,16 @@ function downloadCSV(filename: string, csv: string) {
 
 export default function ReportsPage() {
     const { selectedOrganization } = useOrganization();
+    const { addToast } = useToast();
     const [tab, setTab] = useState<Tab>("dashboard");
     const [groupBy, setGroupBy] = useState<GroupBy>("crop");
 
     // Date range — default last 90 days
-    const now = Date.now();
     const [startDate, setStartDate] = useState(() => {
-        const d = new Date(now - 90 * 86400000);
+        const d = new Date(Date.now() - 90 * 86400000);
         return d.toISOString().slice(0, 10);
     });
-    const [endDate, setEndDate] = useState(() => new Date(now).toISOString().slice(0, 10));
+    const [endDate, setEndDate] = useState(() => new Date().toISOString().slice(0, 10));
 
     const startTs = new Date(startDate).getTime();
     const endTs = new Date(endDate).getTime() + 86400000; // inclusive end
@@ -139,6 +143,27 @@ export default function ReportsPage() {
         }
     }
 
+    function handleExportPDF() {
+        const orgName = selectedOrganization?.name || "Unknown";
+        const range = tab !== "dashboard" ? { start: startDate, end: endDate } : undefined;
+        try {
+            if (tab === "warehouse" && warehouseReport) {
+                exportWarehouseReportPDF(warehouseReport, orgName, range);
+            } else if (tab === "allocation" && allocationReport) {
+                exportAllocationReportPDF(allocationReport, orgName, groupBy, range);
+            } else if (tab === "resource" && resourceReport) {
+                exportResourceReportPDF(resourceReport, orgName, range);
+            } else if (tab === "crop" && cropReport) {
+                exportCropReportPDF(cropReport, orgName, range);
+            } else if (tab === "dashboard" && dashboardSummary) {
+                exportDashboardSummaryPDF(dashboardSummary, orgName);
+            }
+            addToast("PDF report downloaded", "success");
+        } catch {
+            addToast("Failed to generate PDF", "error");
+        }
+    }
+
     const tabs: { key: Tab; label: string; icon: typeof Warehouse }[] = [
         { key: "dashboard", label: "Dashboard", icon: FileBarChart2 },
         { key: "warehouse", label: "Warehouses", icon: Warehouse },
@@ -189,12 +214,20 @@ export default function ReportsPage() {
                     </h1>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Generate and export detailed reports</p>
                 </div>
-                <button
-                    onClick={handleExport}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium transition-colors"
-                >
-                    <Download size={16} /> Export CSV
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={handleExportPDF}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium transition-colors"
+                    >
+                        <FileText size={16} /> Export PDF
+                    </button>
+                    <button
+                        onClick={handleExport}
+                        className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium transition-colors"
+                    >
+                        <Download size={16} /> Export CSV
+                    </button>
+                </div>
             </div>
 
             {/* Tabs */}

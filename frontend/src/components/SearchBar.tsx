@@ -174,7 +174,7 @@ export default function SearchBar({
           </div>
         );
       
-      case "multiSelect":
+      case "multiSelect": {
         const selectedValues = (value as string[]) || [];
         return (
           <div className="space-y-2">
@@ -205,6 +205,7 @@ export default function SearchBar({
             </div>
           </div>
         );
+      }
       
       case "number":
         return (
@@ -241,7 +242,7 @@ export default function SearchBar({
           </div>
         );
       
-      case "dateRange":
+      case "dateRange": {
         const dateRange = value || { start: "", end: "" };
         return (
           <div className="space-y-2">
@@ -267,6 +268,7 @@ export default function SearchBar({
             </div>
           </div>
         );
+      }
       
       default:
         return null;

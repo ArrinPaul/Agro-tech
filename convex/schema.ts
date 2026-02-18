@@ -114,4 +114,49 @@ export default defineSchema({
     .index("by_organization", ["organizationId"])
     .index("by_allocation", ["allocationId"])
     .index("by_timestamp", ["timestamp"]),
+
+  // AI calculation cache table
+  aiCache: defineTable({
+    organizationId: v.id("organizations"),
+    cacheKey: v.string(),
+    result: v.any(),
+    computedAt: v.number(),
+    expiresAt: v.number(),
+  })
+    .index("by_org_key", ["organizationId", "cacheKey"])
+    .index("by_expiry", ["expiresAt"]),
+
+  // Push notifications / alerts table  
+  alerts: defineTable({
+    organizationId: v.id("organizations"),
+    userId: v.optional(v.id("users")),
+    type: v.union(
+      v.literal("CAPACITY_WARNING"),
+      v.literal("DEPLETION_ALERT"),
+      v.literal("ALLOCATION_COMPLETE"),
+      v.literal("CROP_STATUS_CHANGE"),
+      v.literal("SYSTEM_ALERT"),
+      v.literal("AI_RECOMMENDATION")
+    ),
+    title: v.string(),
+    message: v.string(),
+    severity: v.union(v.literal("info"), v.literal("warning"), v.literal("critical")),
+    entityType: v.optional(v.string()),
+    entityId: v.optional(v.string()),
+    read: v.boolean(),
+    dismissed: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_organization", ["organizationId"])
+    .index("by_user", ["userId"])
+    .index("by_read", ["organizationId", "read"]),
+
+  // Rate limiting table
+  rateLimits: defineTable({
+    key: v.string(),
+    attempts: v.number(),
+    windowStart: v.number(),
+    windowEnd: v.number(),
+  })
+    .index("by_key", ["key"]),
 });

@@ -1,0 +1,227 @@
+import { useState, useCallback } from "react";
+import { Bell, X, Check, AlertTriangle, Info, CheckCircle, XCircle, Trash2, Volume2, VolumeX } from "lucide-react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { useOrganization } from "../contexts/OrganizationContext";
+
+const ALERT_ICONS: Record<string, typeof Info> = {
+  CAPACITY_WARNING: AlertTriangle,
+  DEPLETION_ALERT: XCircle,
+  ALLOCATION_COMPLETE: CheckCircle,
+  CROP_STATUS_CHANGE: Info,
+  SYSTEM_ALERT: AlertTriangle,
+  AI_RECOMMENDATION: Info,
+};
+
+const SEVERITY_STYLES: Record<string, string> = {
+  critical: "bg-red-50 border-red-200 text-red-700 dark:bg-red-900/30 dark:border-red-700 dark:text-red-300",
+  warning: "bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-900/30 dark:border-amber-700 dark:text-amber-300",
+  info: "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-300",
+  success: "bg-green-50 border-green-200 text-green-700 dark:bg-green-900/30 dark:border-green-700 dark:text-green-300",
+};
+
+function formatRelativeTime(timestamp: number): string {
+  const diff = Date.now() - timestamp;
+  if (diff < 60000) return "Just now";
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
+  return new Date(timestamp).toLocaleDateString();
+}
+
+export default function ConvexNotificationPanel() {
+  const { selectedOrganization } = useOrganization();
+  const [isOpen, setIsOpen] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+
+  // Real-time Convex queries
+  const alerts = useQuery(
+    api.alerts.listAlerts,
+    selectedOrganization ? { organizationId: selectedOrganization._id, limit: 50 } : "skip"
+  );
+  const unreadCount = useQuery(
+    api.alerts.getUnreadCount,
+    selectedOrganization ? { organizationId: selectedOrganization._id } : "skip"
+  );
+
+  // Mutations
+  const markAsRead = useMutation(api.alerts.markAsRead);
+  const markAllAsRead = useMutation(api.alerts.markAllAsRead);
+  const dismissAlert = useMutation(api.alerts.dismissAlert);
+  const deleteAlert = useMutation(api.alerts.deleteAlert);
+  const clearDismissed = useMutation(api.alerts.clearDismissed);
+
+  const handleMarkAsRead = useCallback(async (alertId: string) => {
+    try { await markAsRead({ alertId: alertId as any }); } catch { /* ignore */ }
+  }, [markAsRead]);
+
+  const handleMarkAllAsRead = useCallback(async () => {
+    if (!selectedOrganization) return;
+    try { await markAllAsRead({ organizationId: selectedOrganization._id }); } catch { /* ignore */ }
+  }, [markAllAsRead, selectedOrganization]);
+
+  const handleDismiss = useCallback(async (alertId: string) => {
+    try { await dismissAlert({ alertId: alertId as any }); } catch { /* ignore */ }
+  }, [dismissAlert]);
+
+  const handleDelete = useCallback(async (alertId: string) => {
+    try { await deleteAlert({ alertId: alertId as any }); } catch { /* ignore */ }
+  }, [deleteAlert]);
+
+  const handleClearDismissed = useCallback(async () => {
+    if (!selectedOrganization) return;
+    try { await clearDismissed({ organizationId: selectedOrganization._id }); } catch { /* ignore */ }
+  }, [clearDismissed, selectedOrganization]);
+
+  const displayCount = unreadCount ?? 0;
+  const alertList = alerts ?? [];
+
+  return (
+    <div className="relative">
+      {/* Bell Button */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+        aria-label={`Notifications${displayCount > 0 ? `, ${displayCount} unread` : ""}`}
+      >
+        <Bell size={20} />
+        {displayCount > 0 && (
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold animate-pulse">
+            {displayCount > 9 ? "9+" : displayCount}
+          </span>
+        )}
+      </button>
+
+      {/* Panel */}
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+          <div className="absolute right-0 top-full mt-2 w-[420px] max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 max-h-[480px] overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                Notifications
+                {displayCount > 0 && (
+                  <span className="text-xs bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 px-2 py-0.5 rounded-full">
+                    {displayCount} new
+                  </span>
+                )}
+              </h3>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSoundEnabled(!soundEnabled)}
+                  className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded"
+                  title={soundEnabled ? "Mute notifications" : "Unmute notifications"}
+                >
+                  {soundEnabled ? <Volume2 size={14} /> : <VolumeX size={14} />}
+                </button>
+                {displayCount > 0 && (
+                  <button
+                    onClick={handleMarkAllAsRead}
+                    className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Mark all read
+                  </button>
+                )}
+                {alertList.some(a => a.dismissed) && (
+                  <>
+                    <span className="text-gray-300 dark:text-gray-600">|</span>
+                    <button
+                      onClick={handleClearDismissed}
+                      className="text-xs text-red-600 dark:text-red-400 hover:underline"
+                    >
+                      Clear dismissed
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Alert List */}
+            <div className="flex-1 overflow-y-auto">
+              {alertList.length === 0 ? (
+                <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+                  <Bell size={28} className="mx-auto mb-2 opacity-30" />
+                  <p className="text-sm font-medium">All clear!</p>
+                  <p className="text-xs mt-1">No notifications right now</p>
+                </div>
+              ) : (
+                alertList.map((alert) => {
+                  const IconComponent = ALERT_ICONS[alert.type] || Info;
+                  const severityStyle = SEVERITY_STYLES[alert.severity] || SEVERITY_STYLES.info;
+
+                  return (
+                    <div
+                      key={alert._id}
+                      className={`px-4 py-3 border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors ${
+                        alert.dismissed
+                          ? "opacity-50"
+                          : !alert.read
+                            ? "bg-blue-50/50 dark:bg-blue-900/10"
+                            : ""
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`flex-shrink-0 p-1.5 rounded-lg ${severityStyle}`}>
+                          <IconComponent size={14} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate flex items-center gap-1.5">
+                              {alert.title}
+                              {!alert.read && (
+                                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full flex-shrink-0" />
+                              )}
+                            </h4>
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              {!alert.read && (
+                                <button
+                                  onClick={() => handleMarkAsRead(alert._id)}
+                                  className="p-1 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 rounded"
+                                  title="Mark as read"
+                                >
+                                  <Check size={12} />
+                                </button>
+                              )}
+                              {!alert.dismissed && (
+                                <button
+                                  onClick={() => handleDismiss(alert._id)}
+                                  className="p-1 text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded"
+                                  title="Dismiss"
+                                >
+                                  <X size={12} />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleDelete(alert._id)}
+                                className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
+                                title="Delete"
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">
+                            {alert.message}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${severityStyle}`}>
+                              {alert.severity.toUpperCase()}
+                            </span>
+                            <span className="text-[10px] text-gray-400 dark:text-gray-500">
+                              {formatRelativeTime(alert._creationTime)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

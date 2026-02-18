@@ -7,7 +7,7 @@
  * - Error-returning wrappers for delete/allocate mutations
  * - Consistent API for all consuming pages
  */
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { useData as useConvexData } from "./ConvexDataContext";
 import type {
   Warehouse, Crop, Resource, CropResource,

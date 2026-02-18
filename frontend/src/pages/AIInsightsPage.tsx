@@ -1,7 +1,14 @@
 import { useState } from "react";
-import { BrainCircuit, AlertTriangle, Info, TrendingUp, Lightbulb, X } from "lucide-react";
+import { BrainCircuit, AlertTriangle, Info, TrendingUp, Lightbulb, X, Warehouse, FlaskConical, Sprout, BarChart3, Calendar } from "lucide-react";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { useData } from "../contexts/DataContext";
+import { useOrganization } from "../contexts/OrganizationContext";
 import type { Suggestion } from "../types";
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  CartesianGrid, LineChart, Line, Legend, Cell,
+} from "recharts";
 
 const SEV_CONFIG = {
   critical: { bg: "bg-red-50 dark:bg-red-900/30", border: "border-red-400 dark:border-red-700", text: "text-red-800 dark:text-red-300", badge: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300", icon: AlertTriangle, iconColor: "text-red-600 dark:text-red-400" },
@@ -54,9 +61,25 @@ function SuggestionCard({ s, onDismiss }: { s: Suggestion & { id: number }; onDi
 
 export default function AIInsightsPage() {
   const { suggestions } = useData();
+  const { selectedOrganization } = useOrganization();
   const [dismissed, setDismissed] = useState<Set<number>>(new Set());
   const [typeFilter, setTypeFilter] = useState<string>("ALL");
   const [sevFilter, setSevFilter] = useState<string>("ALL");
+  const [activeTab, setActiveTab] = useState<"insights" | "warehouse" | "resource" | "demand">("insights");
+
+  // Advanced AI queries
+  const warehouseOpt = useQuery(
+    api.aiCache.getCachedWarehouseOptimization,
+    selectedOrganization ? { organizationId: selectedOrganization._id } : "skip"
+  );
+  const resourceForecast = useQuery(
+    api.aiCache.getCachedResourceForecast,
+    selectedOrganization ? { organizationId: selectedOrganization._id } : "skip"
+  );
+  const demandForecast = useQuery(
+    api.aiCache.getCachedDemandForecast,
+    selectedOrganization ? { organizationId: selectedOrganization._id } : "skip"
+  );
 
   const tagged = suggestions.map((s, i) => ({ ...s, id: i }));
   const active = tagged.filter((s) => !dismissed.has(s.id));
@@ -71,68 +94,349 @@ export default function AIInsightsPage() {
   const warnCount = active.filter((s) => s.severity === "warning").length;
   const infoCount = active.filter((s) => s.severity === "info").length;
 
+  const tabs = [
+    { key: "insights" as const, label: "AI Insights", icon: BrainCircuit },
+    { key: "warehouse" as const, label: "Warehouse Optimization", icon: Warehouse },
+    { key: "resource" as const, label: "Resource Forecast", icon: FlaskConical },
+    { key: "demand" as const, label: "Demand Forecast", icon: Sprout },
+  ];
+
+  const UTIL_COLOR = (pct: number) => pct > 95 ? "#dc2626" : pct > 80 ? "#d97706" : "#16a34a";
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-            <BrainCircuit className="text-purple-600" size={26} /> AI Insights
+            <BrainCircuit className="text-purple-600" size={26} /> AI Insights & Forecasting
           </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Smart suggestions based on your data</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Smart suggestions, predictions, and optimization recommendations</p>
         </div>
-        {dismissed.size > 0 && (
+        {dismissed.size > 0 && activeTab === "insights" && (
           <button onClick={() => setDismissed(new Set())} className="text-sm text-blue-600 hover:underline">
             Restore {dismissed.size} dismissed
           </button>
         )}
       </div>
 
-      {/* Summary badges */}
-      <div className="flex gap-3 flex-wrap">
-        <div className="flex items-center gap-2 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg px-3 py-2 text-sm text-red-700 dark:text-red-300">
-          <AlertTriangle size={14} /> {critCount} Critical
-        </div>
-        <div className="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg px-3 py-2 text-sm text-yellow-700 dark:text-yellow-300">
-          <AlertTriangle size={14} /> {warnCount} Warning
-        </div>
-        <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg px-3 py-2 text-sm text-blue-700 dark:text-blue-300">
-          <Info size={14} /> {infoCount} Info
-        </div>
+      {/* Tabs */}
+      <div className="flex gap-1 flex-wrap">
+        {tabs.map(({ key, label, icon: Icon }) => (
+          <button key={key} onClick={() => setActiveTab(key)}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === key
+                ? "bg-purple-600 text-white"
+                : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+            }`}>
+            <Icon size={16} /> {label}
+          </button>
+        ))}
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-3 flex-wrap">
-        <div className="flex gap-1">
-          {["ALL", "OPTIMIZATION", "DEPLETION_WARNING", "RECOMMENDATION", "FORECAST"].map((t) => (
-            <button key={t} onClick={() => setTypeFilter(t)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${typeFilter === t ? "bg-purple-600 text-white" : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"}`}>
-              {t === "ALL" ? "All Types" : TYPE_LABELS[t]}
-            </button>
-          ))}
-        </div>
-        <div className="flex gap-1">
-          {["ALL", "critical", "warning", "info"].map((s) => (
-            <button key={s} onClick={() => setSevFilter(s)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors capitalize ${sevFilter === s ? "bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900" : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"}`}>
-              {s === "ALL" ? "All Severity" : s}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Insights Tab */}
+      {activeTab === "insights" && (
+        <>
+          {/* Summary badges */}
+          <div className="flex gap-3 flex-wrap">
+            <div className="flex items-center gap-2 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg px-3 py-2 text-sm text-red-700 dark:text-red-300">
+              <AlertTriangle size={14} /> {critCount} Critical
+            </div>
+            <div className="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg px-3 py-2 text-sm text-yellow-700 dark:text-yellow-300">
+              <AlertTriangle size={14} /> {warnCount} Warning
+            </div>
+            <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg px-3 py-2 text-sm text-blue-700 dark:text-blue-300">
+              <Info size={14} /> {infoCount} Info
+            </div>
+          </div>
 
-      {filtered.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 py-16 text-center">
-          <BrainCircuit size={40} className="mx-auto text-gray-300 dark:text-gray-600 mb-3" />
-          <p className="text-gray-500 dark:text-gray-400 font-medium">No insights to show</p>
-          <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">All clear! Or try adjusting filters.</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filtered.map((s) => (
-            <SuggestionCard key={s.id} s={s} onDismiss={(id) => setDismissed((prev) => new Set([...prev, id]))} />
-          ))}
+          {/* Filters */}
+          <div className="flex gap-3 flex-wrap">
+            <div className="flex gap-1">
+              {["ALL", "OPTIMIZATION", "DEPLETION_WARNING", "RECOMMENDATION", "FORECAST"].map((t) => (
+                <button key={t} onClick={() => setTypeFilter(t)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${typeFilter === t ? "bg-purple-600 text-white" : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"}`}>
+                  {t === "ALL" ? "All Types" : TYPE_LABELS[t]}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-1">
+              {["ALL", "critical", "warning", "info"].map((s) => (
+                <button key={s} onClick={() => setSevFilter(s)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors capitalize ${sevFilter === s ? "bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900" : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"}`}>
+                  {s === "ALL" ? "All Severity" : s}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {filtered.length === 0 ? (
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 py-16 text-center">
+              <BrainCircuit size={40} className="mx-auto text-gray-300 dark:text-gray-600 mb-3" />
+              <p className="text-gray-500 dark:text-gray-400 font-medium">No insights to show</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">All clear! Or try adjusting filters.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filtered.map((s) => (
+                <SuggestionCard key={s.id} s={s} onDismiss={(id) => setDismissed((prev) => new Set([...prev, id]))} />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Warehouse Optimization Tab */}
+      {activeTab === "warehouse" && (
+        <div className="space-y-4">
+          {!warehouseOpt ? (
+            <LoadingSkeleton label="Analyzing warehouse data..." />
+          ) : (
+            <>
+              {/* Summary cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <StatCard label="Avg Utilization" value={`${warehouseOpt.summary.avgUtilization}%`}
+                  color={warehouseOpt.summary.avgUtilization > 80 ? "text-amber-600" : "text-green-600"} />
+                <StatCard label="Overloaded" value={warehouseOpt.summary.overloadedCount}
+                  color={warehouseOpt.summary.overloadedCount > 0 ? "text-red-600" : "text-green-600"} />
+                <StatCard label="Underutilized" value={warehouseOpt.summary.underutilizedCount}
+                  color="text-blue-600" />
+                <StatCard label="Total Remaining" value={warehouseOpt.summary.totalRemainingCapacity.toLocaleString()}
+                  color="text-gray-600 dark:text-gray-300" />
+              </div>
+
+              {/* Utilization Chart */}
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                  <BarChart3 size={16} className="text-purple-600" /> Warehouse Utilization
+                </h3>
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart data={warehouseOpt.warehouses}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                    <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
+                    <Tooltip />
+                    <Bar dataKey="utilization" name="Utilization %" radius={[4, 4, 0, 0]}>
+                      {warehouseOpt.warehouses.map((w: any, i: number) => (
+                        <Cell key={i} fill={UTIL_COLOR(w.utilization)} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Redistribution Suggestions */}
+              {warehouseOpt.redistributionSuggestions.length > 0 && (
+                <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200 dark:border-purple-700 p-5">
+                  <h3 className="font-semibold text-purple-800 dark:text-purple-300 mb-3 flex items-center gap-2">
+                    <Lightbulb size={16} /> Redistribution Suggestions
+                  </h3>
+                  <div className="space-y-2">
+                    {warehouseOpt.redistributionSuggestions.map((s: any, i: number) => (
+                      <div key={i} className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-purple-100 dark:border-purple-800">
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          Move <strong>{s.suggestedMove.toLocaleString()}</strong> units from{" "}
+                          <strong>{s.from}</strong> ({s.fromUtil}%) to <strong>{s.to}</strong> ({s.toUtil}%)
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Capacity Planning */}
+              {warehouseOpt.capacityPlanning.length > 0 && (
+                <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-700 p-5">
+                  <h3 className="font-semibold text-amber-800 dark:text-amber-300 mb-3 flex items-center gap-2">
+                    <Calendar size={16} /> Capacity Planning Alerts
+                  </h3>
+                  <div className="space-y-2">
+                    {warehouseOpt.capacityPlanning.map((p: any, i: number) => (
+                      <div key={i} className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg p-3 border border-amber-100 dark:border-amber-800">
+                        <div>
+                          <p className="font-medium text-sm text-gray-900 dark:text-gray-100">{p.warehouse}</p>
+                          <p className="text-xs text-gray-500">{p.utilization}% utilized — Growth rate: {p.growthRate}%/month</p>
+                        </div>
+                        <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
+                          Full in ~{p.estimatedDaysToFull} days
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
       )}
+
+      {/* Resource Forecast Tab */}
+      {activeTab === "resource" && (
+        <div className="space-y-4">
+          {!resourceForecast ? (
+            <LoadingSkeleton label="Forecasting resource usage..." />
+          ) : (
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <StatCard label="Total Resources" value={resourceForecast.resources.length} color="text-blue-600" />
+                <StatCard label="At Risk" value={resourceForecast.resources.filter((r: any) => r.daysUntilDepletion !== null && r.daysUntilDepletion < 30).length}
+                  color="text-red-600" />
+                <StatCard label="Stable" value={resourceForecast.resources.filter((r: any) => r.daysUntilDepletion === null || r.daysUntilDepletion >= 30).length}
+                  color="text-green-600" />
+              </div>
+
+              {/* Resource forecast chart */}
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                  <TrendingUp size={16} className="text-purple-600" /> Resource Depletion Timeline
+                </h3>
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart data={resourceForecast.resources.filter((r: any) => r.daysUntilDepletion !== null).slice(0, 10)}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                    <YAxis label={{ value: "Days", angle: -90, position: "insideLeft" }} tick={{ fontSize: 11 }} />
+                    <Tooltip />
+                    <Bar dataKey="daysUntilDepletion" name="Days Until Depletion" radius={[4, 4, 0, 0]}>
+                      {resourceForecast.resources.filter((r: any) => r.daysUntilDepletion !== null).slice(0, 10).map((_: any, i: number) => (
+                        <Cell key={i} fill={["#dc2626", "#d97706", "#16a34a"][(i % 3)]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Resource Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {resourceForecast.resources.map((r: any, i: number) => (
+                  <div key={i} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100">{r.name}</h4>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                        r.trend === "increasing" ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
+                          : r.trend === "decreasing" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                          : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                      }`}>
+                        {r.trend}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div><span className="text-gray-500">Stock:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{r.currentStock.toLocaleString()}</span></div>
+                      <div><span className="text-gray-500">Avg/Day:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{r.avgDailyUsage.toFixed(1)}</span></div>
+                      <div>
+                        <span className="text-gray-500">Depletion:</span>{" "}
+                        <span className={`font-medium ${r.daysUntilDepletion !== null && r.daysUntilDepletion < 30 ? "text-red-600" : "text-green-600"}`}>
+                          {r.daysUntilDepletion !== null ? `${r.daysUntilDepletion}d` : "Safe"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Demand Forecast Tab */}
+      {activeTab === "demand" && (
+        <div className="space-y-4">
+          {!demandForecast ? (
+            <LoadingSkeleton label="Calculating demand projections..." />
+          ) : (
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <StatCard label="Crops Tracked" value={demandForecast.crops.length} color="text-green-600" />
+                <StatCard label="Total Current Qty" value={demandForecast.summary.totalCurrentQuantity.toLocaleString()} color="text-blue-600" />
+                <StatCard label="Avg Growth Rate" value={`${demandForecast.summary.avgGrowthRate.toFixed(1)}%`}
+                  color={demandForecast.summary.avgGrowthRate > 0 ? "text-green-600" : "text-red-600"} />
+                <StatCard label="High Demand" value={demandForecast.summary.highDemandCrops} color="text-purple-600" />
+              </div>
+
+              {/* 6-Month Projection Chart */}
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                  <TrendingUp size={16} className="text-purple-600" /> 6-Month Demand Projection
+                </h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={(() => {
+                    // Aggregate monthly projections from all crops
+                    const months = demandForecast.crops[0]?.projections?.map((_: any, i: number) => {
+                      const monthData: Record<string, any> = { month: `Month ${i + 1}` };
+                      demandForecast.crops.slice(0, 5).forEach((crop: any) => {
+                        if (crop.projections?.[i]) {
+                          monthData[crop.name] = crop.projections[i].projected;
+                        }
+                      });
+                      return monthData;
+                    }) || [];
+                    return months;
+                  })()}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} />
+                    <Tooltip />
+                    <Legend />
+                    {demandForecast.crops.slice(0, 5).map((crop: any, i: number) => (
+                      <Line key={crop.name} type="monotone" dataKey={crop.name}
+                        stroke={["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"][i]}
+                        strokeWidth={2} dot={{ r: 3 }} />
+                    ))}
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Crop Demand Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {demandForecast.crops.map((crop: any, i: number) => (
+                  <div key={i} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                        <Sprout size={14} className="text-green-600" /> {crop.name}
+                      </h4>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                        crop.trend === "growing" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                          : crop.trend === "declining" ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
+                          : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                      }`}>
+                        {crop.trend}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-xs mb-2">
+                      <div><span className="text-gray-500">Current:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{crop.currentQuantity.toLocaleString()}</span></div>
+                      <div><span className="text-gray-500">Growth:</span> <span className={`font-medium ${crop.growthRate > 0 ? "text-green-600" : "text-red-600"}`}>{crop.growthRate.toFixed(1)}%</span></div>
+                      <div><span className="text-gray-500">Season:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{crop.seasonalFactor.toFixed(2)}x</span></div>
+                    </div>
+                    {crop.projections && crop.projections.length > 0 && (
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        6-month projection: <strong className="text-gray-900 dark:text-gray-100">
+                          {crop.projections[crop.projections.length - 1]?.projected?.toLocaleString() || "N/A"}
+                        </strong> expected
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StatCard({ label, value, color }: { label: string; value: string | number; color: string }) {
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 text-center">
+      <p className={`text-xl font-bold ${color}`}>{value}</p>
+      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{label}</p>
+    </div>
+  );
+}
+
+function LoadingSkeleton({ label }: { label: string }) {
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600 mx-auto mb-4" />
+      <p className="text-gray-500 dark:text-gray-400">{label}</p>
     </div>
   );
 }

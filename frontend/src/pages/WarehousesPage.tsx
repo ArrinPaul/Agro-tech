@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Plus, Pencil, Trash2, MapPin, Package, Download, Users } from "lucide-react";
+import { useState, useMemo, lazy, Suspense } from "react";
+import { Plus, Pencil, Trash2, MapPin, Package, Download, Users, BarChart3, List } from "lucide-react";
 import { useData } from "../contexts/DataContext";
 import { useToast } from "../components/Toast";
 import { validateStringLength, validateNumberRange } from "../utils/security";
@@ -9,6 +9,8 @@ import SearchBar from "../components/SearchBar";
 import Pagination from "../components/Pagination";
 import { usePagination } from "../hooks/usePagination";
 import type { Warehouse } from "../types";
+
+const WarehouseHeatmap = lazy(() => import("../components/WarehouseHeatmap"));
 
 function CapacityBar({ used, total }: { used: number; total: number }) {
   const pct = total > 0 ? Math.min((used / total) * 100, 100) : 0;
@@ -110,6 +112,7 @@ export default function WarehousesPage() {
   const [deleteTarget, setDeleteTarget] = useState<Warehouse | null>(null);
   const [bulkSelectMode, setBulkSelectMode] = useState(false);
   const [selectedWarehouses, setSelectedWarehouses] = useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<"list" | "heatmap">("list");
 
   // Memoize filtered data to avoid recalculation on every render
   const filtered = useMemo(() => {
@@ -127,8 +130,6 @@ export default function WarehousesPage() {
     currentPage,
     itemsPerPage,
     setPage,
-    nextPage,
-    prevPage,
     setItemsPerPage,
   } = usePagination(filtered, { initialPage: 1, itemsPerPage: 10 });
 
@@ -224,6 +225,16 @@ export default function WarehousesPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <div className="flex border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+            <button onClick={() => setViewMode("list")}
+              className={`flex items-center gap-1 px-3 py-2 text-sm ${viewMode === "list" ? "bg-green-600 text-white" : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300"}`}>
+              <List size={14} /> List
+            </button>
+            <button onClick={() => setViewMode("heatmap")}
+              className={`flex items-center gap-1 px-3 py-2 text-sm ${viewMode === "heatmap" ? "bg-green-600 text-white" : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300"}`}>
+              <BarChart3 size={14} /> Heatmap
+            </button>
+          </div>
           <button onClick={handleExport} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600">
             <Download size={16} /> Export CSV
           </button>
@@ -264,6 +275,20 @@ export default function WarehousesPage() {
       )}
 
       {/* Table */}
+      {/* Heatmap View */}
+      {viewMode === "heatmap" && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+          <Suspense fallback={<div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" /></div>}>
+            <WarehouseHeatmap onWarehouseClick={(id) => {
+              const wh = warehouses.find(w => w._id === id);
+              if (wh) setEditTarget(wh);
+            }} />
+          </Suspense>
+        </div>
+      )}
+
+      {/* Table View */}
+      {viewMode === "list" && (
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
@@ -332,6 +357,7 @@ export default function WarehousesPage() {
           />
         )}
       </div>
+      )}
 
       {/* Modals */}
       <Modal open={createOpen} onClose={() => setCreateOpen(false)} title="Add Warehouse">

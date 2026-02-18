@@ -29,7 +29,7 @@ export class NotificationManager {
       try {
         this.notifications = JSON.parse(saved);
       } catch {
-        console.warn("Failed to load notifications from storage");
+        // Failed to load notifications from storage - continue with empty list
       }
     }
   }

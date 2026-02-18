@@ -48,16 +48,18 @@ export function SkeletonTable({ rows = 5, cols = 4 }: { rows?: number; cols?: nu
     );
 }
 
+const CHART_HEIGHTS = [65, 42, 88, 53, 76, 35];
+
 export function SkeletonChart() {
     return (
         <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
             <Skeleton className="h-5 w-40" />
             <div className="flex items-end gap-3 h-[160px]">
-                {Array.from({ length: 6 }).map((_, i) => (
+                {CHART_HEIGHTS.map((h, i) => (
                     <Skeleton
                         key={i}
                         className="flex-1 rounded-t"
-                        style={{ height: `${30 + Math.random() * 70}%` }}
+                        style={{ height: `${h}%` }}
                     />
                 ))}
             </div>
