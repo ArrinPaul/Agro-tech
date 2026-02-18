@@ -267,12 +267,12 @@ export default function BulkImport({ onImport, importType, isOpen, onClose }: Bu
     <Modal open={isOpen} onClose={handleClose} title={`Bulk Import ${importType.charAt(0).toUpperCase() + importType.slice(1)}`}>
       <div className="space-y-6">
         {/* Step 1: Download Template */}
-        <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+        <div className="rounded-lg p-4" style={{ border: "1px solid var(--border)" }}>
           <div className="flex items-center gap-2 mb-2">
             <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">1</div>
-            <h3 className="font-medium text-gray-900 dark:text-gray-100">Download Template</h3>
+            <h3 className="font-medium" style={{ color: "var(--text-primary)" }}>Download Template</h3>
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          <p className="text-sm mb-3" style={{ color: "var(--text-muted)" }}>
             Download the CSV template with the correct format and example data.
           </p>
           <button
@@ -285,17 +285,17 @@ export default function BulkImport({ onImport, importType, isOpen, onClose }: Bu
         </div>
 
         {/* Step 2: Upload File */}
-        <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+        <div className="rounded-lg p-4" style={{ border: "1px solid var(--border)" }}>
           <div className="flex items-center gap-2 mb-2">
             <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</div>
-            <h3 className="font-medium text-gray-900 dark:text-gray-100">Upload CSV File</h3>
+            <h3 className="font-medium" style={{ color: "var(--text-primary)" }}>Upload CSV File</h3>
           </div>
           
           <div
             className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${ 
               dragActive 
                 ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                : "border-gray-300 dark:border-gray-600"
+                : "border-[var(--border)]"
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -327,8 +327,8 @@ export default function BulkImport({ onImport, importType, isOpen, onClose }: Bu
               </div>
             ) : (
               <div>
-                <Upload size={24} className="mx-auto text-gray-400 mb-2" />
-                <p className="text-gray-600 dark:text-gray-400">
+                <Upload size={24} className="mx-auto mb-2" style={{ color: "var(--text-muted)" }} />
+                <p style={{ color: "var(--text-muted)" }}>
                   Drag and drop your CSV file here, or{" "}
                   <button
                     onClick={() => fileInputRef.current?.click()}
@@ -337,7 +337,7 @@ export default function BulkImport({ onImport, importType, isOpen, onClose }: Bu
                     browse files
                   </button>
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
                   Expected headers: {template.headers.join(", ")}
                 </p>
               </div>
@@ -347,16 +347,16 @@ export default function BulkImport({ onImport, importType, isOpen, onClose }: Bu
 
         {/* Step 3: Review & Import */}
         {file && (
-          <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+          <div className="rounded-lg p-4" style={{ border: "1px solid var(--border)" }}>
             <div className="flex items-center gap-2 mb-2">
               <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">3</div>
-              <h3 className="font-medium text-gray-900 dark:text-gray-100">Review & Import</h3>
+              <h3 className="font-medium" style={{ color: "var(--text-primary)" }}>Review & Import</h3>
             </div>
 
             {parsing ? (
               <div className="text-center py-4">
                 <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Parsing CSV file...</p>
+                <p className="text-sm mt-2" style={{ color: "var(--text-muted)" }}>Parsing CSV file...</p>
               </div>
             ) : result ? (
               <div className="space-y-4">
@@ -413,14 +413,14 @@ export default function BulkImport({ onImport, importType, isOpen, onClose }: Bu
                   <div className="flex justify-end gap-3">
                     <button
                       onClick={handleClose}
-                      className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500"
+                      className="btn btn-secondary"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleImport}
                       disabled={importing}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {importing && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>}
                       Import {result.success.length} {importType}

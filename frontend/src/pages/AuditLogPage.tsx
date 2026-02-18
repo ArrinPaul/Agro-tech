@@ -74,12 +74,12 @@ export default function AuditLogPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-            <ClipboardList className="text-gray-500 dark:text-gray-400" size={24} /> Audit Log
+          <h1 className="text-2xl font-display font-bold text-[var(--text-primary)] tracking-tight flex items-center gap-2">
+            <ClipboardList style={{ color: "var(--text-muted)" }} size={24} /> Audit Log
           </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{sorted.length} of {auditLogs.length} log entries</p>
+          <p className="text-sm text-[var(--text-muted)] mt-1">{sorted.length} of {auditLogs.length} log entries</p>
         </div>
-        <button onClick={handleExport} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600">
+        <button onClick={handleExport} className="btn btn-secondary flex items-center gap-2">
           <Download size={16} /> Export CSV
         </button>
       </div>
@@ -97,30 +97,30 @@ export default function AuditLogPage() {
             <button key={f} onClick={() => { setEntityFilter(f); setPage(1); }}
               className={`px-3 py-2 text-xs font-medium rounded-lg transition-colors capitalize ${entityFilter === f
                 ? "bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900"
-                : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"}`}>
+                : "border border-[var(--border)] bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]"}`}>
               {f}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="card overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Timestamp</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Action</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Entity</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Performed By</th>
+            <tr style={{ borderBottom: "1px solid var(--border)", background: "var(--surface-hover)" }}>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Timestamp</th>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Action</th>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Entity</th>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Performed By</th>
             </tr>
           </thead>
           <tbody>
             {paginatedData.items.length === 0 && (
-              <tr><td colSpan={4} className="text-center py-10 text-gray-400 dark:text-gray-500">No logs found</td></tr>
+              <tr><td colSpan={4} className="text-center py-10" style={{ color: "var(--text-muted)" }}>No logs found</td></tr>
             )}
             {paginatedData.items.map((l) => (
-              <tr key={l._id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                <td className="px-5 py-3 text-gray-400 dark:text-gray-500 whitespace-nowrap">
+              <tr key={l._id} className="table-row" style={{ borderBottom: "1px solid var(--border-light)" }}>
+                <td className="px-5 py-3 whitespace-nowrap" style={{ color: "var(--text-muted)" }}>
                   {new Date(l.timestamp).toLocaleDateString()} {new Date(l.timestamp).toLocaleTimeString()}
                 </td>
                 <td className="px-5 py-3">
@@ -128,8 +128,8 @@ export default function AuditLogPage() {
                     {l.action.replace(/_/g, " ")}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-gray-600 dark:text-gray-400 capitalize">{l.entityType}</td>
-                <td className="px-5 py-3 text-gray-700 dark:text-gray-300">{l.performedByName ?? l.performedBy}</td>
+                <td className="px-5 py-3 capitalize" style={{ color: "var(--text-secondary)" }}>{l.entityType}</td>
+                <td className="px-5 py-3" style={{ color: "var(--text-secondary)" }}>{l.performedByName ?? l.performedBy}</td>
               </tr>
             ))}
           </tbody>

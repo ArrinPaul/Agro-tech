@@ -122,7 +122,7 @@ export default function SortableTable<T extends Record<string, unknown>>({
           <select
             value={value}
             onChange={(e) => handleFilterChange(column.key, e.target.value)}
-            className="w-full px-2 py-1 text-xs border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+            className="w-full px-2 py-1 text-xs border rounded" style={{ background: "var(--surface)", borderColor: "var(--border)" }}
           >
             <option value="">All</option>
             {column.filterOptions?.map((option) => (
@@ -140,7 +140,7 @@ export default function SortableTable<T extends Record<string, unknown>>({
             value={value}
             onChange={(e) => handleFilterChange(column.key, e.target.value)}
             placeholder="Filter..."
-            className="w-full px-2 py-1 text-xs border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+            className="w-full px-2 py-1 text-xs border rounded" style={{ background: "var(--surface)", borderColor: "var(--border)" }}
           />
         );
       
@@ -150,7 +150,7 @@ export default function SortableTable<T extends Record<string, unknown>>({
             type="date"
             value={value}
             onChange={(e) => handleFilterChange(column.key, e.target.value)}
-            className="w-full px-2 py-1 text-xs border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+            className="w-full px-2 py-1 text-xs border rounded" style={{ background: "var(--surface)", borderColor: "var(--border)" }}
           />
         );
       
@@ -161,19 +161,19 @@ export default function SortableTable<T extends Record<string, unknown>>({
             value={value}
             onChange={(e) => handleFilterChange(column.key, e.target.value)}
             placeholder="Filter..."
-            className="w-full px-2 py-1 text-xs border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+            className="w-full px-2 py-1 text-xs border rounded" style={{ background: "var(--surface)", borderColor: "var(--border)" }}
           />
         );
     }
   };
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm ${className}`}>
+    <div className={`card ${className}`}>
       {/* Table Header Controls */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-600">
+      <div className="flex items-center justify-between p-4" style={{ borderBottom: "1px solid var(--border)" }}>
         <div className="flex items-center gap-3">
           {selectable && selectedIds.length > 0 && (
-            <span className="text-sm text-gray-600 dark:text-gray-400">
+            <span className="text-sm" style={{ color: "var(--text-muted)" }}>
               {selectedIds.length} selected
             </span>
           )}
@@ -183,7 +183,7 @@ export default function SortableTable<T extends Record<string, unknown>>({
           <div className="relative">
             <button
               onClick={() => setShowColumnMenu(!showColumnMenu)}
-              className="flex items-center gap-2 px-3 py-1 text-sm border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700"
+              className="flex items-center gap-2 px-3 py-1 text-sm border rounded border-[var(--border)] hover:bg-[var(--surface-hover)]"
             >
               <EyeOff size={14} />
               Columns
@@ -195,11 +195,11 @@ export default function SortableTable<T extends Record<string, unknown>>({
                   className="fixed inset-0 z-10"
                   onClick={() => setShowColumnMenu(false)}
                 />
-                <div className="absolute top-full right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg py-2 z-20 min-w-[180px]">
+                <div className="absolute top-full right-0 mt-1 rounded-lg shadow-lg py-2 z-20 min-w-[180px]" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
                   {initialColumns.map((column) => (
                     <label
                       key={column.key}
-                      className="flex items-center gap-2 px-3 py-1 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                      className="flex items-center gap-2 px-3 py-1 hover:bg-[var(--surface-hover)] cursor-pointer"
                     >
                       <input
                         type="checkbox"
@@ -220,7 +220,7 @@ export default function SortableTable<T extends Record<string, unknown>>({
       {/* Table */}
       <div className={`overflow-auto ${maxHeight}`}>
         <table className="w-full">
-          <thead className={`${stickyHeader ? "sticky top-0 z-10" : ""} bg-gray-50 dark:bg-gray-700`}>
+          <thead className={`${stickyHeader ? "sticky top-0 z-10" : ""}`} style={{ background: "var(--surface-hover)" }}>
             <tr>
               {/* Selection checkbox */}
               {selectable && (
@@ -248,9 +248,10 @@ export default function SortableTable<T extends Record<string, unknown>>({
                     {/* Header with sorting */}
                     <div className="flex items-center justify-between">
                       <span
-                        className={`font-medium text-gray-900 dark:text-gray-100 ${
+                        className={`font-medium ${
                           column.sortable ? "cursor-pointer hover:text-blue-600 dark:hover:text-blue-400" : ""
                         }`}
+                        style={{ color: "var(--text-primary)" }}
                         onClick={() => column.sortable && handleSort(column.key)}
                       >
                         {column.label}
@@ -293,7 +294,7 @@ export default function SortableTable<T extends Record<string, unknown>>({
             </tr>
           </thead>
           
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
+          <tbody className="divide-y divide-[var(--border)]">
             {loading ? (
               // Loading skeleton
               Array.from({ length: 5 }).map((_, index) => (
@@ -310,7 +311,7 @@ export default function SortableTable<T extends Record<string, unknown>>({
               // Empty state
               <tr>
                 <td colSpan={(selectable ? 1 : 0) + visibleColumns.length} className="p-8 text-center">
-                  <div className="text-gray-500 dark:text-gray-400">
+                  <div style={{ color: "var(--text-muted)" }}>
                     <div className="text-4xl mb-2">📊</div>
                     <div className="font-medium">{emptyStateText}</div>
                   </div>
@@ -325,7 +326,7 @@ export default function SortableTable<T extends Record<string, unknown>>({
                 return (
                   <tr
                     key={itemId}
-                    className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                    className={`hover:bg-[var(--surface-hover)] transition-colors ${
                       isSelected ? "bg-blue-50 dark:bg-blue-900/20" : ""
                     }`}
                   >

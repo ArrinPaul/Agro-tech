@@ -47,10 +47,11 @@ export function OrganizationSelector() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+        className="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors"
+        style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
       >
         <Building2 className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+        <span className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
           {currentOrg?.name || "Select Organization"}
         </span>
         <svg
@@ -64,9 +65,9 @@ export function OrganizationSelector() {
       </button>
 
       {isOpen && (
-        <div className="absolute top-full mt-2 right-0 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg overflow-hidden z-50">
-          <div className="px-3 py-2 border-b border-slate-200 dark:border-slate-700">
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+        <div className="absolute top-full mt-2 right-0 w-64 rounded-lg shadow-lg overflow-hidden z-50" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+          <div className="px-3 py-2" style={{ borderBottom: "1px solid var(--border)" }}>
+            <p className="text-xs font-medium uppercase" style={{ color: "var(--text-muted)" }}>
               Select Organization
             </p>
           </div>
@@ -78,11 +79,12 @@ export function OrganizationSelector() {
                   setCurrentOrgId(org._id as Id<"organizations">);
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors ${
+                className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-[var(--surface-hover)] transition-colors ${
                   currentOrgId === org._id
                     ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
-                    : "text-slate-700 dark:text-slate-300"
+                    : ""
                 }`}
+                style={currentOrgId !== org._id ? { color: "var(--text-secondary)" } : undefined}
               >
                 <span className="font-medium">{org.name}</span>
                 {currentOrgId === org._id && (

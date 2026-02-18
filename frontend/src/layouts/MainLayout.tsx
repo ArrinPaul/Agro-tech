@@ -4,6 +4,7 @@ import {
   LayoutDashboard, Warehouse, Sprout, FlaskConical,
   GitMerge, BrainCircuit, ClipboardList, FileBarChart2,
   Menu, X, LogOut, ChevronRight, Leaf, Sun, Moon, Keyboard,
+  PanelLeftClose, PanelLeft,
 } from "lucide-react";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { useQuery } from "convex/react";
@@ -17,20 +18,22 @@ import NotificationPanel from "../components/ConvexNotificationPanel";
 import { useGlobalKeyboardShortcuts, SkipNavLink, AriaLiveRegions, KeyboardShortcutsHelp } from "../hooks/useAccessibility";
 
 const NAV = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/warehouses", label: "Warehouses", icon: Warehouse },
-  { to: "/crops", label: "Crops", icon: Sprout },
-  { to: "/resources", label: "Resources", icon: FlaskConical },
-  { to: "/allocations", label: "Allocations", icon: GitMerge },
-  { to: "/ai-insights", label: "AI Insights", icon: BrainCircuit },
-  { to: "/audit-log", label: "Audit Log", icon: ClipboardList },
-  { to: "/reports", label: "Reports", icon: FileBarChart2 },
+  { to: "/", label: "Dashboard", icon: LayoutDashboard, section: "Overview" },
+  { to: "/warehouses", label: "Warehouses", icon: Warehouse, section: "Operations" },
+  { to: "/crops", label: "Crops", icon: Sprout, section: "Operations" },
+  { to: "/resources", label: "Resources", icon: FlaskConical, section: "Operations" },
+  { to: "/allocations", label: "Allocations", icon: GitMerge, section: "Operations" },
+  { to: "/ai-insights", label: "AI Insights", icon: BrainCircuit, section: "Intelligence" },
+  { to: "/audit-log", label: "Audit Log", icon: ClipboardList, section: "Intelligence" },
+  { to: "/reports", label: "Reports", icon: FileBarChart2, section: "Intelligence" },
 ];
 
-const ROLE_COLORS: Record<string, string> = {
-  ADMIN: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-  MANAGER: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  OPERATOR: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+const SECTIONS = ["Overview", "Operations", "Intelligence"] as const;
+
+const ROLE_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
+  ADMIN: { bg: "bg-rose-500/10", text: "text-rose-600 dark:text-rose-400", dot: "bg-rose-500" },
+  MANAGER: { bg: "bg-blue-500/10", text: "text-blue-600 dark:text-blue-400", dot: "bg-blue-500" },
+  OPERATOR: { bg: "bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400", dot: "bg-emerald-500" },
 };
 
 export default function MainLayout() {
@@ -45,10 +48,8 @@ export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Get current user from Convex
   const currentUser = useQuery(api.auth.getCurrentUser);
 
-  // Global keyboard shortcuts
   useGlobalKeyboardShortcuts({
     navigate_dashboard: () => navigate("/"),
     navigate_warehouses: () => navigate("/warehouses"),
@@ -61,7 +62,6 @@ export default function MainLayout() {
     show_shortcuts: () => setShortcutsOpen(true),
   });
 
-  // Close mobile sidebar on route change
   const pathname = location.pathname;
   useEffect(() => {
     if (mobileOpen) {
@@ -70,7 +70,6 @@ export default function MainLayout() {
     }
   }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Close mobile sidebar on window resize to desktop
   useEffect(() => {
     const handler = () => {
       if (window.innerWidth >= 768) setMobileOpen(false);
@@ -93,97 +92,140 @@ export default function MainLayout() {
   const userName = user?.fullName || user?.primaryEmailAddress?.emailAddress || "User";
   const userInitial = userName.charAt(0).toUpperCase();
   const userRole = currentUser?.role || "OPERATOR";
+  const roleStyle = ROLE_STYLES[userRole] || ROLE_STYLES.OPERATOR;
 
-  // Sidebar content shared between desktop and mobile
-  const sidebarContent = (isDesktop: boolean) => (
-    <>
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-4 border-b border-gray-100 dark:border-gray-700 min-h-[64px]">
-        <div className="flex-shrink-0 w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-          <Leaf size={18} className="text-white" />
-        </div>
-        {(isDesktop ? sidebarOpen : true) && (
-          <div className="overflow-hidden">
-            <p className="font-bold text-gray-900 dark:text-gray-100 text-sm leading-none">AgroTech</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{organizationName || "No Organization"}</p>
-          </div>
-        )}
-        {/* Close button on mobile */}
-        {!isDesktop && (
-          <button
-            onClick={() => setMobileOpen(false)}
-            className="ml-auto p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 md:hidden"
-          >
-            <X size={20} />
-          </button>
-        )}
-      </div>
-
-      {/* Nav */}
-      <nav className="flex-1 py-4 space-y-0.5 overflow-y-auto">
-        {NAV.map(({ to, label, icon: Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === "/"}
-            className={({ isActive }) =>
-              `flex items-center gap-3 mx-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive
-                ? "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
-              }`
-            }
-          >
-            <Icon size={18} className="flex-shrink-0" />
-            {(isDesktop ? sidebarOpen : true) && <span>{label}</span>}
-          </NavLink>
-        ))}
-      </nav>
-
-      {/* Theme toggle + User area */}
-      {(isDesktop ? sidebarOpen : true) && (
-        <div className="border-t border-gray-100 dark:border-gray-700 p-4 space-y-3">
-          {/* Dark mode toggle */}
-          <button
-            onClick={toggleTheme}
-            className="flex items-center gap-2 w-full text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
-          >
-            {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
-            <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
-          </button>
-
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-xs font-bold">
-                {userInitial}
-              </span>
+  const sidebarContent = (isDesktop: boolean) => {
+    const expanded = isDesktop ? sidebarOpen : true;
+    return (
+      <>
+        {/* Logo */}
+        <div className="flex items-center gap-3 px-5 py-5 min-h-[68px]">
+          <div className="relative flex-shrink-0">
+            <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md shadow-emerald-500/20">
+              <Leaf size={18} className="text-white" />
             </div>
-            <div className="overflow-hidden">
-              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{userName}</p>
-              <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${ROLE_COLORS[userRole]}`}>
-                {userRole}
-              </span>
-            </div>
+            <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-[var(--surface)]" />
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 w-full text-sm text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
-          >
-            <LogOut size={15} />
-            <span>Logout</span>
-          </button>
+          {expanded && (
+            <div className="overflow-hidden animate-fade-in">
+              <p className="font-display font-bold text-[var(--text-primary)] text-sm tracking-tight leading-none">AgroTech</p>
+              <p className="text-[11px] text-[var(--text-muted)] mt-1 truncate max-w-[140px]">{organizationName || "No Organization"}</p>
+            </div>
+          )}
+          {!isDesktop && (
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="ml-auto p-1.5 rounded-lg hover:bg-[var(--surface-hover)] text-[var(--text-muted)] md:hidden transition-colors"
+            >
+              <X size={18} />
+            </button>
+          )}
         </div>
-      )}
-    </>
-  );
+
+        {/* Divider */}
+        <div className="mx-4 border-t border-[var(--border)]" />
+
+        {/* Nav */}
+        <nav className="flex-1 py-4 overflow-y-auto">
+          {SECTIONS.map((section) => {
+            const items = NAV.filter((n) => n.section === section);
+            if (items.length === 0) return null;
+            return (
+              <div key={section} className="mb-2">
+                {expanded && (
+                  <p className="px-5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                    {section}
+                  </p>
+                )}
+                <div className="space-y-0.5">
+                  {items.map(({ to, label, icon: Icon }) => (
+                    <NavLink
+                      key={to}
+                      to={to}
+                      end={to === "/"}
+                      className={({ isActive }) =>
+                        `sidebar-nav-item ${isActive ? "active" : ""} ${!expanded ? "justify-center mx-1 px-0" : ""}`
+                      }
+                      title={!expanded ? label : undefined}
+                    >
+                      <Icon size={18} className="flex-shrink-0" />
+                      {expanded && <span className="truncate">{label}</span>}
+                    </NavLink>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </nav>
+
+        {/* Footer */}
+        <div className="border-t border-[var(--border)] p-4 space-y-3">
+          {/* Theme toggle */}
+          {expanded ? (
+            <button
+              onClick={toggleTheme}
+              className="flex items-center gap-2.5 w-full px-2 py-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--surface-hover)] transition-all"
+            >
+              <div className="w-8 h-8 rounded-lg bg-[var(--surface-hover)] flex items-center justify-center">
+                {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+              </div>
+              <span className="text-[13px]">{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+            </button>
+          ) : (
+            <button
+              onClick={toggleTheme}
+              className="w-full flex justify-center p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--surface-hover)] transition-all"
+            >
+              {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+          )}
+
+          {/* User */}
+          {expanded ? (
+            <div className="flex items-center gap-3 px-2 py-2 rounded-xl bg-[var(--surface-hover)]">
+              <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                <span className="text-white text-xs font-bold">{userInitial}</span>
+              </div>
+              <div className="overflow-hidden flex-1 min-w-0">
+                <p className="text-sm font-medium text-[var(--text-primary)] truncate">{userName}</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <div className={`w-1.5 h-1.5 rounded-full ${roleStyle.dot}`} />
+                  <span className={`text-[11px] font-medium ${roleStyle.text}`}>{userRole}</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-sm" title={userName}>
+                <span className="text-white text-xs font-bold">{userInitial}</span>
+              </div>
+            </div>
+          )}
+
+          {expanded && (
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2.5 w-full px-2 py-1.5 text-sm text-[var(--text-muted)] hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all"
+            >
+              <LogOut size={15} />
+              <span className="text-[13px]">Sign Out</span>
+            </button>
+          )}
+        </div>
+      </>
+    );
+  };
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
-      {/* Accessibility */}
+    <div className="flex h-screen overflow-hidden" style={{ background: "var(--bg-primary)" }}>
       <SkipNavLink />
       <AriaLiveRegions />
+
+      {/* Keyboard Shortcuts Modal */}
       {shortcutsOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/30" onClick={() => setShortcutsOpen(false)}>
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center animate-fade-in" onClick={() => setShortcutsOpen(false)}>
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
+          <div className="relative card p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <KeyboardShortcutsHelp onClose={() => setShortcutsOpen(false)} />
           </div>
         </div>
@@ -192,23 +234,27 @@ export default function MainLayout() {
       {/* Mobile backdrop */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-40 md:hidden"
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 md:hidden animate-fade-in"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
       {/* Mobile sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transform transition-transform duration-300 md:hidden ${mobileOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed inset-y-0 left-0 z-50 w-[260px] flex flex-col transform transition-transform duration-300 md:hidden`}
+        style={{ background: "var(--surface)", borderRight: "1px solid var(--border)", transform: mobileOpen ? "translateX(0)" : "translateX(-100%)" }}
       >
         {sidebarContent(false)}
       </aside>
 
       {/* Desktop sidebar */}
       <aside
-        className={`hidden md:flex flex-col bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ${sidebarOpen ? "w-64" : "w-16"
-          }`}
+        className="hidden md:flex flex-col flex-shrink-0 transition-all duration-300 ease-out"
+        style={{
+          background: "var(--surface)",
+          borderRight: "1px solid var(--border)",
+          width: sidebarOpen ? "260px" : "72px",
+        }}
       >
         {sidebarContent(true)}
       </aside>
@@ -216,11 +262,14 @@ export default function MainLayout() {
       {/* Main content */}
       <div className="flex flex-col flex-1 min-w-0">
         {/* Topbar */}
-        <header className="flex items-center gap-3 px-5 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 min-h-[64px]">
+        <header
+          className="glass flex items-center gap-3 px-5 py-3 min-h-[64px] z-10"
+          style={{ borderBottom: "1px solid var(--border)" }}
+        >
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileOpen(true)}
-            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 md:hidden"
+            className="p-2 rounded-lg hover:bg-[var(--surface-hover)] text-[var(--text-muted)] md:hidden transition-colors"
           >
             <Menu size={20} />
           </button>
@@ -228,25 +277,26 @@ export default function MainLayout() {
           {/* Desktop sidebar toggle */}
           <button
             onClick={() => setSidebarOpen((v) => !v)}
-            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hidden md:block"
+            className="p-2 rounded-lg hover:bg-[var(--surface-hover)] text-[var(--text-muted)] hidden md:flex items-center justify-center transition-colors"
+            title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
           >
-            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            {sidebarOpen ? <PanelLeftClose size={18} /> : <PanelLeft size={18} />}
           </button>
 
           {/* Breadcrumb */}
-          <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-            <span className="text-green-700 dark:text-green-400 font-medium">AgroTech</span>
-            <ChevronRight size={14} />
-            <span className="text-gray-800 dark:text-gray-200 font-medium capitalize">
+          <div className="flex items-center gap-1.5 text-sm">
+            <span className="text-[var(--brand-600)] dark:text-[var(--brand-400)] font-medium font-display">AgroTech</span>
+            <ChevronRight size={14} className="text-[var(--text-muted)]" />
+            <span className="text-[var(--text-primary)] font-semibold capitalize font-display">
               {currentPage}
             </span>
           </div>
 
-          {/* Organization selector */}
-          <div className="ml-auto flex items-center gap-2">
+          {/* Right actions */}
+          <div className="ml-auto flex items-center gap-1.5">
             <button
               onClick={() => setShortcutsOpen(true)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hidden md:block"
+              className="p-2 rounded-lg hover:bg-[var(--surface-hover)] text-[var(--text-muted)] hidden md:flex items-center justify-center transition-colors"
               title="Keyboard shortcuts (?)"
             >
               <Keyboard size={16} />
@@ -260,15 +310,17 @@ export default function MainLayout() {
           {/* Mobile dark mode toggle */}
           <button
             onClick={toggleTheme}
-            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 md:hidden"
+            className="p-2 rounded-lg hover:bg-[var(--surface-hover)] text-[var(--text-muted)] md:hidden transition-colors"
           >
             {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </button>
         </header>
 
         {/* Page content */}
-        <main id="main-content" className="flex-1 overflow-y-auto p-4 md:p-6">
-          <Outlet />
+        <main id="main-content" className="flex-1 overflow-y-auto p-5 md:p-7">
+          <div className="page-enter">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

@@ -5,27 +5,30 @@ export default function UnauthorizedPage() {
     const navigate = useNavigate();
 
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-            <div className="text-center max-w-md">
-                <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <ShieldOff size={36} className="text-red-600" />
+        <div className="min-h-screen flex items-center justify-center p-6 mesh-gradient">
+            <div className="card text-center max-w-md w-full p-10 animate-scale-in">
+                <div
+                    className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
+                    style={{ background: "rgba(239,68,68,0.1)" }}
+                >
+                    <ShieldOff size={36} className="text-red-500" />
                 </div>
-                <h1 className="text-5xl font-black text-gray-900 mb-2">403</h1>
-                <h2 className="text-xl font-semibold text-gray-700 mb-3">Access Denied</h2>
-                <p className="text-sm text-gray-500 mb-8">
+                <h1 className="text-5xl font-black font-display mb-2" style={{ color: "var(--text-primary)" }}>403</h1>
+                <h2 className="text-xl font-semibold font-display mb-3" style={{ color: "var(--text-secondary)" }}>Access Denied</h2>
+                <p className="text-sm mb-8" style={{ color: "var(--text-muted)" }}>
                     You don't have the required permissions to access this page.
                     Contact your administrator to request access.
                 </p>
                 <div className="flex gap-3 justify-center">
                     <button
                         onClick={() => navigate(-1)}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm font-medium transition-colors"
+                        className="btn btn-secondary flex items-center gap-2"
                     >
                         <ArrowLeft size={15} /> Go Back
                     </button>
                     <button
                         onClick={() => navigate("/")}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium transition-colors"
+                        className="btn btn-primary flex items-center gap-2"
                     >
                         <Home size={15} /> Dashboard
                     </button>

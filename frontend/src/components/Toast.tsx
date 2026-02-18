@@ -16,11 +16,32 @@ export function useToast() {
 }
 
 const icons: Record<ToastType, typeof Info> = { success: CheckCircle, error: XCircle, warning: AlertTriangle, info: Info };
-const colors: Record<ToastType, string> = {
-  success: "bg-green-50 border-green-400 text-green-800",
-  error: "bg-red-50 border-red-400 text-red-800",
-  warning: "bg-yellow-50 border-yellow-400 text-yellow-800",
-  info: "bg-blue-50 border-blue-400 text-blue-800",
+
+const toastStyles: Record<ToastType, { bg: string; border: string; text: string; icon: string }> = {
+  success: {
+    bg: "rgba(5, 150, 105, 0.08)",
+    border: "rgba(5, 150, 105, 0.25)",
+    text: "var(--text-primary)",
+    icon: "#059669",
+  },
+  error: {
+    bg: "rgba(239, 68, 68, 0.08)",
+    border: "rgba(239, 68, 68, 0.25)",
+    text: "var(--text-primary)",
+    icon: "#ef4444",
+  },
+  warning: {
+    bg: "rgba(245, 158, 11, 0.08)",
+    border: "rgba(245, 158, 11, 0.25)",
+    text: "var(--text-primary)",
+    icon: "#f59e0b",
+  },
+  info: {
+    bg: "rgba(99, 102, 241, 0.08)",
+    border: "rgba(99, 102, 241, 0.25)",
+    text: "var(--text-primary)",
+    icon: "#6366f1",
+  },
 };
 
 export function ToastProvider({ children }: { children: ReactNode }) {
@@ -35,15 +56,52 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ addToast }}>
       {children}
-      <div className="fixed bottom-4 right-4 space-y-2 z-50">
+      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5">
         {toasts.map((t) => {
           const Icon = icons[t.type];
+          const s = toastStyles[t.type];
           return (
-            <div key={t.id} className={`flex items-center gap-2 px-4 py-3 rounded-lg border shadow-lg text-sm ${colors[t.type]} animate-[slideIn_0.3s_ease-out]`}>
-              <Icon size={16} />
-              <span className="flex-1">{t.message}</span>
-              <button onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))} className="opacity-60 hover:opacity-100">
-                <X size={14} />
+            <div
+              key={t.id}
+              className="animate-slide-in"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.625rem",
+                padding: "0.75rem 1rem",
+                borderRadius: "var(--radius-lg)",
+                border: `1px solid ${s.border}`,
+                background: s.bg,
+                backdropFilter: "blur(16px) saturate(180%)",
+                WebkitBackdropFilter: "blur(16px) saturate(180%)",
+                boxShadow: "var(--shadow-lg)",
+                color: s.text,
+                fontSize: "0.875rem",
+                fontFamily: "var(--font-body)",
+                fontWeight: 500,
+                minWidth: "280px",
+                maxWidth: "420px",
+              }}
+            >
+              <Icon size={18} style={{ color: s.icon, flexShrink: 0 }} />
+              <span style={{ flex: 1 }}>{t.message}</span>
+              <button
+                onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))}
+                style={{
+                  color: "var(--text-muted)",
+                  padding: "0.125rem",
+                  borderRadius: "var(--radius-sm)",
+                  transition: "color var(--duration-fast) var(--ease-out)",
+                  cursor: "pointer",
+                  background: "none",
+                  border: "none",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+              >
+                <X size={15} />
               </button>
             </div>
           );

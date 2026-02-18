@@ -29,12 +29,10 @@ export default function Pagination({
     const maxVisible = 7;
 
     if (totalPages <= maxVisible) {
-      // Show all pages
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
       }
     } else {
-      // Show first, last, current and adjacent pages
       pages.push(1);
 
       if (currentPage > 3) {
@@ -63,21 +61,45 @@ export default function Pagination({
     return null;
   }
 
+  const navBtnStyle: React.CSSProperties = {
+    display: "inline-flex",
+    alignItems: "center",
+    padding: "0.5rem",
+    color: "var(--text-muted)",
+    background: "var(--surface)",
+    border: "1px solid var(--border)",
+    cursor: "pointer",
+    transition: "all var(--duration-fast) var(--ease-out)",
+  };
+
+  const navBtnDisabled: React.CSSProperties = {
+    opacity: 0.4,
+    cursor: "not-allowed",
+  };
+
   return (
-    <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 sm:px-6">
+    <div
+      className="flex items-center justify-between px-4 py-3 sm:px-6"
+      style={{
+        borderTop: "1px solid var(--border)",
+        background: "var(--surface)",
+      }}
+    >
       {/* Mobile view */}
       <div className="flex flex-1 justify-between sm:hidden">
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={!hasPrev}
-          className="relative inline-flex items-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn btn-secondary"
+          style={!hasPrev ? navBtnDisabled : undefined}
         >
           Previous
         </button>
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={!hasNext}
-          className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn btn-secondary"
+          style={!hasNext ? navBtnDisabled : undefined}
         >
           Next
         </button>
@@ -86,18 +108,38 @@ export default function Pagination({
       {/* Desktop view */}
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm text-gray-700 dark:text-gray-300">
-            Showing <span className="font-medium">{startItem}</span> to{" "}
-            <span className="font-medium">{endItem}</span> of{" "}
-            <span className="font-medium">{totalItems}</span> results
+          <p
+            style={{
+              fontSize: "0.875rem",
+              color: "var(--text-secondary)",
+              fontFamily: "var(--font-body)",
+            }}
+          >
+            Showing{" "}
+            <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
+              {startItem}
+            </span>{" "}
+            to{" "}
+            <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
+              {endItem}
+            </span>{" "}
+            of{" "}
+            <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
+              {totalItems}
+            </span>{" "}
+            results
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center" style={{ gap: "1rem" }}>
           {showItemsPerPage && onItemsPerPageChange && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center" style={{ gap: "0.5rem" }}>
               <label
                 htmlFor="items-per-page"
-                className="text-sm text-gray-700 dark:text-gray-300"
+                style={{
+                  fontSize: "0.875rem",
+                  color: "var(--text-secondary)",
+                  fontFamily: "var(--font-body)",
+                }}
               >
                 Per page:
               </label>
@@ -105,7 +147,12 @@ export default function Pagination({
                 id="items-per-page"
                 value={itemsPerPage}
                 onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-                className="rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-1 pl-3 pr-8 text-sm text-gray-700 dark:text-gray-200 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="input"
+                style={{
+                  width: "auto",
+                  padding: "0.375rem 2rem 0.375rem 0.75rem",
+                  fontSize: "0.875rem",
+                }}
               >
                 <option value={5}>5</option>
                 <option value={10}>10</option>
@@ -116,13 +163,25 @@ export default function Pagination({
             </div>
           )}
           <nav
-            className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+            className="isolate inline-flex"
+            style={{
+              borderRadius: "var(--radius-lg)",
+              overflow: "hidden",
+              boxShadow: "var(--shadow-sm)",
+              border: "1px solid var(--border)",
+            }}
             aria-label="Pagination"
           >
             <button
               onClick={() => onPageChange(currentPage - 1)}
               disabled={!hasPrev}
-              className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                ...navBtnStyle,
+                borderRight: "none",
+                borderRadius: "var(--radius-lg) 0 0 var(--radius-lg)",
+                border: "none",
+                ...(!hasPrev ? navBtnDisabled : {}),
+              }}
             >
               <span className="sr-only">Previous</span>
               <svg
@@ -144,7 +203,17 @@ export default function Pagination({
                 return (
                   <span
                     key={`ellipsis-${idx}`}
-                    className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 ring-1 ring-inset ring-gray-300 dark:ring-gray-600"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      padding: "0.5rem 1rem",
+                      fontSize: "0.875rem",
+                      fontWeight: 600,
+                      color: "var(--text-muted)",
+                      background: "var(--surface)",
+                      borderLeft: "1px solid var(--border)",
+                      fontFamily: "var(--font-body)",
+                    }}
                   >
                     ...
                   </span>
@@ -158,11 +227,39 @@ export default function Pagination({
                 <button
                   key={pageNumber}
                   onClick={() => onPageChange(pageNumber)}
-                  className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
-                    isActive
-                      ? "z-10 bg-emerald-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
-                      : "text-gray-900 dark:text-gray-100 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-offset-0"
-                  }`}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    padding: "0.5rem 1rem",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    fontFamily: "var(--font-body)",
+                    cursor: "pointer",
+                    border: "none",
+                    borderLeft: "1px solid var(--border)",
+                    transition: "all var(--duration-fast) var(--ease-out)",
+                    ...(isActive
+                      ? {
+                          background: "linear-gradient(135deg, var(--brand-600), var(--brand-700))",
+                          color: "white",
+                          zIndex: 10,
+                          boxShadow: "0 1px 2px rgba(5, 150, 105, 0.3), inset 0 1px 0 rgba(255,255,255,0.1)",
+                        }
+                      : {
+                          background: "var(--surface)",
+                          color: "var(--text-primary)",
+                        }),
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = "var(--surface-hover)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = "var(--surface)";
+                    }
+                  }}
                 >
                   {pageNumber}
                 </button>
@@ -172,7 +269,15 @@ export default function Pagination({
             <button
               onClick={() => onPageChange(currentPage + 1)}
               disabled={!hasNext}
-              className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                ...navBtnStyle,
+                borderLeft: "1px solid var(--border)",
+                borderTop: "none",
+                borderRight: "none",
+                borderBottom: "none",
+                borderRadius: "0 var(--radius-lg) var(--radius-lg) 0",
+                ...(!hasNext ? navBtnDisabled : {}),
+              }}
             >
               <span className="sr-only">Next</span>
               <svg

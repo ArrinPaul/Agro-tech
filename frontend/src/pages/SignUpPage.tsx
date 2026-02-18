@@ -1,34 +1,47 @@
 import { SignUp } from "@clerk/clerk-react";
-import { Wheat } from "lucide-react";
+import { Leaf, ArrowRight } from "lucide-react";
 
 export default function SignUpPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-4">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-blue-500 rounded-full mb-4">
-            <Wheat className="h-8 w-8 text-white" />
+    <div className="min-h-screen flex items-center justify-center mesh-gradient p-6">
+      <div className="w-full max-w-[440px] animate-slide-up">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl mb-5 shadow-lg shadow-emerald-500/20">
+            <Leaf className="h-7 w-7 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Join AgroTech
+          <h1 className="text-2xl font-display font-bold text-[var(--text-primary)] tracking-tight">
+            Create your account
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-[var(--text-muted)] mt-1.5 text-sm">
             Start managing your farm operations today
           </p>
         </div>
 
-        <SignUp 
+        <SignUp
           path="/sign-up"
           routing="path"
           signInUrl="/login"
           afterSignUpUrl="/"
           appearance={{
             elements: {
-              rootBox: "mx-auto",
-              card: "bg-white dark:bg-gray-800 shadow-xl"
+              rootBox: "mx-auto w-full",
+              card: "shadow-none border-0 p-0 bg-transparent",
+              headerTitle: "hidden",
+              headerSubtitle: "hidden",
+              socialButtonsBlockButton: "border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] rounded-xl h-11 font-medium transition-all",
+              formFieldInput: "input",
+              formButtonPrimary: "btn btn-primary h-11 w-full text-sm",
+              footerActionLink: "text-emerald-600 hover:text-emerald-700 font-medium",
             }
           }}
         />
+
+        <div className="mt-10 pt-6 border-t border-[var(--border)] text-center">
+          <div className="inline-flex items-center gap-2 text-xs text-[var(--text-muted)]">
+            <ArrowRight size={12} />
+            <span>Free to get started — no credit card required</span>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -5,26 +5,29 @@ export default function NotFoundPage() {
     const navigate = useNavigate();
 
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-            <div className="text-center max-w-md">
-                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <MapPin size={36} className="text-green-600" />
+        <div className="min-h-screen flex items-center justify-center p-6 mesh-gradient">
+            <div className="card text-center max-w-md w-full p-10 animate-scale-in">
+                <div
+                    className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
+                    style={{ background: "rgba(5,150,105,0.1)" }}
+                >
+                    <MapPin size={36} style={{ color: "var(--brand-600)" }} />
                 </div>
-                <h1 className="text-6xl font-black text-gray-900 mb-2">404</h1>
-                <h2 className="text-xl font-semibold text-gray-700 mb-3">Page Not Found</h2>
-                <p className="text-sm text-gray-500 mb-8">
+                <h1 className="text-6xl font-black font-display mb-2" style={{ color: "var(--text-primary)" }}>404</h1>
+                <h2 className="text-xl font-semibold font-display mb-3" style={{ color: "var(--text-secondary)" }}>Page Not Found</h2>
+                <p className="text-sm mb-8" style={{ color: "var(--text-muted)" }}>
                     The page you're looking for doesn't exist or has been moved.
                 </p>
                 <div className="flex gap-3 justify-center">
                     <button
                         onClick={() => navigate(-1)}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm font-medium transition-colors"
+                        className="btn btn-secondary flex items-center gap-2"
                     >
                         <ArrowLeft size={15} /> Go Back
                     </button>
                     <button
                         onClick={() => navigate("/")}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium transition-colors"
+                        className="btn btn-primary flex items-center gap-2"
                     >
                         <Home size={15} /> Dashboard
                     </button>

@@ -35,8 +35,8 @@ function SuggestionCard({ s, onDismiss }: { s: Suggestion & { id: number }; onDi
   const cfg = SEV_CONFIG[s.severity];
   const TypeIcon = TYPE_ICONS[s.type] ?? Info;
   return (
-    <div className={`rounded-xl border-l-4 ${cfg.border} ${cfg.bg} p-4 relative`}>
-      <button onClick={() => onDismiss(s.id)} className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+    <div className={`rounded-xl border-l-[3px] ${cfg.border} ${cfg.bg} p-4 relative`}>
+      <button onClick={() => onDismiss(s.id)} className="absolute top-3 right-3 hover:opacity-80" style={{ color: "var(--text-muted)" }}>
         <X size={15} />
       </button>
       <div className="flex items-start gap-3">
@@ -49,11 +49,11 @@ function SuggestionCard({ s, onDismiss }: { s: Suggestion & { id: number }; onDi
             <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.badge}`}>
               {s.severity.toUpperCase()}
             </span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium">
+            <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "var(--surface-hover)", color: "var(--text-secondary)" }}>
               {TYPE_LABELS[s.type]}
             </span>
           </div>
-          <p className="text-sm text-gray-700 dark:text-gray-300">{s.message}</p>
+          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{s.message}</p>
         </div>
       </div>
     </div>
@@ -108,10 +108,10 @@ export default function AIInsightsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <h1 className="text-2xl font-display font-bold text-[var(--text-primary)] tracking-tight flex items-center gap-2">
             <BrainCircuit className="text-purple-600" size={26} /> AI Insights & Forecasting
           </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Smart suggestions, predictions, and optimization recommendations</p>
+          <p className="text-sm text-[var(--text-muted)] mt-1">Smart suggestions, predictions, and optimization recommendations</p>
         </div>
         {dismissed.size > 0 && activeTab === "insights" && (
           <button onClick={() => setDismissed(new Set())} className="text-sm text-blue-600 hover:underline">
@@ -126,8 +126,8 @@ export default function AIInsightsPage() {
           <button key={key} onClick={() => setActiveTab(key)}
             className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
               activeTab === key
-                ? "bg-purple-600 text-white"
-                : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                ? "bg-[var(--brand-600)] text-white"
+                : "bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--border)] hover:bg-[var(--surface-hover)]"
             }`}>
             <Icon size={16} /> {label}
           </button>
@@ -155,7 +155,7 @@ export default function AIInsightsPage() {
             <div className="flex gap-1">
               {["ALL", "OPTIMIZATION", "DEPLETION_WARNING", "RECOMMENDATION", "FORECAST"].map((t) => (
                 <button key={t} onClick={() => setTypeFilter(t)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${typeFilter === t ? "bg-purple-600 text-white" : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"}`}>
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${typeFilter === t ? "bg-[var(--brand-600)] text-white" : "bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--border)] hover:bg-[var(--surface-hover)]"}`}>
                   {t === "ALL" ? "All Types" : TYPE_LABELS[t]}
                 </button>
               ))}
@@ -163,7 +163,7 @@ export default function AIInsightsPage() {
             <div className="flex gap-1">
               {["ALL", "critical", "warning", "info"].map((s) => (
                 <button key={s} onClick={() => setSevFilter(s)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors capitalize ${sevFilter === s ? "bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900" : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"}`}>
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors capitalize ${sevFilter === s ? "bg-[var(--brand-600)] text-white" : "bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--border)] hover:bg-[var(--surface-hover)]"}`}>
                   {s === "ALL" ? "All Severity" : s}
                 </button>
               ))}
@@ -171,10 +171,10 @@ export default function AIInsightsPage() {
           </div>
 
           {filtered.length === 0 ? (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 py-16 text-center">
-              <BrainCircuit size={40} className="mx-auto text-gray-300 dark:text-gray-600 mb-3" />
-              <p className="text-gray-500 dark:text-gray-400 font-medium">No insights to show</p>
-              <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">All clear! Or try adjusting filters.</p>
+            <div className="card py-16 text-center">
+              <BrainCircuit size={40} className="mx-auto mb-3" style={{ color: "var(--text-muted)" }} />
+              <p className="font-medium" style={{ color: "var(--text-muted)" }}>No insights to show</p>
+              <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>All clear! Or try adjusting filters.</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -202,12 +202,12 @@ export default function AIInsightsPage() {
                 <StatCard label="Underutilized" value={warehouseOpt.summary.underutilizedCount}
                   color="text-blue-600" />
                 <StatCard label="Total Remaining" value={warehouseOpt.summary.totalRemainingCapacity.toLocaleString()}
-                  color="text-gray-600 dark:text-gray-300" />
+                  color="text-[var(--text-secondary)]" />
               </div>
 
               {/* Utilization Chart */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+              <div className="card p-6">
+                <h3 className="font-display font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
                   <BarChart3 size={16} className="text-purple-600" /> Warehouse Utilization
                 </h3>
                 <ResponsiveContainer width="100%" height={280}>
@@ -233,8 +233,8 @@ export default function AIInsightsPage() {
                   </h3>
                   <div className="space-y-2">
                     {warehouseOpt.redistributionSuggestions.map((s: any, i: number) => (
-                      <div key={i} className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-purple-100 dark:border-purple-800">
-                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                      <div key={i} className="rounded-lg p-3 border border-purple-100 dark:border-purple-800" style={{ background: "var(--surface)" }}>
+                        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
                           Move <strong>{s.suggestedMove.toLocaleString()}</strong> units from{" "}
                           <strong>{s.from}</strong> ({s.fromUtil}%) to <strong>{s.to}</strong> ({s.toUtil}%)
                         </p>
@@ -252,10 +252,10 @@ export default function AIInsightsPage() {
                   </h3>
                   <div className="space-y-2">
                     {warehouseOpt.capacityPlanning.map((p: any, i: number) => (
-                      <div key={i} className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg p-3 border border-amber-100 dark:border-amber-800">
+                      <div key={i} className="flex items-center justify-between rounded-lg p-3 border border-amber-100 dark:border-amber-800" style={{ background: "var(--surface)" }}>
                         <div>
-                          <p className="font-medium text-sm text-gray-900 dark:text-gray-100">{p.warehouse}</p>
-                          <p className="text-xs text-gray-500">{p.utilization}% utilized — Growth rate: {p.growthRate}%/month</p>
+                          <p className="font-medium text-sm text-[var(--text-primary)]">{p.warehouse}</p>
+                          <p className="text-xs" style={{ color: "var(--text-muted)" }}>{p.utilization}% utilized — Growth rate: {p.growthRate}%/month</p>
                         </div>
                         <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
                           Full in ~{p.estimatedDaysToFull} days
@@ -286,8 +286,8 @@ export default function AIInsightsPage() {
               </div>
 
               {/* Resource forecast chart */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+              <div className="card p-6">
+                <h3 className="font-display font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
                   <TrendingUp size={16} className="text-purple-600" /> Resource Depletion Timeline
                 </h3>
                 <ResponsiveContainer width="100%" height={280}>
@@ -308,9 +308,9 @@ export default function AIInsightsPage() {
               {/* Resource Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {resourceForecast.resources.map((r: any, i: number) => (
-                  <div key={i} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                  <div key={i} className="card p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100">{r.name}</h4>
+                      <h4 className="font-medium text-sm text-[var(--text-primary)]">{r.name}</h4>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                         r.trend === "increasing" ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
                           : r.trend === "decreasing" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
@@ -320,10 +320,10 @@ export default function AIInsightsPage() {
                       </span>
                     </div>
                     <div className="grid grid-cols-3 gap-2 text-xs">
-                      <div><span className="text-gray-500">Stock:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{r.currentStock.toLocaleString()}</span></div>
-                      <div><span className="text-gray-500">Avg/Day:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{r.avgDailyUsage.toFixed(1)}</span></div>
+                      <div><span className="text-[var(--text-muted)]">Stock:</span> <span className="font-medium text-[var(--text-primary)]">{r.currentStock.toLocaleString()}</span></div>
+                      <div><span className="text-[var(--text-muted)]">Avg/Day:</span> <span className="font-medium text-[var(--text-primary)]">{r.avgDailyUsage.toFixed(1)}</span></div>
                       <div>
-                        <span className="text-gray-500">Depletion:</span>{" "}
+                        <span className="text-[var(--text-muted)]">Depletion:</span>{" "}
                         <span className={`font-medium ${r.daysUntilDepletion !== null && r.daysUntilDepletion < 30 ? "text-red-600" : "text-green-600"}`}>
                           {r.daysUntilDepletion !== null ? `${r.daysUntilDepletion}d` : "Safe"}
                         </span>
@@ -353,8 +353,8 @@ export default function AIInsightsPage() {
               </div>
 
               {/* 6-Month Projection Chart */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+              <div className="card p-6">
+                <h3 className="font-display font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
                   <TrendingUp size={16} className="text-purple-600" /> 6-Month Demand Projection
                 </h3>
                 <ResponsiveContainer width="100%" height={300}>
@@ -388,9 +388,9 @@ export default function AIInsightsPage() {
               {/* Crop Demand Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {demandForecast.crops.map((crop: any, i: number) => (
-                  <div key={i} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                  <div key={i} className="card p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                      <h4 className="font-medium text-[var(--text-primary)] flex items-center gap-2">
                         <Sprout size={14} className="text-green-600" /> {crop.name}
                       </h4>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
@@ -402,13 +402,13 @@ export default function AIInsightsPage() {
                       </span>
                     </div>
                     <div className="grid grid-cols-3 gap-2 text-xs mb-2">
-                      <div><span className="text-gray-500">Current:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{crop.currentQuantity.toLocaleString()}</span></div>
-                      <div><span className="text-gray-500">Growth:</span> <span className={`font-medium ${crop.growthRate > 0 ? "text-green-600" : "text-red-600"}`}>{crop.growthRate.toFixed(1)}%</span></div>
-                      <div><span className="text-gray-500">Season:</span> <span className="font-medium text-gray-900 dark:text-gray-100">{crop.seasonalFactor.toFixed(2)}x</span></div>
+                      <div><span className="text-[var(--text-muted)]">Current:</span> <span className="font-medium text-[var(--text-primary)]">{crop.currentQuantity.toLocaleString()}</span></div>
+                      <div><span className="text-[var(--text-muted)]">Growth:</span> <span className={`font-medium ${crop.growthRate > 0 ? "text-green-600" : "text-red-600"}`}>{crop.growthRate.toFixed(1)}%</span></div>
+                      <div><span className="text-[var(--text-muted)]">Season:</span> <span className="font-medium text-[var(--text-primary)]">{crop.seasonalFactor.toFixed(2)}x</span></div>
                     </div>
                     {crop.projections && crop.projections.length > 0 && (
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        6-month projection: <strong className="text-gray-900 dark:text-gray-100">
+                      <div className="text-xs" style={{ color: "var(--text-muted)" }}>
+                        6-month projection: <strong className="text-[var(--text-primary)]">
                           {crop.projections[crop.projections.length - 1]?.projected?.toLocaleString() || "N/A"}
                         </strong> expected
                       </div>
@@ -426,18 +426,18 @@ export default function AIInsightsPage() {
 
 function StatCard({ label, value, color }: { label: string; value: string | number; color: string }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 text-center">
+    <div className="card p-4 text-center">
       <p className={`text-xl font-bold ${color}`}>{value}</p>
-      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{label}</p>
+      <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>{label}</p>
     </div>
   );
 }
 
 function LoadingSkeleton({ label }: { label: string }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+    <div className="card p-12 text-center">
       <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600 mx-auto mb-4" />
-      <p className="text-gray-500 dark:text-gray-400">{label}</p>
+      <p style={{ color: "var(--text-muted)" }}>{label}</p>
     </div>
   );
 }

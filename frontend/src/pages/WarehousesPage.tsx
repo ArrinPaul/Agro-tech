@@ -14,15 +14,16 @@ const WarehouseHeatmap = lazy(() => import("../components/WarehouseHeatmap"));
 
 function CapacityBar({ used, total }: { used: number; total: number }) {
   const pct = total > 0 ? Math.min((used / total) * 100, 100) : 0;
-  const color = pct > 95 ? "bg-red-500" : pct > 80 ? "bg-amber-400" : "bg-green-500";
+  const barColor = pct > 95 ? "#ef4444" : pct > 80 ? "#f59e0b" : "var(--brand-500)";
+  const textColor = pct > 95 ? "text-rose-600 dark:text-rose-400" : pct > 80 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400";
   return (
     <div>
-      <div className="flex justify-between text-xs text-gray-500 mb-1">
+      <div className="flex justify-between text-xs mb-1.5" style={{ color: "var(--text-muted)" }}>
         <span>{used} / {total} units</span>
-        <span className={`font-medium ${pct > 95 ? "text-red-600" : pct > 80 ? "text-amber-600" : "text-green-600"}`}>{pct.toFixed(0)}%</span>
+        <span className={`font-semibold ${textColor}`}>{pct.toFixed(0)}%</span>
       </div>
-      <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
-        <div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${pct}%` }} />
+      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--border)" }}>
+        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: barColor }} />
       </div>
     </div>
   );
@@ -66,35 +67,29 @@ function WarehouseForm({ initial, onSubmit, onClose }: {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label>
+        <label className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Name *</label>
         <input required value={form.name} onChange={(e) => set("name", e.target.value)}
-          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
-            errors.name ? "border-red-300 focus:ring-red-500" : "border-gray-300 dark:border-gray-600 focus:ring-green-500"
-          } bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
+          className={`input ${errors.name ? "input-error" : ""}`}
           placeholder="e.g. Central Silo A" />
-        {errors.name && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>}
+        {errors.name && <p className="mt-1.5 text-xs text-rose-600 dark:text-rose-400">{errors.name}</p>}
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location *</label>
+        <label className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Location *</label>
         <input required value={form.location} onChange={(e) => set("location", e.target.value)}
-          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
-            errors.location ? "border-red-300 focus:ring-red-500" : "border-gray-300 dark:border-gray-600 focus:ring-green-500"
-          } bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
+          className={`input ${errors.location ? "input-error" : ""}`}
           placeholder="e.g. North Field" />
-        {errors.location && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.location}</p>}
+        {errors.location && <p className="mt-1.5 text-xs text-rose-600 dark:text-rose-400">{errors.location}</p>}
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Total Capacity (units) *</label>
+        <label className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Total Capacity (units) *</label>
         <input required type="number" min={1} value={form.totalCapacity} onChange={(e) => set("totalCapacity", e.target.value)}
-          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
-            errors.totalCapacity ? "border-red-300 focus:ring-red-500" : "border-gray-300 dark:border-gray-600 focus:ring-green-500"
-          } bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
+          className={`input ${errors.totalCapacity ? "input-error" : ""}`}
           placeholder="e.g. 1000" />
-        {errors.totalCapacity && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.totalCapacity}</p>}
+        {errors.totalCapacity && <p className="mt-1.5 text-xs text-rose-600 dark:text-rose-400">{errors.totalCapacity}</p>}
       </div>
-      <div className="flex justify-end gap-3 pt-2">
-        <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500">Cancel</button>
-        <button type="submit" disabled={isSubmitting} className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+      <div className="flex justify-end gap-3 pt-3">
+        <button type="button" onClick={onClose} className="btn btn-secondary">Cancel</button>
+        <button type="submit" disabled={isSubmitting} className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
           {isSubmitting && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>}
           Save
         </button>
@@ -216,38 +211,36 @@ export default function WarehousesPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Warehouses</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+          <h1 className="text-2xl font-display font-bold text-[var(--text-primary)] tracking-tight">Warehouses</h1>
+          <p className="text-sm text-[var(--text-muted)] mt-1">
             {filtered.length} of {warehouses.length} warehouses
             {bulkSelectMode && selectedWarehouses.size > 0 && ` • ${selectedWarehouses.size} selected`}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+          <div className="flex rounded-xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
             <button onClick={() => setViewMode("list")}
-              className={`flex items-center gap-1 px-3 py-2 text-sm ${viewMode === "list" ? "bg-green-600 text-white" : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300"}`}>
+              className={`flex items-center gap-1.5 px-3 py-2 text-[13px] font-medium transition-all ${viewMode === "list" ? "bg-[var(--brand-600)] text-white" : "text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]"}`}
+              style={viewMode !== "list" ? { background: "var(--surface)" } : {}}>
               <List size={14} /> List
             </button>
             <button onClick={() => setViewMode("heatmap")}
-              className={`flex items-center gap-1 px-3 py-2 text-sm ${viewMode === "heatmap" ? "bg-green-600 text-white" : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300"}`}>
+              className={`flex items-center gap-1.5 px-3 py-2 text-[13px] font-medium transition-all ${viewMode === "heatmap" ? "bg-[var(--brand-600)] text-white" : "text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]"}`}
+              style={viewMode !== "heatmap" ? { background: "var(--surface)" } : {}}>
               <BarChart3 size={14} /> Heatmap
             </button>
           </div>
-          <button onClick={handleExport} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600">
-            <Download size={16} /> Export CSV
+          <button onClick={handleExport} className="btn btn-secondary text-[13px]">
+            <Download size={15} /> Export CSV
           </button>
           <button onClick={() => { setBulkSelectMode(!bulkSelectMode); setSelectedWarehouses(new Set()); }}
-            className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg border ${
-              bulkSelectMode
-                ? "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
-                : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600"
-            }`}>
-            <Users size={16} /> {bulkSelectMode ? "Cancel" : "Bulk Edit"}
+            className={`btn text-[13px] ${bulkSelectMode ? "btn-accent" : "btn-secondary"}`}>
+            <Users size={15} /> {bulkSelectMode ? "Cancel" : "Bulk Edit"}
           </button>
-          <button onClick={() => setCreateOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700">
-            <Plus size={16} /> Add Warehouse
+          <button onClick={() => setCreateOpen(true)} className="btn btn-primary text-[13px]">
+            <Plus size={15} /> Add Warehouse
           </button>
         </div>
       </div>
@@ -261,13 +254,12 @@ export default function WarehousesPage() {
 
       {/* Bulk Actions Bar */}
       {bulkSelectMode && selectedWarehouses.size > 0 && (
-        <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+        <div className="card animate-slide-down" style={{ padding: "0.875rem 1.25rem", background: "rgba(99, 102, 241, 0.06)" }}>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-blue-700 dark:text-blue-300">
+            <span className="text-sm font-medium" style={{ color: "var(--accent-600)" }}>
               {selectedWarehouses.size} warehouses selected
             </span>
-            <button onClick={handleBulkDelete}
-              className="px-3 py-1 text-xs bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-300 rounded-md hover:bg-red-200 dark:hover:bg-red-700">
+            <button onClick={handleBulkDelete} className="btn btn-danger text-xs py-1">
               Delete All
             </button>
           </div>
@@ -277,8 +269,8 @@ export default function WarehousesPage() {
       {/* Table */}
       {/* Heatmap View */}
       {viewMode === "heatmap" && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-          <Suspense fallback={<div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" /></div>}>
+        <div className="card p-6">
+          <Suspense fallback={<div className="flex justify-center py-12"><div className="w-7 h-7 border-2 border-[var(--brand-500)] border-t-transparent rounded-full animate-spin" /></div>}>
             <WarehouseHeatmap onWarehouseClick={(id) => {
               const wh = warehouses.find(w => w._id === id);
               if (wh) setEditTarget(wh);
@@ -289,52 +281,54 @@ export default function WarehousesPage() {
 
       {/* Table View */}
       {viewMode === "list" && (
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="card overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+            <tr style={{ borderBottom: "1px solid var(--border)", background: "var(--surface-hover)" }}>
               {bulkSelectMode && (
-                <th className="px-5 py-3">
+                <th className="px-5 py-3.5">
                   <input type="checkbox"
                     checked={selectedWarehouses.size === paginatedData.items.length && paginatedData.items.length > 0}
                     onChange={toggleSelectAll}
-                    className="rounded border-gray-300 text-green-600 focus:ring-green-500" />
+                    className="rounded" style={{ accentColor: "var(--brand-600)" }} />
                 </th>
               )}
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Name</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Location</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300 w-56">Capacity</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Created</th>
-              <th className="px-5 py-3" />
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Name</th>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Location</th>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider w-56" style={{ color: "var(--text-muted)" }}>Capacity</th>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Created</th>
+              <th className="px-5 py-3.5" />
             </tr>
           </thead>
           <tbody>
             {paginatedData.items.length === 0 && (
-              <tr><td colSpan={bulkSelectMode ? 6 : 5} className="text-center py-10 text-gray-400 dark:text-gray-500">No warehouses found</td></tr>
+              <tr><td colSpan={bulkSelectMode ? 6 : 5} className="text-center py-12 text-sm" style={{ color: "var(--text-muted)" }}>No warehouses found</td></tr>
             )}
             {paginatedData.items.map((w) => (
-              <tr key={w._id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+              <tr key={w._id} className="table-row" style={{ borderBottom: "1px solid var(--border-light)" }}>
                 {bulkSelectMode && (
                   <td className="px-5 py-4">
                     <input type="checkbox" checked={selectedWarehouses.has(w._id)} onChange={() => toggleSelection(w._id)}
-                      className="rounded border-gray-300 text-green-600 focus:ring-green-500" />
+                      className="rounded" style={{ accentColor: "var(--brand-600)" }} />
                   </td>
                 )}
-                <td className="px-5 py-4 font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                  <Package size={15} className="text-green-600 flex-shrink-0" />
+                <td className="px-5 py-4 font-medium flex items-center gap-2.5" style={{ color: "var(--text-primary)" }}>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "rgba(5, 150, 105, 0.08)" }}>
+                    <Package size={14} style={{ color: "var(--brand-600)" }} />
+                  </div>
                   {w.name}
                 </td>
-                <td className="px-5 py-4 text-gray-600 dark:text-gray-400">
-                  <span className="flex items-center gap-1"><MapPin size={13} />{w.location}</span>
+                <td className="px-5 py-4 text-[13px]" style={{ color: "var(--text-secondary)" }}>
+                  <span className="flex items-center gap-1.5"><MapPin size={13} style={{ color: "var(--text-muted)" }} />{w.location}</span>
                 </td>
                 <td className="px-5 py-4 w-56">
                   <CapacityBar used={w.usedCapacity} total={w.totalCapacity} />
                 </td>
-                <td className="px-5 py-4 text-gray-400 dark:text-gray-500">{new Date(w.createdAt).toLocaleDateString()}</td>
+                <td className="px-5 py-4 text-[13px]" style={{ color: "var(--text-muted)" }}>{new Date(w.createdAt).toLocaleDateString()}</td>
                 <td className="px-5 py-4">
-                  <div className="flex items-center gap-1 justify-end">
-                    <button onClick={() => setEditTarget(w)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-lg"><Pencil size={15} /></button>
-                    <button onClick={() => setDeleteTarget(w)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg"><Trash2 size={15} /></button>
+                  <div className="flex items-center gap-0.5 justify-end">
+                    <button onClick={() => setEditTarget(w)} className="btn-ghost p-1.5 rounded-lg text-[var(--text-muted)] hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all"><Pencil size={15} /></button>
+                    <button onClick={() => setDeleteTarget(w)} className="btn-ghost p-1.5 rounded-lg text-[var(--text-muted)] hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all"><Trash2 size={15} /></button>
                   </div>
                 </td>
               </tr>

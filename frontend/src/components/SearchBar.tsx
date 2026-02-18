@@ -138,7 +138,7 @@ export default function SearchBar({
       case "text":
         return (
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
               <Icon size={14} className="inline mr-1" />
               {filter.label}
             </label>
@@ -147,7 +147,7 @@ export default function SearchBar({
               value={value || ""}
               onChange={(e) => handleFilterChange(filter.key, e.target.value)}
               placeholder={filter.placeholder}
-              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="input"
             />
           </div>
         );
@@ -155,14 +155,14 @@ export default function SearchBar({
       case "select":
         return (
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
               <Icon size={14} className="inline mr-1" />
               {filter.label}
             </label>
             <select
               value={value || ""}
               onChange={(e) => handleFilterChange(filter.key, e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="input"
             >
               <option value="">All</option>
               {filter.options?.map((option) => (
@@ -178,7 +178,7 @@ export default function SearchBar({
         const selectedValues = (value as string[]) || [];
         return (
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
               <Icon size={14} className="inline mr-1" />
               {filter.label}
             </label>
@@ -210,7 +210,7 @@ export default function SearchBar({
       case "number":
         return (
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
               <Icon size={14} className="inline mr-1" />
               {filter.label}
             </label>
@@ -221,7 +221,7 @@ export default function SearchBar({
               placeholder={filter.placeholder}
               min={filter.min}
               max={filter.max}
-              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="input"
             />
           </div>
         );
@@ -229,7 +229,7 @@ export default function SearchBar({
       case "date":
         return (
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
               <Icon size={14} className="inline mr-1" />
               {filter.label}
             </label>
@@ -237,7 +237,7 @@ export default function SearchBar({
               type="date"
               value={value || ""}
               onChange={(e) => handleFilterChange(filter.key, e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="input"
             />
           </div>
         );
@@ -246,7 +246,7 @@ export default function SearchBar({
         const dateRange = value || { start: "", end: "" };
         return (
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
               <Icon size={14} className="inline mr-1" />
               {filter.label}
             </label>
@@ -256,14 +256,14 @@ export default function SearchBar({
                 value={dateRange.start || ""}
                 onChange={(e) => handleFilterChange(filter.key, { ...dateRange, start: e.target.value })}
                 placeholder="From"
-                className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="input"
               />
               <input
                 type="date"
                 value={dateRange.end || ""}
                 onChange={(e) => handleFilterChange(filter.key, { ...dateRange, end: e.target.value })}
                 placeholder="To"
-                className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="input"
               />
             </div>
           </div>
@@ -289,7 +289,7 @@ export default function SearchBar({
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             placeholder={placeholder}
-            className="w-full pl-10 pr-10 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="input pl-10 pr-10 py-2"
           />
           {searchValue && (
             <button
@@ -308,7 +308,7 @@ export default function SearchBar({
             className={`relative flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
               showFilters || activeFiltersCount > 0
                 ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
-                : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                : "border-[var(--border)] bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]"
             }`}
           >
             <SlidersHorizontal size={18} />
@@ -327,10 +327,11 @@ export default function SearchBar({
       {showFilters && filters.length > 0 && (
         <div
           ref={filtersRef}
-          className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-4 z-20"
+          className="absolute top-full left-0 right-0 mt-2 rounded-lg shadow-lg p-4 z-20"
+          style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-medium text-gray-900 dark:text-gray-100">Filters</h3>
+            <h3 className="font-medium" style={{ color: "var(--text-primary)" }}>Filters</h3>
             {activeFiltersCount > 0 && (
               <button
                 onClick={clearAllFilters}
@@ -349,7 +350,7 @@ export default function SearchBar({
             ))}
           </div>
           
-          <div className="flex justify-end mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+          <div className="flex justify-end mt-4 pt-4" style={{ borderTop: "1px solid var(--border)" }}>
             <button
               onClick={() => setShowFilters(false)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

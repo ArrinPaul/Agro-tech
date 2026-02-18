@@ -57,33 +57,29 @@ function ResourceForm({ initial, onSubmit, onClose }: {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label>
+        <label className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Name *</label>
         <input required value={form.name} onChange={(e) => set("name", e.target.value)}
-          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
-            errors.name ? "border-red-300 focus:ring-red-500" : "border-gray-300 dark:border-gray-600 focus:ring-green-500"
-          } bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
+          className={`input ${errors.name ? "input-error" : ""}`}
           placeholder="e.g. NPK Fertilizer" />
-        {errors.name && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>}
+        {errors.name && <p className="mt-1 text-sm text-rose-600 dark:text-rose-400">{errors.name}</p>}
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type *</label>
+        <label className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Type *</label>
         <select value={form.type} onChange={(e) => set("type", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+          className="input">
           {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stock Quantity *</label>
+        <label className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Stock Quantity *</label>
         <input required type="number" min={0} value={form.stockQuantity} onChange={(e) => set("stockQuantity", e.target.value)}
-          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
-            errors.stockQuantity ? "border-red-300 focus:ring-red-500" : "border-gray-300 dark:border-gray-600 focus:ring-green-500"
-          } bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
+          className={`input ${errors.stockQuantity ? "input-error" : ""}`}
           placeholder="e.g. 100" />
-        {errors.stockQuantity && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.stockQuantity}</p>}
+        {errors.stockQuantity && <p className="mt-1 text-sm text-rose-600 dark:text-rose-400">{errors.stockQuantity}</p>}
       </div>
       <div className="flex justify-end gap-3 pt-2">
-        <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500">Cancel</button>
-        <button type="submit" disabled={isSubmitting} className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+        <button type="button" onClick={onClose} className="btn btn-secondary">Cancel</button>
+        <button type="submit" disabled={isSubmitting} className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
           {isSubmitting && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>}
           Save
         </button>
@@ -103,21 +99,21 @@ function AdjustStockModal({ resource, onAdjust, onClose }: {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-gray-600 dark:text-gray-400">Current stock: <strong className="text-gray-900 dark:text-gray-100">{resource.stockQuantity}</strong> units</p>
+      <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Current stock: <strong style={{ color: "var(--text-primary)" }}>{resource.stockQuantity}</strong> units</p>
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Adjustment (+ add / - deduct)</label>
+        <label className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Adjustment (+ add / - deduct)</label>
         <input type="number" value={delta} onChange={(e) => setDelta(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
+          className="input" />
       </div>
-      <p className={`text-sm ${preview < 0 ? "text-red-600 dark:text-red-400" : "text-gray-600 dark:text-gray-400"}`}>
+      <p className={`text-sm ${preview < 0 ? "text-rose-600 dark:text-rose-400" : ""}`} style={preview >= 0 ? { color: "var(--text-secondary)" } : undefined}>
         Result: <strong>{preview}</strong> units {preview < 0 && "(invalid)"}
       </p>
       <div className="flex justify-end gap-3">
-        <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500">Cancel</button>
+        <button onClick={onClose} className="btn btn-secondary">Cancel</button>
         <button
           disabled={preview < 0 || numDelta === 0}
           onClick={() => { onAdjust(numDelta); onClose(); }}
-          className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-40">
+          className="btn btn-primary disabled:opacity-40">
           Apply
         </button>
       </div>
@@ -251,25 +247,25 @@ export default function ResourcesPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Resources</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+          <h1 className="text-2xl font-display font-bold text-[var(--text-primary)] tracking-tight">Resources</h1>
+          <p className="text-sm text-[var(--text-muted)] mt-1">
             {filtered.length} of {resources.length} resources
             {bulkSelectMode && selectedResources.size > 0 && ` • ${selectedResources.size} selected`}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={handleExport} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600">
+          <button onClick={handleExport} className="btn btn-secondary flex items-center gap-2">
             <Download size={16} /> Export CSV
           </button>
           <button onClick={() => { setBulkSelectMode(!bulkSelectMode); setSelectedResources(new Set()); }}
             className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg border ${
               bulkSelectMode
                 ? "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
-                : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600"
+                : "bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)]"
             }`}>
             <Users size={16} /> {bulkSelectMode ? "Cancel" : "Bulk Edit"}
           </button>
-          <button onClick={() => setCreateOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700">
+          <button onClick={() => setCreateOpen(true)} className="btn btn-primary flex items-center gap-2">
             <Plus size={16} /> Add Resource
           </button>
         </div>
@@ -320,7 +316,7 @@ export default function ResourcesPage() {
               className={`px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
                 typeFilter === t
                   ? "bg-green-600 text-white"
-                  : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
+                  : "border border-[var(--border)] bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]"
               }`}>
               {t}
             </button>
@@ -329,28 +325,28 @@ export default function ResourcesPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="card overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+            <tr style={{ borderBottom: "1px solid var(--border)", background: "var(--surface-hover)" }}>
               {bulkSelectMode && (
-                <th className="px-5 py-3">
+                <th className="px-5 py-3.5">
                   <input type="checkbox"
                     checked={selectedResources.size === paginatedData.items.length && paginatedData.items.length > 0}
                     onChange={toggleSelectAll}
                     className="rounded border-gray-300 text-green-600 focus:ring-green-500" />
                 </th>
               )}
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Name</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Type</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Stock</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Status</th>
-              <th className="px-5 py-3" />
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Name</th>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Type</th>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Stock</th>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Status</th>
+              <th className="px-5 py-3.5" />
             </tr>
           </thead>
           <tbody>
             {paginatedData.items.length === 0 && (
-              <tr><td colSpan={bulkSelectMode ? 6 : 5} className="text-center py-10 text-gray-400 dark:text-gray-500">No resources found</td></tr>
+              <tr><td colSpan={bulkSelectMode ? 6 : 5} className="text-center py-10" style={{ color: "var(--text-muted)" }}>No resources found</td></tr>
             )}
             {paginatedData.items.map((r) => {
               const optimistic = optimisticUpdates.get(r._id);
@@ -358,14 +354,14 @@ export default function ResourcesPage() {
               const displayStock = optimistic?.stockQuantity ?? r.stockQuantity;
               const status = displayStock === 0 ? "OUT" : displayStock < 50 ? "LOW" : "OK";
               return (
-                <tr key={r._id} className={`border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 ${optimistic ? "ring-1 ring-inset ring-green-200 dark:ring-green-700" : ""}`}>
+                <tr key={r._id} className={`table-row ${optimistic ? "ring-1 ring-inset ring-green-200 dark:ring-green-700" : ""}`} style={{ borderBottom: "1px solid var(--border-light)" }}>
                   {bulkSelectMode && (
                     <td className="px-5 py-4">
                       <input type="checkbox" checked={selectedResources.has(r._id)} onChange={() => toggleResourceSelection(r._id)}
                         className="rounded border-gray-300 text-green-600 focus:ring-green-500" />
                     </td>
                   )}
-                  <td className="px-5 py-4 font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                  <td className="px-5 py-4 font-medium flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
                     <FlaskConical size={15} className="text-green-600 flex-shrink-0" />
                     {displayName}
                     {optimistic && <Check size={12} className="text-green-600" />}
@@ -373,7 +369,7 @@ export default function ResourcesPage() {
                   <td className="px-5 py-4">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${TYPE_COLORS[r.type]}`}>{r.type}</span>
                   </td>
-                  <td className="px-5 py-4 font-semibold text-gray-900 dark:text-gray-100">{displayStock.toLocaleString()}</td>
+                  <td className="px-5 py-4 font-semibold" style={{ color: "var(--text-primary)" }}>{displayStock.toLocaleString()}</td>
                   <td className="px-5 py-4">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${status === "OUT" ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300" : status === "LOW" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300" : "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"}`}>
                       {status === "OUT" ? "Out of Stock" : status === "LOW" ? "Low Stock" : "In Stock"}
@@ -381,11 +377,11 @@ export default function ResourcesPage() {
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1 justify-end">
-                      <button onClick={() => setAdjustTarget(r)} className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900 rounded-lg" title="Adjust stock">
+                      <button onClick={() => setAdjustTarget(r)} className="btn-ghost p-1.5 rounded-lg text-[var(--text-muted)] hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-all" title="Adjust stock">
                         {r.stockQuantity > 0 ? <Minus size={15} /> : <Plus size={15} />}
                       </button>
-                      <button onClick={() => setEditTarget(r)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-lg"><Pencil size={15} /></button>
-                      <button onClick={() => setDeleteTarget(r)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg"><Trash2 size={15} /></button>
+                      <button onClick={() => setEditTarget(r)} className="btn-ghost p-1.5 rounded-lg text-[var(--text-muted)] hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all"><Pencil size={15} /></button>
+                      <button onClick={() => setDeleteTarget(r)} className="btn-ghost p-1.5 rounded-lg text-[var(--text-muted)] hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all"><Trash2 size={15} /></button>
                     </div>
                   </td>
                 </tr>

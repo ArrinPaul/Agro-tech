@@ -187,8 +187,8 @@ export default function ReportsPage() {
         return (
             <div className="flex items-center justify-center h-64">
                 <div className="text-center">
-                    <AlertCircle className="text-gray-400 dark:text-gray-500 mx-auto mb-3" size={32} />
-                    <p className="text-gray-500 dark:text-gray-400">Please select an organization</p>
+                    <AlertCircle className="mx-auto mb-3" style={{ color: "var(--text-muted)" }} size={32} />
+                    <p style={{ color: "var(--text-muted)" }}>Please select an organization</p>
                 </div>
             </div>
         );
@@ -199,7 +199,7 @@ export default function ReportsPage() {
             <div className="flex items-center justify-center h-64">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mx-auto mb-3"></div>
-                    <p className="text-gray-500 dark:text-gray-400">Loading report...</p>
+                    <p style={{ color: "var(--text-muted)" }}>Loading report...</p>
                 </div>
             </div>
         );
@@ -210,21 +210,21 @@ export default function ReportsPage() {
             {/* Header */}
             <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <h1 className="text-2xl font-display font-bold text-[var(--text-primary)] tracking-tight flex items-center gap-2">
                         <FileBarChart2 className="text-green-600" size={24} /> Reports
                     </h1>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Generate and export detailed reports</p>
+                    <p className="text-sm text-[var(--text-muted)] mt-1">Generate and export detailed reports</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <button
                         onClick={handleExportPDF}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium transition-colors"
+                        className="btn btn-secondary flex items-center gap-2"
                     >
                         <FileText size={16} /> Export PDF
                     </button>
                     <button
                         onClick={handleExport}
-                        className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium transition-colors"
+                        className="btn btn-primary flex items-center gap-2"
                     >
                         <Download size={16} /> Export CSV
                     </button>
@@ -238,8 +238,8 @@ export default function ReportsPage() {
                         key={key}
                         onClick={() => setTab(key)}
                         className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${tab === key
-                            ? "bg-green-600 text-white"
-                            : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                            ? "bg-[var(--brand-600)] text-white"
+                            : "bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--border)] hover:bg-[var(--surface-hover)]"
                             }`}
                     >
                         <Icon size={16} /> {label}
@@ -251,32 +251,32 @@ export default function ReportsPage() {
             {tab !== "dashboard" && (
                 <div className="flex items-center justify-between flex-wrap gap-3">
                     <div className="flex items-center gap-2 text-sm">
-                        <Calendar size={15} className="text-gray-400 dark:text-gray-500" />
+                        <Calendar size={15} style={{ color: "var(--text-muted)" }} />
                         <input
                             type="date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
-                            className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                            className="input text-sm"
                         />
-                        <span className="text-gray-400 dark:text-gray-500">to</span>
+                        <span style={{ color: "var(--text-muted)" }}>to</span>
                         <input
                             type="date"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
-                            className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                            className="input text-sm"
                         />
                     </div>
 
                     {tab === "allocation" && (
                         <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-600 dark:text-gray-300 font-medium">Group by:</span>
+                            <span className="text-[13px] font-medium" style={{ color: "var(--text-secondary)" }}>Group by:</span>
                             {(["crop", "warehouse", "date"] as GroupBy[]).map((g) => (
                                 <button
                                     key={g}
                                     onClick={() => setGroupBy(g)}
                                     className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors capitalize ${groupBy === g
-                                        ? "bg-green-600 text-white"
-                                        : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                        ? "bg-[var(--brand-600)] text-white"
+                                        : "bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--border)] hover:bg-[var(--surface-hover)]"
                                         }`}
                                 >
                                     {g}
@@ -292,44 +292,44 @@ export default function ReportsPage() {
                 <>
                     {/* Summary Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                        <div className="card p-4">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">Total Warehouses</p>
-                                    <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                                    <p className="text-sm" style={{ color: "var(--text-muted)" }}>Total Warehouses</p>
+                                    <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">
                                         {dashboardSummary.summary.totalWarehouses}
                                     </p>
                                 </div>
                                 <Warehouse className="text-blue-600" size={32} />
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                        <div className="card p-4">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">Total Crops</p>
-                                    <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                                    <p className="text-sm" style={{ color: "var(--text-muted)" }}>Total Crops</p>
+                                    <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">
                                         {dashboardSummary.summary.totalCrops}
                                     </p>
                                 </div>
                                 <TrendingUp className="text-green-600" size={32} />
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                        <div className="card p-4">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">Total Allocations</p>
-                                    <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                                    <p className="text-sm" style={{ color: "var(--text-muted)" }}>Total Allocations</p>
+                                    <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">
                                         {dashboardSummary.summary.totalAllocations}
                                     </p>
                                 </div>
                                 <GitMerge className="text-purple-600" size={32} />
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                        <div className="card p-4">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">Avg Utilization</p>
-                                    <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                                    <p className="text-sm" style={{ color: "var(--text-muted)" }}>Avg Utilization</p>
+                                    <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">
                                         {dashboardSummary.summary.avgUtilization.toFixed(1)}%
                                     </p>
                                 </div>
@@ -340,8 +340,8 @@ export default function ReportsPage() {
 
                     {/* Warehouse Utilization Chart */}
                     {dashboardSummary.warehouseUtilization && dashboardSummary.warehouseUtilization.length > 0 && (
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-                            <h2 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                        <div className="card p-6">
+                            <h2 className="font-display font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
                                 <Warehouse size={18} /> Warehouse Utilization
                             </h2>
                             <ResponsiveContainer width="100%" height={250}>
@@ -362,8 +362,8 @@ export default function ReportsPage() {
 
                     {/* Resource Status */}
                     {dashboardSummary.resourceStatus && (
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-                            <h2 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                        <div className="card p-6">
+                            <h2 className="font-display font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
                                 <FlaskConical size={18} /> Resource Status
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -396,8 +396,8 @@ export default function ReportsPage() {
                 <>
                     {/* Utilization Chart */}
                     {warehouseReport.warehouses && warehouseReport.warehouses.length > 0 && (
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-                            <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Warehouse Utilization (%)</h2>
+                        <div className="card p-6">
+                            <h2 className="font-display font-semibold text-[var(--text-primary)] mb-4">Warehouse Utilization (%)</h2>
                             <ResponsiveContainer width="100%" height={250}>
                                 <BarChart data={warehouseReport.warehouses} barSize={40}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
@@ -415,28 +415,28 @@ export default function ReportsPage() {
                     )}
 
                     {/* Warehouse Table */}
-                    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div className="card overflow-hidden">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Name</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Location</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Total Capacity</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Used Capacity</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Utilization</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Status</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Allocations</th>
+                                <tr style={{ background: "var(--surface-hover)", borderBottom: "1px solid var(--border)" }}>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Name</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Location</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Total Capacity</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Used Capacity</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Utilization</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Status</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Allocations</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {!warehouseReport.warehouses || warehouseReport.warehouses.length === 0 ? (
-                                    <tr><td colSpan={7} className="text-center py-10 text-gray-400 dark:text-gray-500">No warehouses found</td></tr>
+                                    <tr><td colSpan={7} className="text-center py-10" style={{ color: "var(--text-muted)" }}>No warehouses found</td></tr>
                                 ) : warehouseReport.warehouses.map((w: any) => (
-                                    <tr key={w._id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                        <td className="px-5 py-3 font-medium text-gray-900 dark:text-white">{w.name}</td>
-                                        <td className="px-5 py-3 text-gray-500 dark:text-gray-400">{w.location}</td>
-                                        <td className="px-5 py-3 dark:text-gray-300">{w.totalCapacity.toLocaleString()}</td>
-                                        <td className="px-5 py-3 dark:text-gray-300">{w.usedCapacity.toLocaleString()}</td>
+                                    <tr key={w._id} className="table-row" style={{ borderBottom: "1px solid var(--border-light)" }}>
+                                        <td className="px-5 py-3 font-medium text-[var(--text-primary)]">{w.name}</td>
+                                        <td className="px-5 py-3" style={{ color: "var(--text-muted)" }}>{w.location}</td>
+                                        <td className="px-5 py-3" style={{ color: "var(--text-secondary)" }}>{w.totalCapacity.toLocaleString()}</td>
+                                        <td className="px-5 py-3" style={{ color: "var(--text-secondary)" }}>{w.usedCapacity.toLocaleString()}</td>
                                         <td className="px-5 py-3">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-16 bg-gray-200 dark:bg-gray-600 rounded-full h-2">
@@ -445,7 +445,7 @@ export default function ReportsPage() {
                                                         style={{ width: `${Math.min(w.utilizationPercent, 100)}%`, backgroundColor: UTIL_COLOR(w.utilizationPercent) }}
                                                     />
                                                 </div>
-                                                <span className="text-xs font-medium text-gray-600 dark:text-gray-300">{w.utilizationPercent}%</span>
+                                                <span className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>{w.utilizationPercent}%</span>
                                             </div>
                                         </td>
                                         <td className="px-5 py-3">
@@ -454,7 +454,7 @@ export default function ReportsPage() {
                                                 {w.status}
                                             </span>
                                         </td>
-                                        <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{w.totalAllocations}</td>
+                                        <td className="px-5 py-3" style={{ color: "var(--text-secondary)" }}>{w.totalAllocations}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -468,8 +468,8 @@ export default function ReportsPage() {
                 <>
                     {/* Trend Chart */}
                     {allocationReport.allocations && allocationReport.allocations.length > 0 && (
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-                            <h2 className="font-semibold text-gray-900 dark:text-white mb-4">
+                        <div className="card p-6">
+                            <h2 className="font-display font-semibold text-[var(--text-primary)] mb-4">
                                 Allocation Trends (Grouped by {groupBy})
                             </h2>
                             <ResponsiveContainer width="100%" height={250}>
@@ -487,25 +487,25 @@ export default function ReportsPage() {
                     )}
 
                     {/* Allocation Table */}
-                    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div className="card overflow-hidden">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Group</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Count</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Total Quantity</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Avg Quantity</th>
+                                <tr style={{ background: "var(--surface-hover)", borderBottom: "1px solid var(--border)" }}>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Group</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Count</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Total Quantity</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Avg Quantity</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {!allocationReport.allocations || allocationReport.allocations.length === 0 ? (
-                                    <tr><td colSpan={4} className="text-center py-10 text-gray-400 dark:text-gray-500">No allocations in this date range</td></tr>
+                                    <tr><td colSpan={4} className="text-center py-10" style={{ color: "var(--text-muted)" }}>No allocations in this date range</td></tr>
                                 ) : allocationReport.allocations.map((a: any, idx: number) => (
-                                    <tr key={idx} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                        <td className="px-5 py-3 font-medium text-gray-900 dark:text-white">{a.groupKey}</td>
-                                        <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{a.count}</td>
-                                        <td className="px-5 py-3 dark:text-gray-300">{a.totalQuantity.toLocaleString()}</td>
-                                        <td className="px-5 py-3 dark:text-gray-300">{a.avgQuantity.toFixed(2)}</td>
+                                    <tr key={idx} className="table-row" style={{ borderBottom: "1px solid var(--border-light)" }}>
+                                        <td className="px-5 py-3 font-medium text-[var(--text-primary)]">{a.groupKey}</td>
+                                        <td className="px-5 py-3" style={{ color: "var(--text-secondary)" }}>{a.count}</td>
+                                        <td className="px-5 py-3" style={{ color: "var(--text-secondary)" }}>{a.totalQuantity.toLocaleString()}</td>
+                                        <td className="px-5 py-3" style={{ color: "var(--text-secondary)" }}>{a.avgQuantity.toFixed(2)}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -519,8 +519,8 @@ export default function ReportsPage() {
                 <>
                     {/* Stock Chart */}
                     {resourceReport.resources && resourceReport.resources.length > 0 && (
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-                            <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Resource Stock Levels</h2>
+                        <div className="card p-6">
+                            <h2 className="font-display font-semibold text-[var(--text-primary)] mb-4">Resource Stock Levels</h2>
                             <ResponsiveContainer width="100%" height={250}>
                                 <BarChart data={resourceReport.resources} barSize={40}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
@@ -541,33 +541,33 @@ export default function ReportsPage() {
                     )}
 
                     {/* Resource Table with Depletion Warnings */}
-                    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div className="card overflow-hidden">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Name</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Type</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Current Stock</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Total Used</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Avg Daily Usage</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Days Until Depletion</th>
+                                <tr style={{ background: "var(--surface-hover)", borderBottom: "1px solid var(--border)" }}>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Name</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Type</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Current Stock</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Total Used</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Avg Daily Usage</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Days Until Depletion</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {!resourceReport.resources || resourceReport.resources.length === 0 ? (
-                                    <tr><td colSpan={6} className="text-center py-10 text-gray-400 dark:text-gray-500">No resources found</td></tr>
+                                    <tr><td colSpan={6} className="text-center py-10" style={{ color: "var(--text-muted)" }}>No resources found</td></tr>
                                 ) : resourceReport.resources.map((r: any) => (
-                                    <tr key={r._id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                        <td className="px-5 py-3 font-medium text-gray-900 dark:text-white">{r.name}</td>
+                                    <tr key={r._id} className="table-row" style={{ borderBottom: "1px solid var(--border-light)" }}>
+                                        <td className="px-5 py-3 font-medium text-[var(--text-primary)]">{r.name}</td>
                                         <td className="px-5 py-3">
                                             <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${r.type === "FERTILIZER" ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400" : "bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400"
                                                 }`}>
                                                 {r.type}
                                             </span>
                                         </td>
-                                        <td className="px-5 py-3 dark:text-gray-300">{r.currentStock.toLocaleString()}</td>
-                                        <td className="px-5 py-3 dark:text-gray-300">{r.totalUsed.toLocaleString()}</td>
-                                        <td className="px-5 py-3 dark:text-gray-300">{r.avgDailyUsage.toFixed(2)}</td>
+                                        <td className="px-5 py-3" style={{ color: "var(--text-secondary)" }}>{r.currentStock.toLocaleString()}</td>
+                                        <td className="px-5 py-3" style={{ color: "var(--text-secondary)" }}>{r.totalUsed.toLocaleString()}</td>
+                                        <td className="px-5 py-3" style={{ color: "var(--text-secondary)" }}>{r.avgDailyUsage.toFixed(2)}</td>
                                         <td className="px-5 py-3">
                                             {r.daysUntilDepletion !== null ? (
                                                 <div className="flex items-center gap-2">
@@ -579,7 +579,7 @@ export default function ReportsPage() {
                                                     </span>
                                                 </div>
                                             ) : (
-                                                <span className="text-gray-400 dark:text-gray-500">N/A</span>
+                                                <span style={{ color: "var(--text-muted)" }}>N/A</span>
                                             )}
                                         </td>
                                     </tr>
@@ -595,8 +595,8 @@ export default function ReportsPage() {
                 <>
                     {/* Distribution Pie Chart */}
                     {cropReport.crops && cropReport.crops.length > 0 && (
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-                            <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Crop Distribution</h2>
+                        <div className="card p-6">
+                            <h2 className="font-display font-semibold text-[var(--text-primary)] mb-4">Crop Distribution</h2>
                             <ResponsiveContainer width="100%" height={300}>
                                 <PieChart>
                                     <Pie
@@ -620,24 +620,24 @@ export default function ReportsPage() {
                     )}
 
                     {/* Crop Table with Performance Metrics */}
-                    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div className="card overflow-hidden">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Name</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Status</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Total Quantity</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Allocations</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Allocation Rate</th>
-                                    <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Resources Used</th>
+                                <tr style={{ background: "var(--surface-hover)", borderBottom: "1px solid var(--border)" }}>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Name</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Status</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Total Quantity</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Allocations</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Allocation Rate</th>
+                                    <th className="text-left px-5 py-3 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Resources Used</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {!cropReport.crops || cropReport.crops.length === 0 ? (
-                                    <tr><td colSpan={6} className="text-center py-10 text-gray-400 dark:text-gray-500">No crops found</td></tr>
+                                    <tr><td colSpan={6} className="text-center py-10" style={{ color: "var(--text-muted)" }}>No crops found</td></tr>
                                 ) : cropReport.crops.map((c: any) => (
-                                    <tr key={c._id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                        <td className="px-5 py-3 font-medium text-gray-900 dark:text-white">{c.name}</td>
+                                    <tr key={c._id} className="table-row" style={{ borderBottom: "1px solid var(--border-light)" }}>
+                                        <td className="px-5 py-3 font-medium text-[var(--text-primary)]">{c.name}</td>
                                         <td className="px-5 py-3">
                                             <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${c.status === "ACTIVE" ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400" :
                                                 c.status === "HARVESTING" ? "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400" :
@@ -646,8 +646,8 @@ export default function ReportsPage() {
                                                 {c.status}
                                             </span>
                                         </td>
-                                        <td className="px-5 py-3 dark:text-gray-300">{c.totalQuantity.toLocaleString()}</td>
-                                        <td className="px-5 py-3 dark:text-gray-300">{c.allocationCount}</td>
+                                        <td className="px-5 py-3" style={{ color: "var(--text-secondary)" }}>{c.totalQuantity.toLocaleString()}</td>
+                                        <td className="px-5 py-3" style={{ color: "var(--text-secondary)" }}>{c.allocationCount}</td>
                                         <td className="px-5 py-3">
                                             <div className="flex items-center gap-2">
                                                 {c.allocationRate > 75 ? (
@@ -658,7 +658,7 @@ export default function ReportsPage() {
                                                 <span>{c.allocationRate.toFixed(1)}%</span>
                                             </div>
                                         </td>
-                                        <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{c.resourceCount}</td>
+                                        <td className="px-5 py-3" style={{ color: "var(--text-secondary)" }}>{c.resourceCount}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -668,8 +668,8 @@ export default function ReportsPage() {
             )}
 
             {/* Summary footer */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-                <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 flex-wrap gap-2">
+            <div className="card p-4">
+                <div className="flex items-center justify-between text-sm flex-wrap gap-2" style={{ color: "var(--text-muted)" }}>
                     <span>
                         {tab === "dashboard" && dashboardSummary && `Dashboard Summary - ${dashboardSummary.summary.totalWarehouses} warehouses, ${dashboardSummary.summary.totalCrops} crops`}
                         {tab === "warehouse" && warehouseReport && `${warehouseReport.warehouses?.length || 0} warehouses`}
@@ -677,7 +677,7 @@ export default function ReportsPage() {
                         {tab === "resource" && resourceReport && `${resourceReport.resources?.length || 0} resources`}
                         {tab === "crop" && cropReport && `${cropReport.crops?.length || 0} crops`}
                     </span>
-                    <span className="text-xs text-gray-400 dark:text-gray-500">
+                    <span className="text-xs" style={{ color: "var(--text-muted)" }}>
                         Report generated: {new Date().toLocaleString("en-IN")}
                     </span>
                 </div>

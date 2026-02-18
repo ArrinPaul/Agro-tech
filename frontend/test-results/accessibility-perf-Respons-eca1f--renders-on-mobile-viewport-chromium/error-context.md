@@ -1,0 +1,63 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - img [ref=e7]
+    - heading "Create your account" [level=1] [ref=e10]
+    - paragraph [ref=e11]: Start managing your farm operations today
+  - generic [ref=e13]:
+    - generic [ref=e15]:
+      - button "Sign in with Google Continue with Google" [ref=e18] [cursor=pointer]:
+        - generic [ref=e19]:
+          - img "Sign in with Google" [ref=e21]
+          - generic [ref=e22]: Continue with Google
+      - paragraph [ref=e25]: or
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - generic [ref=e31]:
+              - generic [ref=e32]:
+                - generic [ref=e33]: First name
+                - generic [ref=e34]: Optional
+              - textbox "First name" [ref=e35]
+            - generic [ref=e38]:
+              - generic [ref=e39]:
+                - generic [ref=e40]: Last name
+                - generic [ref=e41]: Optional
+              - textbox "Last name" [ref=e42]
+          - generic [ref=e46]:
+            - generic [ref=e48]: Username
+            - textbox "Username" [ref=e49]:
+              - /placeholder: ""
+          - generic [ref=e53]:
+            - generic [ref=e55]: Email address
+            - textbox "Email address" [ref=e56]:
+              - /placeholder: Enter your email address
+          - generic [ref=e60]:
+            - generic [ref=e62]: Password
+            - generic [ref=e63]:
+              - textbox "Password" [ref=e64]:
+                - /placeholder: Enter your password
+              - button "Show password" [ref=e65] [cursor=pointer]:
+                - img [ref=e66]
+        - button "Continue" [ref=e72] [cursor=pointer]:
+          - generic [ref=e73]:
+            - text: Continue
+            - img [ref=e74]
+    - generic [ref=e76]:
+      - generic [ref=e77]:
+        - generic [ref=e78]: Already have an account?
+        - link "Sign in" [ref=e79] [cursor=pointer]:
+          - /url: http://localhost:5173/login
+      - generic [ref=e81]:
+        - generic [ref=e83]:
+          - paragraph [ref=e84]: Secured by
+          - link "Clerk logo" [ref=e85] [cursor=pointer]:
+            - /url: https://go.clerk.com/components
+            - img [ref=e86]
+        - paragraph [ref=e91]: Development mode
+  - generic [ref=e93]:
+    - img [ref=e94]
+    - generic [ref=e96]: Free to get started — no credit card required
+```

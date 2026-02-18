@@ -69,26 +69,22 @@ function CropForm({ initial, onSubmit, onClose }: {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Crop Name *</label>
+        <label className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Crop Name *</label>
         <input required value={form.name} onChange={(e) => set("name", e.target.value)}
-          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
-            errors.name ? "border-red-300 focus:ring-red-500" : "border-gray-300 dark:border-gray-600 focus:ring-green-500"
-          } bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
+          className={`input ${errors.name ? "input-error" : ""}`}
           placeholder="e.g. Wheat" />
-        {errors.name && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>}
+        {errors.name && <p className="mt-1 text-sm text-rose-600 dark:text-rose-400">{errors.name}</p>}
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity (units) *</label>
+        <label className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Quantity (units) *</label>
         <input required type="number" min={1} value={form.quantity} onChange={(e) => set("quantity", e.target.value)}
-          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
-            errors.quantity ? "border-red-300 focus:ring-red-500" : "border-gray-300 dark:border-gray-600 focus:ring-green-500"
-          } bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
+          className={`input ${errors.quantity ? "input-error" : ""}`}
           placeholder="e.g. 500" />
-        {errors.quantity && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.quantity}</p>}
+        {errors.quantity && <p className="mt-1 text-sm text-rose-600 dark:text-rose-400">{errors.quantity}</p>}
       </div>
       <div className="flex justify-end gap-3 pt-2">
-        <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500">Cancel</button>
-        <button type="submit" disabled={isSubmitting} className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+        <button type="button" onClick={onClose} className="btn btn-secondary">Cancel</button>
+        <button type="submit" disabled={isSubmitting} className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
           {isSubmitting && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>}
           Save
         </button>
@@ -111,40 +107,40 @@ function ResourceLinkPanel({ crop, resources, cropResources, onLink, onUnlink }:
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-gray-600">Manage resource requirements for <strong>{crop.name}</strong>.</p>
+      <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Manage resource requirements for <strong>{crop.name}</strong>.</p>
       {linked.length === 0 ? (
-        <p className="text-sm text-gray-400 italic">No resources linked yet.</p>
+        <p className="text-sm italic" style={{ color: "var(--text-muted)" }}>No resources linked yet.</p>
       ) : (
         <div className="space-y-2">
           {linked.map((cr) => {
             const res = resources.find((r) => r._id === cr.resourceId);
             return (
-              <div key={cr._id} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+              <div key={cr._id} className="flex items-center justify-between rounded-lg px-3 py-2" style={{ background: "var(--surface-hover)" }}>
                 <div>
-                  <p className="text-sm font-medium text-gray-800">{res?.name ?? cr.resourceId}</p>
-                  <p className="text-xs text-gray-500">{cr.requiredQuantity} units / allocation unit</p>
+                  <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{res?.name ?? cr.resourceId}</p>
+                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>{cr.requiredQuantity} units / allocation unit</p>
                 </div>
-                <button onClick={() => onUnlink(cr.resourceId)} className="text-red-500 hover:text-red-700 text-xs">Unlink</button>
+                <button onClick={() => onUnlink(cr.resourceId)} className="text-xs text-rose-500 hover:text-rose-700">Unlink</button>
               </div>
             );
           })}
         </div>
       )}
-      <div className="border-t border-gray-100 pt-3">
-        <p className="text-xs font-medium text-gray-600 mb-2">Link a resource</p>
+      <div className="pt-3" style={{ borderTop: "1px solid var(--border-light)" }}>
+        <p className="text-xs font-medium mb-2" style={{ color: "var(--text-secondary)" }}>Link a resource</p>
         <div className="flex gap-2">
           <select value={selRes} onChange={(e) => setSelRes(e.target.value)}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+            className="input flex-1">
             <option value="">Select resource…</option>
             {resources.filter((r) => !linkedIds.has(r._id)).map((r) => (
               <option key={r._id} value={r._id}>{r.name} ({r.type})</option>
             ))}
           </select>
           <input type="number" min={1} value={qty} onChange={(e) => setQty(e.target.value)}
-            className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="input w-20"
             placeholder="qty" />
           <button disabled={!selRes} onClick={() => { onLink(selRes, Number(qty)); setSelRes(""); setQty("1"); }}
-            className="px-3 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-40">
+            className="btn btn-primary disabled:opacity-40">
             Link
           </button>
         </div>
@@ -304,14 +300,14 @@ export default function CropsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Crops</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+          <h1 className="text-2xl font-display font-bold text-[var(--text-primary)] tracking-tight">Crops</h1>
+          <p className="text-sm text-[var(--text-muted)] mt-1">
             {filtered.length} of {crops.length} crops
             {bulkSelectMode && selectedCrops.size > 0 && ` • ${selectedCrops.size} selected`}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={handleExport} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600">
+          <button onClick={handleExport} className="btn btn-secondary flex items-center gap-2">
             <Download size={16} /> Export CSV
           </button>
           <button 
@@ -319,12 +315,12 @@ export default function CropsPage() {
             className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg border ${ 
               bulkSelectMode 
                 ? "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700" 
-                : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600"
+                : "bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)]"
             }`}
           >
             <Users size={16} /> {bulkSelectMode ? "Cancel" : "Bulk Edit"}
           </button>
-          <button onClick={() => setCreateOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700">
+          <button onClick={() => setCreateOpen(true)} className="btn btn-primary flex items-center gap-2">
             <Plus size={16} /> Add Crop
           </button>
         </div>
@@ -371,8 +367,8 @@ export default function CropsPage() {
             <button key={s} onClick={() => setStatusFilter(s)}
               className={`px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
                 statusFilter === s 
-                  ? "bg-green-600 text-white" 
-                  : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
+                  ? "bg-[var(--brand-600)] text-white" 
+                  : "border border-[var(--border)] bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]"
               }`}>
               {s}
             </button>
@@ -381,31 +377,31 @@ export default function CropsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="card overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+            <tr style={{ borderBottom: "1px solid var(--border)", background: "var(--surface-hover)" }}>
               {bulkSelectMode && (
-                <th className="px-5 py-3">
+                <th className="px-5 py-3.5">
                   <input 
                     type="checkbox" 
                     checked={selectedCrops.size === paginatedData.items.length && paginatedData.items.length > 0}
                     onChange={toggleSelectAll}
-                    className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                    className="rounded border-[var(--border)] text-[var(--brand-600)] focus:ring-[var(--brand-500)]"
                   />
                 </th>
               )}
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Name</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Quantity</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Status</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Resources</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Created</th>
-              <th className="px-5 py-3" />
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Name</th>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Quantity</th>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Status</th>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Resources</th>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Created</th>
+              <th className="px-5 py-3.5" />
             </tr>
           </thead>
           <tbody>
             {paginatedData.items.length === 0 && (
-              <tr><td colSpan={bulkSelectMode ? 7 : 6} className="text-center py-10 text-gray-400 dark:text-gray-500">No crops found</td></tr>
+              <tr><td colSpan={bulkSelectMode ? 7 : 6} className="text-center py-10" style={{ color: "var(--text-muted)" }}>No crops found</td></tr>
             )}
             {paginatedData.items.map((c) => {
               const linkedCount = cropResources.filter((cr) => cr.cropId === c._id).length;
@@ -413,21 +409,21 @@ export default function CropsPage() {
               const displayStatus = optimisticUpdate?.status || c.status;
               
               return (
-                <tr key={c._id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                <tr key={c._id} className="table-row" style={{ borderBottom: "1px solid var(--border-light)" }}>
                   {bulkSelectMode && (
                     <td className="px-5 py-4">
                       <input 
                         type="checkbox" 
                         checked={selectedCrops.has(c._id)}
                         onChange={() => toggleCropSelection(c._id)}
-                        className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                        className="rounded border-[var(--border)] text-[var(--brand-600)] focus:ring-[var(--brand-500)]"
                       />
                     </td>
                   )}
-                  <td className="px-5 py-4 font-medium text-gray-900 dark:text-gray-100">
-                    <button onClick={() => navigate(`/crops/${c._id}`)} className="text-green-700 dark:text-green-400 hover:underline">{c.name}</button>
+                  <td className="px-5 py-4 font-medium" style={{ color: "var(--text-primary)" }}>
+                    <button onClick={() => navigate(`/crops/${c._id}`)} className="text-[var(--brand-700)] hover:underline">{c.name}</button>
                   </td>
-                  <td className="px-5 py-4 text-gray-700 dark:text-gray-300">{c.quantity.toLocaleString()} units</td>
+                  <td className="px-5 py-4" style={{ color: "var(--text-secondary)" }}>{c.quantity.toLocaleString()} units</td>
                   <td className="px-5 py-4">
                     <div className="relative inline-block">
                       <select value={displayStatus} onChange={(e) => handleStatusChange(c._id, e.target.value as CropStatus)}
@@ -437,7 +433,7 @@ export default function CropsPage() {
                         {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                       </select>
                       <ChevronDown size={11} className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      {optimisticUpdate && <Check size={12} className="absolute -right-2 -top-2 text-green-600" />}
+                      {optimisticUpdate && <Check size={12} className="absolute -right-2 -top-2 text-[var(--brand-600)]" />}
                     </div>
                   </td>
                   <td className="px-5 py-4">
@@ -445,12 +441,12 @@ export default function CropsPage() {
                       {linkedCount} linked
                     </button>
                   </td>
-                  <td className="px-5 py-4 text-gray-400 dark:text-gray-500">{new Date(c.createdAt).toLocaleDateString()}</td>
+                  <td className="px-5 py-4" style={{ color: "var(--text-muted)" }}>{new Date(c.createdAt).toLocaleDateString()}</td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1 justify-end">
-                      <button onClick={() => navigate(`/crops/${c._id}`)} className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900 rounded-lg" title="View details"><Eye size={15} /></button>
-                      <button onClick={() => setEditTarget(c)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-lg"><Pencil size={15} /></button>
-                      <button onClick={() => setDeleteTarget(c)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg"><Trash2 size={15} /></button>
+                      <button onClick={() => navigate(`/crops/${c._id}`)} className="btn-ghost p-1.5 rounded-lg text-[var(--text-muted)] hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-all" title="View details"><Eye size={15} /></button>
+                      <button onClick={() => setEditTarget(c)} className="btn-ghost p-1.5 rounded-lg text-[var(--text-muted)] hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all"><Pencil size={15} /></button>
+                      <button onClick={() => setDeleteTarget(c)} className="btn-ghost p-1.5 rounded-lg text-[var(--text-muted)] hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all"><Trash2 size={15} /></button>
                     </div>
                   </td>
                 </tr>

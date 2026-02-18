@@ -173,12 +173,12 @@ export default function BulkActions({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 mb-6 shadow-sm">
+    <div className="card p-4 mb-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <PackageCheck size={20} className="text-blue-600 dark:text-blue-400" />
-            <span className="font-medium text-gray-900 dark:text-gray-100">
+            <span className="font-medium" style={{ color: "var(--text-primary)" }}>
               {selectedIds.length} {itemType} selected
             </span>
           </div>
@@ -226,7 +226,7 @@ export default function BulkActions({
               <button
                 onClick={() => setShowStatusMenu(!showStatusMenu)}
                 disabled={loading === 'status'}
-                className="flex items-center gap-2 px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {loading === 'status' ? (
                   <Loader size={16} className="animate-spin" />
@@ -237,12 +237,12 @@ export default function BulkActions({
               </button>
 
               {showStatusMenu && (
-                <div className="absolute top-full right-0 mt-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg py-1 z-10 min-w-[150px]">
+                <div className="absolute top-full right-0 mt-1 rounded-lg shadow-lg py-1 z-10 min-w-[150px]" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
                   {statusConfigs.map((status) => (
                     <button
                       key={status.value}
                       onClick={() => handleBulkStatusUpdate(status.value)}
-                      className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                      className="w-full text-left px-3 py-2 hover:bg-[var(--surface-hover)] transition-colors"
                     >
                       <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${status.color}`}>
                         {status.label}
@@ -273,28 +273,28 @@ export default function BulkActions({
               {/* Delete Confirmation Modal */}
               {showDeleteConfirm && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                  <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+                  <div className="card p-6 max-w-md w-full mx-4">
                     <div className="flex items-center gap-3 mb-4">
                       <AlertTriangle size={24} className="text-red-600 dark:text-red-400" />
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      <h3 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>
                         Confirm Deletion
                       </h3>
                     </div>
                     
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    <p className="mb-6" style={{ color: "var(--text-muted)" }}>
                       Are you sure you want to delete {selectedIds.length} {itemType}? This action cannot be undone.
                     </p>
                     
                     <div className="flex justify-end gap-3">
                       <button
                         onClick={() => setShowDeleteConfirm(false)}
-                        className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500"
+                        className="btn btn-secondary"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={handleBulkDelete}
-                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                        className="btn btn-danger"
                       >
                         Delete {selectedIds.length} {itemType}
                       </button>

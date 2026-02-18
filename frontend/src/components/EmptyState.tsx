@@ -9,13 +9,42 @@ interface EmptyStateProps {
 
 export default function EmptyState({ icon, title, description, action }: EmptyStateProps) {
     return (
-        <div className="bg-white rounded-xl border border-gray-200 py-16 px-6 text-center">
-            <div className="flex justify-center mb-4 text-gray-300">
+        <div className="card animate-fade-in" style={{ padding: "4rem 1.5rem", textAlign: "center" }}>
+            <div
+                className="animate-float"
+                style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginBottom: "1.25rem",
+                    color: "var(--text-muted)",
+                }}
+            >
                 {icon}
             </div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-1">{title}</h3>
+            <h3
+                className="font-display"
+                style={{
+                    fontSize: "1.125rem",
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                    letterSpacing: "-0.02em",
+                    marginBottom: "0.375rem",
+                }}
+            >
+                {title}
+            </h3>
             {description && (
-                <p className="text-sm text-gray-400 max-w-sm mx-auto mb-5">{description}</p>
+                <p
+                    style={{
+                        fontSize: "0.875rem",
+                        lineHeight: 1.6,
+                        color: "var(--text-muted)",
+                        maxWidth: "24rem",
+                        margin: "0 auto 1.5rem",
+                    }}
+                >
+                    {description}
+                </p>
             )}
             {action && <div>{action}</div>}
         </div>

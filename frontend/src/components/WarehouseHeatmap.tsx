@@ -7,7 +7,7 @@ import { useData } from "../contexts/DataContext";
  */
 
 const UTILIZATION_COLORS = {
-  empty: { bg: "bg-gray-100 dark:bg-gray-700", border: "border-gray-200 dark:border-gray-600", text: "text-gray-500 dark:text-gray-400", label: "Empty" },
+  empty: { bg: "bg-[var(--surface-hover)]", border: "border-[var(--border)]", text: "text-[var(--text-muted)]", label: "Empty" },
   low: { bg: "bg-green-50 dark:bg-green-900/30", border: "border-green-200 dark:border-green-700", text: "text-green-700 dark:text-green-400", label: "Low" },
   moderate: { bg: "bg-blue-50 dark:bg-blue-900/30", border: "border-blue-200 dark:border-blue-700", text: "text-blue-700 dark:text-blue-400", label: "Moderate" },
   high: { bg: "bg-amber-50 dark:bg-amber-900/30", border: "border-amber-200 dark:border-amber-700", text: "text-amber-700 dark:text-amber-400", label: "High" },
@@ -73,7 +73,7 @@ export default function WarehouseHeatmap({ onWarehouseClick, compact = false }: 
 
   if (!warehouses || warehouses.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-400 dark:text-gray-500">
+      <div className="text-center py-8" style={{ color: "var(--text-muted)" }}>
         <p>No warehouses to display</p>
       </div>
     );
@@ -83,7 +83,7 @@ export default function WarehouseHeatmap({ onWarehouseClick, compact = false }: 
     <div className="space-y-4">
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-3 text-xs">
-        <span className="text-gray-500 dark:text-gray-400 font-medium">Utilization:</span>
+        <span className="font-medium" style={{ color: "var(--text-muted)" }}>Utilization:</span>
         {Object.entries(UTILIZATION_COLORS).map(([key, value]) => (
           <div key={key} className="flex items-center gap-1">
             <div className={`w-3 h-3 rounded-sm ${value.bg} border ${value.border}`} />
@@ -95,21 +95,21 @@ export default function WarehouseHeatmap({ onWarehouseClick, compact = false }: 
       {/* Summary Stats */}
       {stats && !compact && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 text-center">
-            <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{stats.avgUtilization}%</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Avg Utilization</p>
+          <div className="rounded-lg p-3 text-center" style={{ background: "var(--surface-hover)" }}>
+            <p className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>{stats.avgUtilization}%</p>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>Avg Utilization</p>
           </div>
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 text-center">
-            <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{stats.totalUsed.toLocaleString()}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Total Used</p>
+          <div className="rounded-lg p-3 text-center" style={{ background: "var(--surface-hover)" }}>
+            <p className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>{stats.totalUsed.toLocaleString()}</p>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>Total Used</p>
           </div>
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 text-center">
+          <div className="rounded-lg p-3 text-center" style={{ background: "var(--surface-hover)" }}>
             <p className="text-lg font-bold text-red-600 dark:text-red-400">{stats.criticalCount}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Critical</p>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>Critical</p>
           </div>
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 text-center">
+          <div className="rounded-lg p-3 text-center" style={{ background: "var(--surface-hover)" }}>
             <p className="text-lg font-bold text-gray-400">{stats.emptyCount}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Empty</p>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>Empty</p>
           </div>
         </div>
       )}
@@ -149,10 +149,10 @@ export default function WarehouseHeatmap({ onWarehouseClick, compact = false }: 
                 </span>
               </div>
 
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 truncate">{wh.location}</p>
+              <p className="text-xs mb-2 truncate" style={{ color: "var(--text-muted)" }}>{wh.location}</p>
 
               {/* Mini bar */}
-              <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2 mb-1">
+              <div className="w-full rounded-full h-2 mb-1" style={{ background: "var(--border)" }}>
                 <div
                   className="h-2 rounded-full transition-all duration-500"
                   style={{
@@ -162,14 +162,14 @@ export default function WarehouseHeatmap({ onWarehouseClick, compact = false }: 
                 />
               </div>
 
-              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+              <div className="flex justify-between text-xs" style={{ color: "var(--text-muted)" }}>
                 <span>{wh.usedCapacity.toLocaleString()} used</span>
                 <span>{wh.remaining.toLocaleString()} free</span>
               </div>
 
               {!compact && (
                 <div className="mt-2 flex items-center justify-between">
-                  <span className="text-xs text-gray-400 dark:text-gray-500">
+                  <span className="text-xs" style={{ color: "var(--text-muted)" }}>
                     {wh.allocationCount} allocation{wh.allocationCount !== 1 ? "s" : ""}
                   </span>
                   <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${wh.level.bg} ${wh.level.text}`}>

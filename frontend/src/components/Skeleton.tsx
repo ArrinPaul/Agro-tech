@@ -6,7 +6,7 @@ interface SkeletonProps {
 export function Skeleton({ className = "", style }: SkeletonProps) {
     return (
         <div
-            className={`bg-gray-200 rounded animate-pulse ${className}`}
+            className={`skeleton ${className}`}
             style={style}
             aria-hidden="true"
         />
@@ -15,10 +15,10 @@ export function Skeleton({ className = "", style }: SkeletonProps) {
 
 export function SkeletonCard() {
     return (
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-            <div className="flex items-center gap-4">
-                <Skeleton className="w-12 h-12 rounded-xl" />
-                <div className="flex-1 space-y-2">
+        <div className="card" style={{ padding: "1.25rem" }}>
+            <div className="flex items-center" style={{ gap: "1rem" }}>
+                <Skeleton className="w-12 h-12" style={{ borderRadius: "var(--radius-xl)" }} />
+                <div className="flex-1" style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                     <Skeleton className="h-5 w-20" />
                     <Skeleton className="h-3 w-32" />
                 </div>
@@ -29,16 +29,32 @@ export function SkeletonCard() {
 
 export function SkeletonTable({ rows = 5, cols = 4 }: { rows?: number; cols?: number }) {
     return (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="card" style={{ overflow: "hidden" }}>
             {/* Header */}
-            <div className="bg-gray-50 border-b border-gray-100 px-5 py-3 flex gap-6">
+            <div
+                className="flex"
+                style={{
+                    padding: "0.75rem 1.25rem",
+                    gap: "1.5rem",
+                    background: "var(--surface-hover)",
+                    borderBottom: "1px solid var(--border)",
+                }}
+            >
                 {Array.from({ length: cols }).map((_, i) => (
                     <Skeleton key={i} className="h-4 w-24" />
                 ))}
             </div>
             {/* Rows */}
             {Array.from({ length: rows }).map((_, r) => (
-                <div key={r} className="px-5 py-3.5 flex gap-6 border-b border-gray-50">
+                <div
+                    key={r}
+                    className="flex"
+                    style={{
+                        padding: "0.875rem 1.25rem",
+                        gap: "1.5rem",
+                        borderBottom: "1px solid var(--border-light)",
+                    }}
+                >
                     {Array.from({ length: cols }).map((_, c) => (
                         <Skeleton key={c} className={`h-4 ${c === 0 ? "w-32" : "w-20"}`} />
                     ))}
@@ -52,14 +68,17 @@ const CHART_HEIGHTS = [65, 42, 88, 53, 76, 35];
 
 export function SkeletonChart() {
     return (
-        <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <Skeleton className="h-5 w-40" />
-            <div className="flex items-end gap-3 h-[160px]">
+        <div className="card" style={{ padding: "1.25rem" }}>
+            <Skeleton className="h-5 w-40" style={{ marginBottom: "1rem" }} />
+            <div className="flex items-end" style={{ gap: "0.75rem", height: "160px" }}>
                 {CHART_HEIGHTS.map((h, i) => (
                     <Skeleton
                         key={i}
-                        className="flex-1 rounded-t"
-                        style={{ height: `${h}%` }}
+                        className="flex-1"
+                        style={{
+                            height: `${h}%`,
+                            borderRadius: "var(--radius-md) var(--radius-md) 0 0",
+                        }}
                     />
                 ))}
             </div>

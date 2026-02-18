@@ -108,10 +108,10 @@ export default function ConvexNotificationPanel() {
       {isOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div className="absolute right-0 top-full mt-2 w-[420px] max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 max-h-[480px] overflow-hidden flex flex-col">
+          <div className="absolute right-0 top-full mt-2 w-[420px] max-w-[calc(100vw-2rem)] card glass rounded-xl shadow-2xl z-50 max-h-[480px] overflow-hidden flex flex-col">
             {/* Header */}
-            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+            <div className="px-4 py-3 flex items-center justify-between flex-shrink-0" style={{ borderBottom: "1px solid var(--border)" }}>
+              <h3 className="font-semibold flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
                 Notifications
                 {displayCount > 0 && (
                   <span className="text-xs bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 px-2 py-0.5 rounded-full">
@@ -152,7 +152,7 @@ export default function ConvexNotificationPanel() {
             {/* Alert List */}
             <div className="flex-1 overflow-y-auto">
               {alertList.length === 0 ? (
-                <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+                <div className="p-8 text-center" style={{ color: "var(--text-muted)" }}>
                   <Bell size={28} className="mx-auto mb-2 opacity-30" />
                   <p className="text-sm font-medium">All clear!</p>
                   <p className="text-xs mt-1">No notifications right now</p>
@@ -165,13 +165,14 @@ export default function ConvexNotificationPanel() {
                   return (
                     <div
                       key={alert._id}
-                      className={`px-4 py-3 border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors ${
+                      className={`px-4 py-3 last:border-b-0 transition-colors ${
                         alert.dismissed
                           ? "opacity-50"
                           : !alert.read
                             ? "bg-blue-50/50 dark:bg-blue-900/10"
                             : ""
                       }`}
+                      style={{ borderBottom: "1px solid var(--border)" }}
                     >
                       <div className="flex items-start gap-3">
                         <div className={`flex-shrink-0 p-1.5 rounded-lg ${severityStyle}`}>
@@ -179,7 +180,7 @@ export default function ConvexNotificationPanel() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
-                            <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate flex items-center gap-1.5">
+                            <h4 className="text-sm font-medium truncate flex items-center gap-1.5" style={{ color: "var(--text-primary)" }}>
                               {alert.title}
                               {!alert.read && (
                                 <span className="w-1.5 h-1.5 bg-blue-500 rounded-full flex-shrink-0" />
@@ -213,7 +214,7 @@ export default function ConvexNotificationPanel() {
                               </button>
                             </div>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">
+                          <p className="text-xs mt-0.5 line-clamp-2" style={{ color: "var(--text-muted)" }}>
                             {alert.message}
                           </p>
                           <div className="flex items-center gap-2 mt-1.5">

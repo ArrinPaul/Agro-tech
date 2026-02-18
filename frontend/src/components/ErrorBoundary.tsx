@@ -31,18 +31,27 @@ export default class ErrorBoundary extends Component<Props, State> {
     render() {
         if (this.state.hasError) {
             return (
-                <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-                    <div className="bg-white rounded-2xl shadow-lg border border-gray-200 max-w-md w-full p-8 text-center">
-                        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-5">
-                            <AlertTriangle size={28} className="text-red-600" />
+                <div className="min-h-screen flex items-center justify-center p-6 mesh-gradient">
+                    <div className="card max-w-md w-full p-8 text-center animate-scale-in">
+                        <div
+                            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+                            style={{ background: "rgba(239,68,68,0.1)" }}
+                        >
+                            <AlertTriangle size={28} className="text-red-500" />
                         </div>
-                        <h1 className="text-xl font-bold text-gray-900 mb-2">Something went wrong</h1>
-                        <p className="text-sm text-gray-500 mb-6">
+                        <h1 className="text-xl font-bold font-display mb-2" style={{ color: "var(--text-primary)" }}>Something went wrong</h1>
+                        <p className="text-sm mb-6" style={{ color: "var(--text-muted)" }}>
                             An unexpected error occurred. Please try again or refresh the page.
                         </p>
                         {this.state.error && (
-                            <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6 text-left">
-                                <p className="text-xs font-mono text-red-700 break-all">
+                            <div
+                                className="rounded-lg p-3 mb-6 text-left"
+                                style={{
+                                    background: "rgba(239,68,68,0.06)",
+                                    border: "1px solid rgba(239,68,68,0.15)",
+                                }}
+                            >
+                                <p className="text-xs font-mono text-red-600 dark:text-red-400 break-all">
                                     {this.state.error.message}
                                 </p>
                             </div>
@@ -50,13 +59,13 @@ export default class ErrorBoundary extends Component<Props, State> {
                         <div className="flex gap-3 justify-center">
                             <button
                                 onClick={this.handleReset}
-                                className="flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium transition-colors"
+                                className="btn btn-primary flex items-center gap-2"
                             >
                                 <RefreshCw size={15} /> Try Again
                             </button>
                             <button
                                 onClick={() => window.location.reload()}
-                                className="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm font-medium transition-colors"
+                                className="btn btn-secondary"
                             >
                                 Refresh Page
                             </button>

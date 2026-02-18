@@ -1,0 +1,75 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e10]:
+      - img [ref=e12]
+      - generic [ref=e15]: AgroTech
+    - generic [ref=e16]:
+      - heading "Smart Crop & Warehouse Management" [level=1] [ref=e17]:
+        - text: Smart Crop &
+        - text: Warehouse
+        - text: Management
+      - paragraph [ref=e18]: AI-powered platform for modern agricultural operations. Optimize resources, reduce waste, and maximize yield.
+    - generic [ref=e19]:
+      - generic [ref=e20]:
+        - img [ref=e22]
+        - generic [ref=e24]:
+          - paragraph [ref=e25]: Real-time Analytics
+          - paragraph [ref=e26]: Live dashboards & reports
+      - generic [ref=e27]:
+        - img [ref=e29]
+        - generic [ref=e31]:
+          - paragraph [ref=e32]: Enterprise Security
+          - paragraph [ref=e33]: Role-based access control
+      - generic [ref=e34]:
+        - img [ref=e36]
+        - generic [ref=e39]:
+          - paragraph [ref=e40]: AI-Powered Insights
+          - paragraph [ref=e41]: Smart crop recommendations
+  - generic [ref=e43]:
+    - generic [ref=e44]:
+      - heading "Welcome back" [level=2] [ref=e45]
+      - paragraph [ref=e46]: Sign in to your account to continue
+    - generic [ref=e48]:
+      - generic [ref=e50]:
+        - button "Sign in with Google Continue with Google" [ref=e53] [cursor=pointer]:
+          - generic [ref=e54]:
+            - img "Sign in with Google" [ref=e56]
+            - generic [ref=e57]: Continue with Google
+        - paragraph [ref=e60]: or
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - generic [ref=e66]:
+              - generic [ref=e68]: Email address or username
+              - textbox "Email address or username" [ref=e69]:
+                - /placeholder: Enter email or username
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Password
+                  - generic:
+                    - textbox "Password":
+                      - /placeholder: Enter your password
+                    - button "Show password":
+                      - img
+          - button "Continue" [ref=e72] [cursor=pointer]:
+            - generic [ref=e73]:
+              - text: Continue
+              - img [ref=e74]
+      - generic [ref=e76]:
+        - generic [ref=e77]:
+          - generic [ref=e78]: Don’t have an account?
+          - link "Sign up" [ref=e79] [cursor=pointer]:
+            - /url: http://localhost:5173/sign-up
+        - generic [ref=e81]:
+          - generic [ref=e83]:
+            - paragraph [ref=e84]: Secured by
+            - link "Clerk logo" [ref=e85] [cursor=pointer]:
+              - /url: https://go.clerk.com/components
+              - img [ref=e86]
+          - paragraph [ref=e91]: Development mode
+    - paragraph [ref=e93]: Trusted by agricultural operations worldwide
+```

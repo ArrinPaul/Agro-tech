@@ -66,19 +66,19 @@ function NewAllocationForm({ onClose }: { onClose: () => void }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Crop *</label>
+        <label className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Select Crop *</label>
         <select required value={cropId} onChange={(e) => { setCropId(e.target.value); if (errors.crop) setErrors(p => ({ ...p, crop: "" })); }}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+          className="input">
           <option value="">Choose a crop…</option>
           {crops.map((c) => <option key={c._id} value={c._id}>{c.name} ({c.quantity} units, {c.status})</option>)}
         </select>
-        {errors.crop && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.crop}</p>}
+        {errors.crop && <p className="mt-1 text-sm text-rose-600 dark:text-rose-400">{errors.crop}</p>}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Warehouse *</label>
+        <label className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Select Warehouse *</label>
         <select required value={warehouseId} onChange={(e) => { setWarehouseId(e.target.value); if (errors.warehouse) setErrors(p => ({ ...p, warehouse: "" })); }}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+          className="input">
           <option value="">Choose a warehouse…</option>
           {warehouses.map((w) => {
             const avail = w.totalCapacity - w.usedCapacity;
@@ -90,22 +90,20 @@ function NewAllocationForm({ onClose }: { onClose: () => void }) {
             );
           })}
         </select>
-        {errors.warehouse && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.warehouse}</p>}
+        {errors.warehouse && <p className="mt-1 text-sm text-rose-600 dark:text-rose-400">{errors.warehouse}</p>}
         {selectedWarehouse && (
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
             Available: <strong>{remainingCapacity?.toLocaleString()}</strong> units
           </p>
         )}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity *</label>
+        <label className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Quantity *</label>
         <input required type="number" min={1} value={quantity} onChange={(e) => { setQuantity(e.target.value); if (errors.quantity) setErrors(p => ({ ...p, quantity: "" })); }}
-          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
-            errors.quantity ? "border-red-300 focus:ring-red-500" : "border-gray-300 dark:border-gray-600 focus:ring-green-500"
-          } bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
+          className={`input ${errors.quantity ? "input-error" : ""}`}
           placeholder="Enter quantity to allocate" />
-        {errors.quantity && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.quantity}</p>}
+        {errors.quantity && <p className="mt-1 text-sm text-rose-600 dark:text-rose-400">{errors.quantity}</p>}
       </div>
 
       {/* Capacity check */}
@@ -121,7 +119,7 @@ function NewAllocationForm({ onClose }: { onClose: () => void }) {
       {/* Resource checks */}
       {resourceChecks.length > 0 && qty > 0 && (
         <div className="space-y-1">
-          <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Resource requirements:</p>
+          <p className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Resource requirements:</p>
           {resourceChecks.map((rc) => (
             <div key={rc.name} className={`flex items-center justify-between rounded-lg px-3 py-1.5 text-xs ${rc.ok ? "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300" : "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300"}`}>
               <span className="flex items-center gap-1.5">
@@ -135,9 +133,9 @@ function NewAllocationForm({ onClose }: { onClose: () => void }) {
       )}
 
       <div className="flex justify-end gap-3 pt-2">
-        <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500">Cancel</button>
+        <button type="button" onClick={onClose} className="btn btn-secondary">Cancel</button>
         <button type="submit" disabled={!canSubmit || isSubmitting}
-          className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-40 flex items-center gap-2">
+          className="btn btn-primary disabled:opacity-40 flex items-center gap-2">
           {isSubmitting && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>}
           Allocate
         </button>
@@ -232,25 +230,25 @@ export default function AllocationsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Allocations</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+          <h1 className="text-2xl font-display font-bold text-[var(--text-primary)] tracking-tight">Allocations</h1>
+          <p className="text-sm text-[var(--text-muted)] mt-1">
             {sorted.length} of {allocations.length} allocations
             {bulkSelectMode && selectedAllocations.size > 0 && ` • ${selectedAllocations.size} selected`}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={handleExport} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600">
+          <button onClick={handleExport} className="btn btn-secondary flex items-center gap-2">
             <Download size={16} /> Export CSV
           </button>
           <button onClick={() => { setBulkSelectMode(!bulkSelectMode); setSelectedAllocations(new Set()); }}
             className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg border ${
               bulkSelectMode
                 ? "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
-                : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600"
+                : "bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)]"
             }`}>
             <Users size={16} /> {bulkSelectMode ? "Cancel" : "Bulk Edit"}
           </button>
-          <button onClick={() => setCreateOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700">
+          <button onClick={() => setCreateOpen(true)} className="btn btn-primary flex items-center gap-2">
             <Plus size={16} /> New Allocation
           </button>
         </div>
@@ -277,49 +275,49 @@ export default function AllocationsPage() {
         delay={300}
       />
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="card overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+            <tr style={{ borderBottom: "1px solid var(--border)", background: "var(--surface-hover)" }}>
               {bulkSelectMode && (
-                <th className="px-5 py-3">
+                <th className="px-5 py-3.5">
                   <input type="checkbox"
                     checked={selectedAllocations.size === paginatedData.items.length && paginatedData.items.length > 0}
                     onChange={toggleSelectAll}
                     className="rounded border-gray-300 text-green-600 focus:ring-green-500" />
                 </th>
               )}
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Crop</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Warehouse</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Quantity</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Allocated By</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-600 dark:text-gray-300">Date</th>
-              <th className="px-5 py-3" />
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Crop</th>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Warehouse</th>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Quantity</th>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Allocated By</th>
+              <th className="text-left px-5 py-3.5 text-[12px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Date</th>
+              <th className="px-5 py-3.5" />
             </tr>
           </thead>
           <tbody>
             {paginatedData.items.length === 0 && (
-              <tr><td colSpan={bulkSelectMode ? 7 : 6} className="text-center py-10 text-gray-400 dark:text-gray-500">No allocations found</td></tr>
+              <tr><td colSpan={bulkSelectMode ? 7 : 6} className="text-center py-10" style={{ color: "var(--text-muted)" }}>No allocations found</td></tr>
             )}
             {paginatedData.items.map((a) => (
-              <tr key={a._id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+              <tr key={a._id} className="table-row" style={{ borderBottom: "1px solid var(--border-light)" }}>
                 {bulkSelectMode && (
                   <td className="px-5 py-4">
                     <input type="checkbox" checked={selectedAllocations.has(a._id)} onChange={() => toggleSelection(a._id)}
                       className="rounded border-gray-300 text-green-600 focus:ring-green-500" />
                   </td>
                 )}
-                <td className="px-5 py-4 font-medium text-gray-900 dark:text-gray-100">
+                <td className="px-5 py-4 font-medium" style={{ color: "var(--text-primary)" }}>
                   <button onClick={() => navigate(`/allocations/${a._id}`)} className="text-green-700 dark:text-green-400 hover:underline">{a.cropName ?? a.cropId}</button>
                 </td>
-                <td className="px-5 py-4 text-gray-700 dark:text-gray-300">{a.warehouseName ?? a.warehouseId}</td>
-                <td className="px-5 py-4 font-semibold text-gray-900 dark:text-gray-100">{a.allocatedQuantity.toLocaleString()}</td>
-                <td className="px-5 py-4 text-gray-500 dark:text-gray-400">{a.createdByName ?? a.createdBy}</td>
-                <td className="px-5 py-4 text-gray-400 dark:text-gray-500">{new Date(a.createdAt).toLocaleDateString()}</td>
+                <td className="px-5 py-4" style={{ color: "var(--text-secondary)" }}>{a.warehouseName ?? a.warehouseId}</td>
+                <td className="px-5 py-4 font-semibold" style={{ color: "var(--text-primary)" }}>{a.allocatedQuantity.toLocaleString()}</td>
+                <td className="px-5 py-4" style={{ color: "var(--text-muted)" }}>{a.createdByName ?? a.createdBy}</td>
+                <td className="px-5 py-4" style={{ color: "var(--text-muted)" }}>{new Date(a.createdAt).toLocaleDateString()}</td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-2 justify-end">
-                    <button onClick={() => navigate(`/allocations/${a._id}`)} className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900 rounded-lg" title="View details"><Eye size={15} /></button>
-                    <button onClick={() => setDeallocateTarget(a)} className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:underline">
+                    <button onClick={() => navigate(`/allocations/${a._id}`)} className="btn-ghost p-1.5 rounded-lg text-[var(--text-muted)] hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-all" title="View details"><Eye size={15} /></button>
+                    <button onClick={() => setDeallocateTarget(a)} className="btn-ghost p-1.5 rounded-lg text-xs text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 transition-all">
                       Deallocate
                     </button>
                   </div>
