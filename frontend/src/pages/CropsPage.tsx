@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Search, ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Plus, Pencil, Trash2, Search, ChevronDown, Eye } from "lucide-react";
 import { useData } from "../contexts/DataContext";
 import { useToast } from "../components/Toast";
 import Modal from "../components/Modal";
@@ -104,6 +105,7 @@ function ResourceLinkPanel({ crop, resources, cropResources, onLink, onUnlink }:
 
 export default function CropsPage() {
   const { crops, resources, cropResources, createCrop, updateCrop, deleteCrop, linkResource, unlinkResource } = useData();
+  const navigate = useNavigate();
   const { addToast } = useToast();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<CropStatus | "ALL">("ALL");
@@ -198,7 +200,9 @@ export default function CropsPage() {
               const linkedCount = cropResources.filter((cr) => cr.cropId === c._id).length;
               return (
                 <tr key={c._id} className="border-b border-gray-50 hover:bg-gray-50">
-                  <td className="px-5 py-4 font-medium text-gray-900">{c.name}</td>
+                  <td className="px-5 py-4 font-medium text-gray-900">
+                    <button onClick={() => navigate(`/crops/${c._id}`)} className="text-green-700 hover:underline">{c.name}</button>
+                  </td>
                   <td className="px-5 py-4 text-gray-700">{c.quantity.toLocaleString()} units</td>
                   <td className="px-5 py-4">
                     <div className="relative inline-block">
@@ -217,6 +221,7 @@ export default function CropsPage() {
                   <td className="px-5 py-4 text-gray-400">{new Date(c.createdAt).toLocaleDateString()}</td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1 justify-end">
+                      <button onClick={() => navigate(`/crops/${c._id}`)} className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg" title="View details"><Eye size={15} /></button>
                       <button onClick={() => setEditTarget(c)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><Pencil size={15} /></button>
                       <button onClick={() => setDeleteTarget(c)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={15} /></button>
                     </div>

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
 import type {
   User, Organization, Warehouse, Crop, Resource, CropResource,
   Allocation, AuditLog, Suggestion,
@@ -57,6 +57,14 @@ const SEED_AUDIT_LOGS: AuditLog[] = [
   { _id: "log5", action: "ALLOCATE_CROP", entityType: "allocation", entityId: "al3", performedBy: "user1", performedByName: "Admin User", timestamp: Date.now() - 86400000 * 2 },
 ];
 
+// Smart warehouse recommendation
+export interface WarehouseRecommendation {
+  warehouse: Warehouse;
+  remainingCapacity: number;
+  utilization: number;
+  reason: string;
+}
+
 interface DataContextType {
   // Auth
   currentUser: User;
@@ -86,14 +94,18 @@ interface DataContextType {
   linkResource: (cropId: string, resourceId: string, requiredQuantity: number) => void;
   unlinkResource: (cropId: string, resourceId: string) => void;
   getResourcesForCrop: (cropId: string) => (CropResource & { resource?: Resource })[];
+  getCropsForResource: (resourceId: string) => (CropResource & { crop?: Crop })[];
   // Allocations
   allocations: Allocation[];
   allocate: (cropId: string, warehouseId: string, quantity: number) => string | null;
   deallocate: (id: string) => void;
+  getAllocationsForWarehouse: (warehouseId: string) => Allocation[];
+  getAllocationsForCrop: (cropId: string) => Allocation[];
   // Audit
   auditLogs: AuditLog[];
   // AI
   suggestions: Suggestion[];
+  recommendWarehouse: (cropId: string, quantity: number) => WarehouseRecommendation[];
 }
 
 const DataContext = createContext<DataContextType | null>(null);
@@ -201,6 +213,21 @@ export function DataProvider({ children }: { children: ReactNode }) {
       .map((cr) => ({ ...cr, resource: resources.find((r) => r._id === cr.resourceId) }));
   }, [cropResources, resources]);
 
+  const getCropsForResource = useCallback((resourceId: string) => {
+    return cropResources
+      .filter((cr) => cr.resourceId === resourceId)
+      .map((cr) => ({ ...cr, crop: crops.find((c) => c._id === cr.cropId) }));
+  }, [cropResources, crops]);
+
+  // Allocation queries
+  const getAllocationsForWarehouse = useCallback((warehouseId: string) => {
+    return allocations.filter((a) => a.warehouseId === warehouseId);
+  }, [allocations]);
+
+  const getAllocationsForCrop = useCallback((cropId: string) => {
+    return allocations.filter((a) => a.cropId === cropId);
+  }, [allocations]);
+
   // Allocations
   const allocate = useCallback((cropId: string, warehouseId: string, quantity: number): string | null => {
     const wh = warehouses.find((w) => w._id === warehouseId);
@@ -254,9 +281,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
     addLog("DEALLOCATE", "allocation", alId);
   }, [allocations, cropResources, addLog]);
 
-  // AI Suggestions
-  const suggestions: Suggestion[] = (() => {
+  // Smart Warehouse Recommendation (Phase 4.4)
+  const recommendWarehouse = useCallback((_cropId: string, quantity: number): WarehouseRecommendation[] => {
+    return warehouses
+      .map((wh) => {
+        const remaining = wh.totalCapacity - wh.usedCapacity;
+        const util = wh.totalCapacity > 0 ? Math.round((wh.usedCapacity / wh.totalCapacity) * 100) : 100;
+        let reason = "";
+        if (remaining >= quantity) {
+          if (util < 50) reason = "Low utilization — plenty of room";
+          else if (util < 80) reason = "Good balance of space available";
+          else reason = "Tight fit but sufficient capacity";
+        }
+        return { warehouse: wh, remainingCapacity: remaining, utilization: util, reason };
+      })
+      .filter((r) => r.remainingCapacity >= quantity && r.reason)
+      .sort((a, b) => a.utilization - b.utilization)
+      .slice(0, 3);
+  }, [warehouses]);
+
+  // AI Suggestions — auto-refresh on data changes (Phase 4.6)
+  const suggestions: Suggestion[] = useMemo(() => {
     const s: Suggestion[] = [];
+
+    // Warehouse utilization warnings (4.2)
     for (const wh of warehouses) {
       const util = wh.totalCapacity > 0 ? (wh.usedCapacity / wh.totalCapacity) * 100 : 0;
       if (util > 95) {
@@ -267,6 +315,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         s.push({ type: "OPTIMIZATION", title: `Underutilized: ${wh.name}`, message: `${wh.name} is only at ${util.toFixed(1)}% capacity. Consider consolidating.`, severity: "info" });
       }
     }
+
+    // Resource depletion warnings (4.3)
     for (const r of resources) {
       if (r.stockQuantity <= 0) {
         s.push({ type: "DEPLETION_WARNING", title: `Out of stock: ${r.name}`, message: `${r.name} (${r.type}) is completely depleted. Restock immediately.`, severity: "critical" });
@@ -274,22 +324,54 @@ export function DataProvider({ children }: { children: ReactNode }) {
         s.push({ type: "DEPLETION_WARNING", title: `Low stock: ${r.name}`, message: `${r.name} has only ${r.stockQuantity} units remaining. Consider restocking.`, severity: "warning" });
       }
     }
+
+    // Redistribution targets (4.2 enhancement)
+    const overloaded = warehouses.filter((wh) => wh.totalCapacity > 0 && (wh.usedCapacity / wh.totalCapacity) > 0.9);
     const underutilized = warehouses
+      .filter((wh) => wh.totalCapacity > 0 && (wh.usedCapacity / wh.totalCapacity) < 0.5)
+      .sort((a, b) => (a.usedCapacity / a.totalCapacity) - (b.usedCapacity / b.totalCapacity));
+
+    if (overloaded.length > 0 && underutilized.length > 0) {
+      s.push({
+        type: "RECOMMENDATION",
+        title: "Redistribution opportunity",
+        message: `Move stock from ${overloaded.map((w) => w.name).join(", ")} to ${underutilized.slice(0, 2).map((w) => `${w.name} (${(w.totalCapacity - w.usedCapacity).toLocaleString()} free)`).join(", ")}.`,
+        severity: "warning",
+        data: { overloaded: overloaded.map((w) => w._id), targets: underutilized.slice(0, 2).map((w) => w._id) },
+      });
+    }
+
+    // Best warehouses for new allocations
+    const bestOptions = warehouses
       .filter((wh) => wh.totalCapacity > 0 && (wh.usedCapacity / wh.totalCapacity) < 0.5)
       .sort((a, b) => (a.usedCapacity / a.totalCapacity) - (b.usedCapacity / b.totalCapacity))
       .slice(0, 3);
-    if (underutilized.length > 0) {
-      s.push({ type: "RECOMMENDATION", title: "Best warehouses for new allocations", message: `Top picks: ${underutilized.map((w) => `${w.name} (${Math.round((w.usedCapacity / w.totalCapacity) * 100)}% used)`).join(", ")}`, severity: "info" });
+    if (bestOptions.length > 0) {
+      s.push({ type: "RECOMMENDATION", title: "Best warehouses for new allocations", message: `Top picks: ${bestOptions.map((w) => `${w.name} (${Math.round((w.usedCapacity / w.totalCapacity) * 100)}% used)`).join(", ")}`, severity: "info" });
     }
+
+    // Demand forecast (4.5)
     for (const crop of crops) {
       const ca = allocations.filter((a) => a.cropId === crop._id);
       if (ca.length >= 2) {
         const total = ca.reduce((sum, a) => sum + a.allocatedQuantity, 0);
-        s.push({ type: "FORECAST", title: `Demand trend: ${crop.name}`, message: `Average allocation: ${(total / ca.length).toFixed(0)} units across ${ca.length} allocations.`, severity: "info" });
+        const avgAllocation = total / ca.length;
+        const sorted = [...ca].sort((a, b) => a.createdAt - b.createdAt);
+        const daySpan = Math.max(1, (sorted[sorted.length - 1].createdAt - sorted[0].createdAt) / 86400000);
+        const dailyRate = total / daySpan;
+        const forecast30 = Math.round(dailyRate * 30);
+        s.push({
+          type: "FORECAST",
+          title: `Demand trend: ${crop.name}`,
+          message: `Avg allocation: ${avgAllocation.toFixed(0)} units. Estimated 30-day demand: ~${forecast30.toLocaleString()} units based on ${ca.length} allocations over ${Math.round(daySpan)} days.`,
+          severity: "info",
+          data: { cropId: crop._id, dailyRate, forecast30 },
+        });
       }
     }
+
     return s;
-  })();
+  }, [warehouses, resources, crops, allocations]);
 
   return (
     <DataContext.Provider value={{
@@ -298,9 +380,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
       warehouses, createWarehouse, updateWarehouse, deleteWarehouse,
       crops, createCrop, updateCrop, deleteCrop,
       resources, createResource, updateResource, deleteResource, adjustStock,
-      cropResources, linkResource, unlinkResource, getResourcesForCrop,
-      allocations, allocate, deallocate,
-      auditLogs, suggestions,
+      cropResources, linkResource, unlinkResource, getResourcesForCrop, getCropsForResource,
+      allocations, allocate, deallocate, getAllocationsForWarehouse, getAllocationsForCrop,
+      auditLogs, suggestions, recommendWarehouse,
     }}>
       {children}
     </DataContext.Provider>

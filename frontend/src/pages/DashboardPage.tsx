@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, CartesianGrid,
+  PieChart, Pie, Cell, CartesianGrid, LineChart, Line,
 } from "recharts";
 import {
   Warehouse, Sprout, FlaskConical, GitMerge,
@@ -56,6 +56,21 @@ export default function DashboardPage() {
     name: r.name.length > 12 ? r.name.slice(0, 12) + "…" : r.name,
     stock: r.stockQuantity,
   }));
+
+  // Allocation history over time (5.2)
+  const allocationHistoryData = (() => {
+    const sorted = [...allocations].sort((a, b) => a.createdAt - b.createdAt);
+    const dayMap = new Map<string, number>();
+    sorted.forEach((a) => {
+      const dateStr = new Date(a.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      dayMap.set(dateStr, (dayMap.get(dateStr) ?? 0) + a.allocatedQuantity);
+    });
+    let cumulative = 0;
+    return Array.from(dayMap.entries()).map(([date, qty]) => {
+      cumulative += qty;
+      return { date, daily: qty, cumulative };
+    });
+  })();
 
   const recentAllocations = [...allocations]
     .sort((a, b) => b.createdAt - a.createdAt)
@@ -141,22 +156,44 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Resource stock chart */}
-      <div className="bg-white rounded-xl border border-gray-200 p-5">
-        <h2 className="font-semibold text-gray-900 mb-4">Resource Stock Levels</h2>
-        <ResponsiveContainer width="100%" height={160}>
-          <BarChart data={resourceData} barSize={36}>
-            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-            <YAxis tick={{ fontSize: 11 }} />
-            <Tooltip />
-            <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-            <Bar dataKey="stock" name="Stock" fill="#16a34a" radius={[4, 4, 0, 0]}>
-              {resourceData.map((entry, i) => (
-                <Cell key={i} fill={entry.stock === 0 ? "#dc2626" : entry.stock < 50 ? "#d97706" : "#16a34a"} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+      {/* Resource stock + allocation history */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Resource stock chart */}
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <h2 className="font-semibold text-gray-900 mb-4">Resource Stock Levels</h2>
+          <ResponsiveContainer width="100%" height={180}>
+            <BarChart data={resourceData} barSize={36}>
+              <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+              <YAxis tick={{ fontSize: 11 }} />
+              <Tooltip />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+              <Bar dataKey="stock" name="Stock" fill="#16a34a" radius={[4, 4, 0, 0]}>
+                {resourceData.map((entry, i) => (
+                  <Cell key={i} fill={entry.stock === 0 ? "#dc2626" : entry.stock < 50 ? "#d97706" : "#16a34a"} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Allocation history line chart */}
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <h2 className="font-semibold text-gray-900 mb-4">Allocation History</h2>
+          {allocationHistoryData.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-12">No allocation data yet</p>
+          ) : (
+            <ResponsiveContainer width="100%" height={180}>
+              <LineChart data={allocationHistoryData}>
+                <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                <YAxis tick={{ fontSize: 11 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                <Tooltip />
+                <Line type="monotone" dataKey="cumulative" name="Cumulative" stroke="#7c3aed" strokeWidth={2} dot={{ r: 4 }} />
+                <Line type="monotone" dataKey="daily" name="Daily" stroke="#16a34a" strokeWidth={2} dot={{ r: 4 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
+        </div>
       </div>
 
       {/* Bottom row: recent allocations + AI suggestions */}
@@ -172,7 +209,11 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-3">
               {recentAllocations.map((al) => (
-                <div key={al._id} className="flex items-center justify-between text-sm">
+                <div
+                  key={al._id}
+                  className="flex items-center justify-between text-sm cursor-pointer hover:bg-gray-50 rounded-lg px-2 py-1 -mx-2 transition-colors"
+                  onClick={() => navigate(`/allocations/${al._id}`)}
+                >
                   <div>
                     <p className="font-medium text-gray-800">{al.cropName} → {al.warehouseName}</p>
                     <p className="text-xs text-gray-400">{new Date(al.createdAt).toLocaleDateString()}</p>

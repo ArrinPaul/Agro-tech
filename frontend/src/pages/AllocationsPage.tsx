@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus, Search, AlertTriangle, CheckCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Plus, Search, AlertTriangle, CheckCircle, Eye } from "lucide-react";
 import { useData } from "../contexts/DataContext";
 import { useToast } from "../components/Toast";
 import Modal from "../components/Modal";
@@ -124,6 +125,7 @@ function NewAllocationForm({ onClose }: { onClose: () => void }) {
 export default function AllocationsPage() {
   const { allocations, deallocate } = useData();
   const { addToast } = useToast();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [deallocateTarget, setDeallocateTarget] = useState<Allocation | null>(null);
@@ -178,15 +180,20 @@ export default function AllocationsPage() {
             )}
             {sorted.map((a) => (
               <tr key={a._id} className="border-b border-gray-50 hover:bg-gray-50">
-                <td className="px-5 py-4 font-medium text-gray-900">{a.cropName ?? a.cropId}</td>
+                <td className="px-5 py-4 font-medium text-gray-900">
+                  <button onClick={() => navigate(`/allocations/${a._id}`)} className="text-green-700 hover:underline">{a.cropName ?? a.cropId}</button>
+                </td>
                 <td className="px-5 py-4 text-gray-700">{a.warehouseName ?? a.warehouseId}</td>
                 <td className="px-5 py-4 font-semibold text-gray-900">{a.allocatedQuantity.toLocaleString()}</td>
                 <td className="px-5 py-4 text-gray-500">{a.createdByName ?? a.createdBy}</td>
                 <td className="px-5 py-4 text-gray-400">{new Date(a.createdAt).toLocaleDateString()}</td>
                 <td className="px-5 py-4">
-                  <button onClick={() => setDeallocateTarget(a)} className="text-xs text-red-500 hover:text-red-700 hover:underline">
-                    Deallocate
-                  </button>
+                  <div className="flex items-center gap-2 justify-end">
+                    <button onClick={() => navigate(`/allocations/${a._id}`)} className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg" title="View details"><Eye size={15} /></button>
+                    <button onClick={() => setDeallocateTarget(a)} className="text-xs text-red-500 hover:text-red-700 hover:underline">
+                      Deallocate
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

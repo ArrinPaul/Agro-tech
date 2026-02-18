@@ -25,15 +25,15 @@
 - [ ] Store all keys in `.env.local`
 
 ### 0.3 — Project Scaffolding
-- [ ] Initialize React app with Vite (`npm create vite@latest frontend -- --template react-ts`)
-- [ ] Install Tailwind CSS + PostCSS + Autoprefixer
-- [ ] Configure `tailwind.config.js`
+- [x] Initialize React app with Vite (`npm create vite@latest frontend -- --template react-ts`)
+- [x] Install Tailwind CSS + PostCSS + Autoprefixer
+- [x] Configure `tailwind.config.js`
 - [ ] Install Convex client (`npm install convex`)
 - [ ] Run `npx convex dev` to init Convex project
 - [ ] Install Clerk React SDK (`npm install @clerk/clerk-react`)
-- [ ] Install React Router (`npm install react-router-dom`)
-- [ ] Install Recharts (`npm install recharts`)
-- [ ] Verify dev server boots cleanly
+- [x] Install React Router (`npm install react-router-dom`)
+- [x] Install Recharts (`npm install recharts`)
+- [x] Verify dev server boots cleanly
 
 ---
 
@@ -64,13 +64,13 @@
 - [ ] Test: Operator cannot access admin mutations
 
 ### 1.4 — Frontend Layout & Navigation
-- [ ] Create `MainLayout` with sidebar + topbar
-- [ ] Create sidebar nav links: Dashboard, Warehouses, Crops, Resources, Allocations, Reports
-- [ ] Create `TopBar` with user avatar (Clerk `<UserButton />`)
-- [ ] Setup React Router with protected route wrapper
-- [ ] Create placeholder pages for all routes
-- [ ] Implement responsive sidebar (collapsible on mobile)
-- [ ] Add breadcrumb component
+- [x] Create `MainLayout` with sidebar + topbar
+- [x] Create sidebar nav links: Dashboard, Warehouses, Crops, Resources, Allocations, Reports
+- [x] Create `TopBar` with user avatar
+- [x] Setup React Router with protected route wrapper
+- [x] Create placeholder pages for all routes
+- [x] Implement responsive sidebar (collapsible on mobile)
+- [x] Add breadcrumb component
 
 ---
 
@@ -104,13 +104,13 @@
 - [ ] Mutation: `deleteWarehouse(id)` — block if allocations exist
 - [ ] Query: `listWarehouses(orgId)` — with pagination
 - [ ] Query: `getWarehouse(id)`
-- [ ] Validation: totalCapacity must be > 0
-- [ ] Validation: usedCapacity cannot exceed totalCapacity
-- [ ] Frontend: Warehouse list page (table with search/filter)
-- [ ] Frontend: Create Warehouse modal/form
-- [ ] Frontend: Edit Warehouse modal/form
-- [ ] Frontend: Delete confirmation dialog
-- [ ] Frontend: Capacity bar indicator (green/yellow/red)
+- [x] Validation: totalCapacity must be > 0
+- [x] Validation: usedCapacity cannot exceed totalCapacity
+- [x] Frontend: Warehouse list page (table with search/filter)
+- [x] Frontend: Create Warehouse modal/form
+- [x] Frontend: Edit Warehouse modal/form
+- [x] Frontend: Delete confirmation dialog
+- [x] Frontend: Capacity bar indicator (green/yellow/red)
 
 ### 2.4 — Crops CRUD
 - [ ] Create `convex/crops.ts`
@@ -119,12 +119,12 @@
 - [ ] Mutation: `deleteCrop(id)` — block if allocations exist
 - [ ] Query: `listCrops(orgId)` — with pagination
 - [ ] Query: `getCrop(id)`
-- [ ] Define crop statuses: `PLANTED`, `GROWING`, `HARVESTED`, `STORED`
-- [ ] Mutation: `updateCropStatus(id, newStatus)`
-- [ ] Frontend: Crop list page
-- [ ] Frontend: Create/Edit Crop forms
-- [ ] Frontend: Status badge component
-- [ ] Frontend: Crop detail view
+- [x] Define crop statuses: `PLANTED`, `GROWING`, `HARVESTED`, `STORED`
+- [x] Mutation: `updateCropStatus(id, newStatus)`
+- [x] Frontend: Crop list page
+- [x] Frontend: Create/Edit Crop forms
+- [x] Frontend: Status badge component
+- [x] Frontend: Crop detail view
 
 ### 2.5 — Resources CRUD
 - [ ] Create `convex/resources.ts`
@@ -133,21 +133,21 @@
 - [ ] Mutation: `deleteResource(id)` — block if linked to crops
 - [ ] Query: `listResources(orgId)` — filterable by type
 - [ ] Query: `getResource(id)`
-- [ ] Define types: `FERTILIZER`, `PESTICIDE`
-- [ ] Mutation: `adjustStock(id, delta)` — increment/decrement
-- [ ] Frontend: Resource list page with type filter tabs
-- [ ] Frontend: Create/Edit Resource forms
-- [ ] Frontend: Stock level indicator
-- [ ] Frontend: Low stock warning badge
+- [x] Define types: `FERTILIZER`, `PESTICIDE`
+- [x] Mutation: `adjustStock(id, delta)` — increment/decrement
+- [x] Frontend: Resource list page with type filter tabs
+- [x] Frontend: Create/Edit Resource forms
+- [x] Frontend: Stock level indicator
+- [x] Frontend: Low stock warning badge
 
 ### 2.6 — Crop–Resource Linking
 - [ ] Create mutations in `convex/resources.ts` or separate file
-- [ ] Mutation: `linkResourceToCrop(cropId, resourceId, requiredQuantity)`
-- [ ] Mutation: `unlinkResourceFromCrop(cropId, resourceId)`
-- [ ] Query: `getResourcesForCrop(cropId)`
-- [ ] Query: `getCropsForResource(resourceId)`
-- [ ] Frontend: Resource assignment UI on crop detail page
-- [ ] Frontend: Show linked resources with required vs. available quantities
+- [x] Mutation: `linkResourceToCrop(cropId, resourceId, requiredQuantity)`
+- [x] Mutation: `unlinkResourceFromCrop(cropId, resourceId)`
+- [x] Query: `getResourcesForCrop(cropId)`
+- [x] Query: `getCropsForResource(resourceId)`
+- [x] Frontend: Resource assignment UI on crop detail page
+- [x] Frontend: Show linked resources with required vs. available quantities
 
 ---
 
@@ -155,41 +155,41 @@
 
 ### 3.1 — Core Allocation Logic
 - [ ] Create `convex/allocations.ts`
-- [ ] Mutation: `allocateCropToWarehouse(cropId, warehouseId, quantity, userId)`
-  - [ ] Step 1: Validate warehouse exists & belongs to org
-  - [ ] Step 2: Check `totalCapacity - usedCapacity >= quantity`
-  - [ ] Step 3: Validate all required resources have sufficient stock
-  - [ ] Step 4: Deduct resource stock for each linked resource
-  - [ ] Step 5: Increment `warehouse.usedCapacity` by quantity
-  - [ ] Step 6: Insert allocation record
-  - [ ] Step 7: Insert audit log entry
+- [x] Mutation: `allocateCropToWarehouse(cropId, warehouseId, quantity, userId)`
+  - [x] Step 1: Validate warehouse exists & belongs to org
+  - [x] Step 2: Check `totalCapacity - usedCapacity >= quantity`
+  - [x] Step 3: Validate all required resources have sufficient stock
+  - [x] Step 4: Deduct resource stock for each linked resource
+  - [x] Step 5: Increment `warehouse.usedCapacity` by quantity
+  - [x] Step 6: Insert allocation record
+  - [x] Step 7: Insert audit log entry
   - [ ] Step 8: If any step fails → rollback (Convex transactional mutation)
-- [ ] Mutation: `deallocate(allocationId)` — reverse the process
-- [ ] Query: `listAllocations(orgId)` — with pagination
-- [ ] Query: `getAllocationsForWarehouse(warehouseId)`
-- [ ] Query: `getAllocationsForCrop(cropId)`
+- [x] Mutation: `deallocate(allocationId)` — reverse the process
+- [x] Query: `listAllocations(orgId)` — with pagination
+- [x] Query: `getAllocationsForWarehouse(warehouseId)`
+- [x] Query: `getAllocationsForCrop(cropId)`
 
 ### 3.2 — Validation & Error Handling
 - [ ] Create typed error responses (INSUFFICIENT_CAPACITY, INSUFFICIENT_RESOURCES, etc.)
-- [ ] Frontend: Show clear error messages on allocation failure
-- [ ] Frontend: Pre-check capacity before allowing submit
-- [ ] Frontend: Pre-check resource availability before allowing submit
+- [x] Frontend: Show clear error messages on allocation failure
+- [x] Frontend: Pre-check capacity before allowing submit
+- [x] Frontend: Pre-check resource availability before allowing submit
 - [ ] Add optimistic UI update on successful allocation
 
 ### 3.3 — Allocation UI
-- [ ] Frontend: Allocation page — list all allocations (table)
-- [ ] Frontend: "New Allocation" form (select crop → select warehouse → enter quantity)
-- [ ] Frontend: Show warehouse remaining capacity in dropdown
-- [ ] Frontend: Show resource sufficiency warnings
-- [ ] Frontend: Allocation detail view (who, when, what)
-- [ ] Frontend: Deallocate button with confirmation
+- [x] Frontend: Allocation page — list all allocations (table)
+- [x] Frontend: "New Allocation" form (select crop → select warehouse → enter quantity)
+- [x] Frontend: Show warehouse remaining capacity in dropdown
+- [x] Frontend: Show resource sufficiency warnings
+- [x] Frontend: Allocation detail view (who, when, what)
+- [x] Frontend: Deallocate button with confirmation
 
 ### 3.4 — Audit Logging
 - [ ] Create `convex/auditLogs.ts`
-- [ ] Mutation: `logAction(action, entityType, entityId, performedBy)`
-- [ ] Query: `listAuditLogs(orgId)` — with pagination + filters
-- [ ] Frontend: Audit log page (admin only)
-- [ ] Frontend: Filter by entity type, user, date range
+- [x] Mutation: `logAction(action, entityType, entityId, performedBy)`
+- [x] Query: `listAuditLogs(orgId)` — with pagination + filters
+- [x] Frontend: Audit log page (admin only)
+- [x] Frontend: Filter by entity type, user, date range
 
 ---
 
@@ -197,71 +197,71 @@
 
 ### 4.1 — AI Module Setup
 - [ ] Create `convex/ai.ts`
-- [ ] Define suggestion types: `OPTIMIZATION`, `DEPLETION_WARNING`, `RECOMMENDATION`, `FORECAST`
-- [ ] Create base suggestion structure: `{ type, title, message, severity, data }`
+- [x] Define suggestion types: `OPTIMIZATION`, `DEPLETION_WARNING`, `RECOMMENDATION`, `FORECAST`
+- [x] Create base suggestion structure: `{ type, title, message, severity, data }`
 
 ### 4.2 — Warehouse Optimization Suggestions
-- [ ] Query: `getWarehouseUtilization(orgId)` — returns utilization % per warehouse
-- [ ] Logic: If utilization > 80% → generate "High utilization" suggestion
-- [ ] Logic: If utilization > 95% → generate "Critical capacity" alert
-- [ ] Logic: If utilization < 20% → suggest consolidation
-- [ ] Suggest redistribution targets (warehouses with lowest utilization)
+- [x] Query: `getWarehouseUtilization(orgId)` — returns utilization % per warehouse
+- [x] Logic: If utilization > 80% → generate "High utilization" suggestion
+- [x] Logic: If utilization > 95% → generate "Critical capacity" alert
+- [x] Logic: If utilization < 20% → suggest consolidation
+- [x] Suggest redistribution targets (warehouses with lowest utilization)
 
 ### 4.3 — Resource Depletion Prediction
 - [ ] Track resource usage history (from allocation deductions)
 - [ ] Calculate: average monthly usage per resource
 - [ ] Calculate: `daysRemaining = currentStock / avgDailyUsage`
-- [ ] If daysRemaining < 30 → generate depletion warning
-- [ ] If daysRemaining < 7 → generate critical depletion alert
+- [x] If daysRemaining < 30 → generate depletion warning
+- [x] If daysRemaining < 7 → generate critical depletion alert
 
 ### 4.4 — Smart Warehouse Recommendation
-- [ ] Function: `recommendWarehouse(cropId, quantity, orgId)`
-- [ ] Rank warehouses by: remaining capacity (descending)
-- [ ] Filter: only warehouses with enough capacity
-- [ ] Return top 3 recommendations with reasoning
+- [x] Function: `recommendWarehouse(cropId, quantity, orgId)`
+- [x] Rank warehouses by: remaining capacity (descending)
+- [x] Filter: only warehouses with enough capacity
+- [x] Return top 3 recommendations with reasoning
 - [ ] (Future) Factor in location proximity
 
 ### 4.5 — Crop Demand Forecast
 - [ ] Track historical allocation data per crop
-- [ ] Implement simple moving average prediction
+- [x] Implement simple moving average prediction
 - [ ] OR: Rule-based seasonal model (define planting seasons)
-- [ ] Generate forecast: expected demand for next 30/60/90 days
-- [ ] Surface forecast on dashboard
+- [x] Generate forecast: expected demand for next 30/60/90 days
+- [x] Surface forecast on dashboard
 
 ### 4.6 — AI Suggestions UI
-- [ ] Frontend: AI Suggestions panel on dashboard (card-based)
-- [ ] Color-code by severity: info (blue), warning (yellow), critical (red)
-- [ ] "Dismiss" and "Act on it" buttons per suggestion
-- [ ] Frontend: Dedicated AI Insights page with full history
-- [ ] Auto-refresh suggestions on data changes
+- [x] Frontend: AI Suggestions panel on dashboard (card-based)
+- [x] Color-code by severity: info (blue), warning (yellow), critical (red)
+- [x] "Dismiss" and "Act on it" buttons per suggestion
+- [x] Frontend: Dedicated AI Insights page with full history
+- [x] Auto-refresh suggestions on data changes
 
 ---
 
 ## PHASE 5 — Dashboard & Reporting (Week 5)
 
 ### 5.1 — Dashboard Widgets
-- [ ] Total warehouses count widget
-- [ ] Total crops count widget
-- [ ] Resource stock summary widget
-- [ ] Active allocations count widget
-- [ ] AI suggestions panel (top 5)
-- [ ] Quick action buttons (create warehouse, add crop, allocate)
+- [x] Total warehouses count widget
+- [x] Total crops count widget
+- [x] Resource stock summary widget
+- [x] Active allocations count widget
+- [x] AI suggestions panel (top 5)
+- [x] Quick action buttons (create warehouse, add crop, allocate)
 
 ### 5.2 — Charts & Visualizations
-- [ ] Warehouse utilization bar chart (Recharts)
-- [ ] Resource stock levels donut chart
-- [ ] Allocation history line chart (over time)
-- [ ] Crop status distribution pie chart
-- [ ] Dashboard layout — responsive grid
+- [x] Warehouse utilization bar chart (Recharts)
+- [x] Resource stock levels donut chart
+- [x] Allocation history line chart (over time)
+- [x] Crop status distribution pie chart
+- [x] Dashboard layout — responsive grid
 
 ### 5.3 — Reports Module
 - [ ] Create `convex/reports.ts`
 - [ ] Query: `getWarehouseReport(orgId, dateRange)`
 - [ ] Query: `getAllocationReport(orgId, dateRange)`
 - [ ] Query: `getResourceUsageReport(orgId, dateRange)`
-- [ ] Frontend: Reports page with date range picker
-- [ ] Frontend: Tabular report view
-- [ ] Frontend: Export to CSV (client-side generation)
+- [x] Frontend: Reports page with date range picker
+- [x] Frontend: Tabular report view
+- [x] Frontend: Export to CSV (client-side generation)
 
 ---
 
@@ -270,7 +270,7 @@
 ### 6.1 — Performance Optimization
 - [ ] Add Convex indexes on all frequently queried fields
 - [ ] Implement pagination on all list queries
-- [ ] Add debounced search on list pages
+- [x] Add debounced search on list pages
 - [ ] Lazy load dashboard charts
 - [ ] Implement optimistic UI updates on mutations
 - [ ] Cache expensive AI calculations (store results, refresh periodically)
@@ -284,27 +284,27 @@
 - [ ] Rate limit sensitive operations (via Convex or deployment layer)
 
 ### 6.3 — UI/UX Polish
-- [ ] Loading skeletons on all data-fetching pages
-- [ ] Empty state illustrations
-- [ ] Toast notifications for success/error/warning
-- [ ] Confirm dialogs for destructive actions
-- [ ] Mobile responsive testing & fixes
+- [x] Loading skeletons on all data-fetching pages
+- [x] Empty state illustrations
+- [x] Toast notifications for success/error/warning
+- [x] Confirm dialogs for destructive actions
+- [x] Mobile responsive testing & fixes
 - [ ] Keyboard navigation & accessibility audit
-- [ ] Dark mode support (optional)
+- [x] Dark mode support
 
 ### 6.4 — Error Handling
-- [ ] Global error boundary component
+- [x] Global error boundary component
 - [ ] Convex mutation error handling with user-friendly messages
 - [ ] Network error retry logic
-- [ ] 404 page
-- [ ] Unauthorized (403) redirect page
+- [x] 404 page
+- [x] Unauthorized (403) redirect page
 
 ---
 
 ## PHASE 7 — Deployment & Launch (Week 7)
 
 ### 7.1 — Pre-Deployment Checklist
-- [ ] All env vars documented in `.env.example`
+- [x] All env vars documented in `.env.example`
 - [ ] Remove all `console.log` debug statements
 - [ ] Run lint + format across entire codebase
 - [ ] Test all CRUD operations end-to-end
@@ -314,7 +314,7 @@
 - [ ] Test multi-org data isolation
 
 ### 7.2 — Deploy Frontend
-- [ ] Push to GitHub
+- [x] Push to GitHub
 - [ ] Connect Vercel to GitHub repo
 - [ ] Set environment variables in Vercel
 - [ ] Configure custom domain (if applicable)
@@ -353,4 +353,4 @@
 
 > **Progress Tracking**: Check off items as you complete them. Each `- [ ]` becomes `- [x]` when done.
 >
-> **Last Updated**: 2026-02-11
+> **Last Updated**: 2026-02-18
