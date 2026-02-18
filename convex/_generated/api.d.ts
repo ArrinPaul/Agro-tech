@@ -8,6 +8,8 @@
  * @module
  */
 
+import type * as aiCache from "../aiCache.js";
+import type * as alerts from "../alerts.js";
 import type * as allocations from "../allocations.js";
 import type * as auditLogs from "../auditLogs.js";
 import type * as auth from "../auth.js";
@@ -16,6 +18,7 @@ import type * as http from "../http.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_errors from "../lib/errors.js";
 import type * as organizations from "../organizations.js";
+import type * as rateLimiting from "../rateLimiting.js";
 import type * as reports from "../reports.js";
 import type * as resourceTracking from "../resourceTracking.js";
 import type * as resources from "../resources.js";
@@ -30,6 +33,8 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  aiCache: typeof aiCache;
+  alerts: typeof alerts;
   allocations: typeof allocations;
   auditLogs: typeof auditLogs;
   auth: typeof auth;
@@ -38,6 +43,7 @@ declare const fullApi: ApiFromModules<{
   "lib/auth": typeof lib_auth;
   "lib/errors": typeof lib_errors;
   organizations: typeof organizations;
+  rateLimiting: typeof rateLimiting;
   reports: typeof reports;
   resourceTracking: typeof resourceTracking;
   resources: typeof resources;

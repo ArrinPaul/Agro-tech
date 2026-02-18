@@ -16,10 +16,10 @@ interface PDFExportOptions {
   summary?: Record<string, string | number>;
 }
 
-const BRAND_GREEN = [22, 163, 74]; // #16a34a
-const HEADER_BG = [34, 197, 94]; // #22c55e
-const LIGHT_GRAY = [249, 250, 251];
-const DARK_TEXT = [17, 24, 39];
+const BRAND_GREEN: [number, number, number] = [22, 163, 74]; // #16a34a
+const HEADER_BG: [number, number, number] = [34, 197, 94]; // #22c55e
+const LIGHT_GRAY: [number, number, number] = [249, 250, 251];
+const DARK_TEXT: [number, number, number] = [17, 24, 39];
 
 export function exportToPDF(options: PDFExportOptions) {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
@@ -164,6 +164,7 @@ export function exportToPDF(options: PDFExportOptions) {
 // Convenience functions for each report type
 
 export function exportWarehouseReportPDF(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: { warehouses: any[]; summary: any },
   organization: string,
   dateRange?: { start: string; end: string }
@@ -200,6 +201,7 @@ export function exportWarehouseReportPDF(
 }
 
 export function exportAllocationReportPDF(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: { allocations: any[]; summary: any },
   organization: string,
   groupBy: string,
@@ -231,6 +233,7 @@ export function exportAllocationReportPDF(
 }
 
 export function exportResourceReportPDF(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: { resources: any[]; summary: any },
   organization: string,
   dateRange?: { start: string; end: string }
@@ -264,6 +267,7 @@ export function exportResourceReportPDF(
 }
 
 export function exportCropReportPDF(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: { crops: any[]; summary: any },
   organization: string,
   dateRange?: { start: string; end: string }
@@ -297,6 +301,7 @@ export function exportCropReportPDF(
 }
 
 export function exportDashboardSummaryPDF(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: { summary: any },
   organization: string
 ) {

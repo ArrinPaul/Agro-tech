@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Warehouse, Sprout, FlaskConical,
@@ -49,11 +49,16 @@ export default function MainLayout() {
   const currentUser = useQuery(api.auth.getCurrentUser);
 
   // Global keyboard shortcuts
-  const handleNavigation = useCallback((path: string) => { navigate(path); }, [navigate]);
   useGlobalKeyboardShortcuts({
-    onNavigate: handleNavigation,
-    onToggleTheme: toggleTheme,
-    onShowShortcuts: () => setShortcutsOpen(true),
+    navigate_dashboard: () => navigate("/"),
+    navigate_warehouses: () => navigate("/warehouses"),
+    navigate_crops: () => navigate("/crops"),
+    navigate_resources: () => navigate("/resources"),
+    navigate_allocations: () => navigate("/allocations"),
+    navigate_ai_insights: () => navigate("/ai-insights"),
+    navigate_audit_log: () => navigate("/audit-log"),
+    navigate_reports: () => navigate("/reports"),
+    show_shortcuts: () => setShortcutsOpen(true),
   });
 
   // Close mobile sidebar on route change
@@ -176,7 +181,13 @@ export default function MainLayout() {
       {/* Accessibility */}
       <SkipNavLink />
       <AriaLiveRegions />
-      <KeyboardShortcutsHelp isOpen={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+      {shortcutsOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/30" onClick={() => setShortcutsOpen(false)}>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <KeyboardShortcutsHelp onClose={() => setShortcutsOpen(false)} />
+          </div>
+        </div>
+      )}
 
       {/* Mobile backdrop */}
       {mobileOpen && (
