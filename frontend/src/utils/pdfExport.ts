@@ -164,6 +164,7 @@ export function exportToPDF(options: PDFExportOptions) {
 // Convenience functions for each report type
 
 export function exportWarehouseReportPDF(
+  // Data includes computed properties beyond base Warehouse type
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: { warehouses: any[]; summary: any },
   organization: string,
@@ -186,7 +187,7 @@ export function exportWarehouseReportPDF(
       {
         title: "Warehouse Details",
         headers: ["Name", "Location", "Capacity", "Used", "Utilization", "Status", "Allocations"],
-        rows: data.warehouses.map((w: any) => [
+        rows: data.warehouses.map((w) => [
           w.name,
           w.location,
           w.totalCapacity.toLocaleString(),
@@ -201,6 +202,7 @@ export function exportWarehouseReportPDF(
 }
 
 export function exportAllocationReportPDF(
+  // Data includes computed properties beyond base Allocation type
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: { allocations: any[]; summary: any },
   organization: string,
@@ -221,7 +223,7 @@ export function exportAllocationReportPDF(
       {
         title: `Allocations by ${groupBy}`,
         headers: ["Group", "Count", "Total Quantity", "Avg Quantity"],
-        rows: data.allocations.map((a: any) => [
+        rows: data.allocations.map((a) => [
           a.groupKey,
           a.count,
           a.totalQuantity.toLocaleString(),
@@ -233,6 +235,7 @@ export function exportAllocationReportPDF(
 }
 
 export function exportResourceReportPDF(
+  // Data includes computed properties beyond base Resource type
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: { resources: any[]; summary: any },
   organization: string,
@@ -253,7 +256,7 @@ export function exportResourceReportPDF(
       {
         title: "Resource Details",
         headers: ["Name", "Type", "Stock", "Used", "Avg Daily Usage", "Days Until Depletion"],
-        rows: data.resources.map((r: any) => [
+        rows: data.resources.map((r) => [
           r.name,
           r.type,
           r.currentStock.toLocaleString(),
@@ -267,6 +270,7 @@ export function exportResourceReportPDF(
 }
 
 export function exportCropReportPDF(
+  // Data includes computed properties beyond base Crop type
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: { crops: any[]; summary: any },
   organization: string,
@@ -287,7 +291,7 @@ export function exportCropReportPDF(
       {
         title: "Crop Details",
         headers: ["Name", "Status", "Quantity", "Allocations", "Allocation Rate", "Resources"],
-        rows: data.crops.map((c: any) => [
+        rows: data.crops.map((c) => [
           c.name,
           c.status,
           c.totalQuantity.toLocaleString(),
@@ -301,6 +305,7 @@ export function exportCropReportPDF(
 }
 
 export function exportDashboardSummaryPDF(
+  // Summary contains mixed number/string types from aggregated data
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: { summary: any },
   organization: string

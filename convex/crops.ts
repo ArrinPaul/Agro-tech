@@ -73,7 +73,7 @@ export const updateCrop = mutation({
     )),
   },
   handler: async (ctx, args) => {
-    const updates: any = { updatedAt: Date.now() };
+    const updates: Record<string, string | number> = { updatedAt: Date.now() };
     
     if (args.name !== undefined) updates.name = args.name;
     if (args.status !== undefined) updates.status = args.status;

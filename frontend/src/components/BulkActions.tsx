@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   Loader
 } from "lucide-react";
+import { useToast } from "./Toast";
 import { useBulkOperations } from "../utils/phase8-features";
 import { useOptimisticUpdates } from "../hooks/useAdvancedFeatures";
 
@@ -55,6 +56,7 @@ export default function BulkActions({
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [loading, setLoading] = useState<string | null>(null);
+  const { addToast } = useToast();
   
   const { createOperation, updateProgress, setResult, setError } = useBulkOperations();
   const { applyOptimisticUpdate, clearOptimisticUpdate } = useOptimisticUpdates();
@@ -165,8 +167,7 @@ export default function BulkActions({
     try {
       await onBulkExport(selectedIds);
     } catch (error) {
-      console.error('Export failed:', error);
-      alert('Export failed. Please try again.');
+      addToast(error instanceof Error ? error.message : 'Export failed. Please try again.', 'error');
     } finally {
       setLoading(null);
     }
