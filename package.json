@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "postinstall": "npm install --prefix frontend",
+    "build": "npm run build --prefix frontend"
+  },
   "dependencies": {
     "@clerk/clerk-react": "^5.60.2",
     "convex": "^1.31.7"
