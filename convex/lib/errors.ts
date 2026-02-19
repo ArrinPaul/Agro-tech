@@ -10,13 +10,17 @@ export type AllocationErrorType =
   | "ORGANIZATION_MISMATCH";
 
 export class AllocationError extends Error {
+  type: AllocationErrorType;
+  details?: any;
   constructor(
-    public type: AllocationErrorType,
+    type: AllocationErrorType,
     message: string,
-    public details?: any
+    details?: any
   ) {
     super(message);
     this.name = "AllocationError";
+    this.type = type;
+    this.details = details;
   }
 }
 

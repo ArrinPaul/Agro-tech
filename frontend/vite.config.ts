@@ -14,4 +14,25 @@ export default defineConfig({
       "../../../convex": path.resolve(__dirname, "../convex"),
     },
   },
+  build: {
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // React core
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
+          // Clerk auth
+          "vendor-clerk": ["@clerk/clerk-react"],
+          // Convex
+          "vendor-convex": ["convex", "convex/react", "convex/react-clerk"],
+          // Charts
+          "vendor-recharts": ["recharts"],
+          // Icons
+          "vendor-lucide": ["lucide-react"],
+          // PDF export (heaviest — keep isolated)
+          "vendor-pdf": ["jspdf", "jspdf-autotable"],
+        },
+      },
+    },
+  },
 });

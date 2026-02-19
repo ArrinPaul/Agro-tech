@@ -11,6 +11,7 @@ dist-ssr/
 
 # Convex
 .convex/
+convex/auth.config.ts
 
 # Lock files (using npm)
 bun.lock

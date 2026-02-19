@@ -18,6 +18,9 @@ import SignUpPage from "./pages/SignUpPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 
+// Clerk handles auth on the UI layer.
+// Convex handles data isolation via organizationId on every query/mutation.
+// No JWT bridging required — Convex functions accept explicit args, not ctx.auth.
 function ProtectedRoute() {
   return (
     <>
@@ -32,13 +35,11 @@ function ProtectedRoute() {
 }
 
 function PublicRoute() {
-  const { isSignedIn } = useAuth();
-  
-  if (isSignedIn) {
-    return <Navigate to="/" replace />;
-  }
-  
-  return <Outlet />;
+  const { isSignedIn, isLoaded } = useAuth();
+
+  if (!isLoaded) return null;
+
+  return isSignedIn ? <Navigate to="/" replace /> : <Outlet />;
 }
 
 function App() {
@@ -47,10 +48,10 @@ function App() {
       <BrowserRouter>
         <ToastProvider>
           <Routes>
-            {/* Public routes */}
+            {/* Public routes — use /* so Clerk SSO sub-paths (e.g. /sign-up/sso-callback) don't 404 */}
             <Route element={<PublicRoute />}>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/sign-up" element={<SignUpPage />} />
+              <Route path="/login/*" element={<LoginPage />} />
+              <Route path="/sign-up/*" element={<SignUpPage />} />
             </Route>
 
             {/* Protected routes */}

@@ -93,35 +93,35 @@ export const getCurrentUser = query({
   },
 });
 
-// Create or get user (for first-time login without webhook)
+// Create or get user — called from frontend after Clerk sign-in
+// Accepts explicit args since ctx.auth is not configured (no auth.config.ts)
 export const createOrGetUser = mutation({
-  args: {},
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
-    
-    // Check if user exists
+  args: {
+    clerkId: v.string(),
+    email: v.string(),
+    name: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    // Check if user already exists
     const existingUser = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
       .unique();
-    
+
     if (existingUser) {
       return existingUser;
     }
-    
-    // Create new user
+
+    // Create new user with default OPERATOR role
     const userId = await ctx.db.insert("users", {
-      clerkId: identity.subject,
-      email: identity.email || "",
-      name: identity.name || identity.email || "User",
-      role: "OPERATOR", // Default role
+      clerkId: args.clerkId,
+      email: args.email,
+      name: args.name || args.email || "User",
+      role: "OPERATOR",
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
-    
+
     return await ctx.db.get(userId);
   },
 });
