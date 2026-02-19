@@ -114,17 +114,42 @@ export default function LoginPage() {
           </div>
 
           {/* Desktop heading */}
-          <div className="hidden lg:block mb-10">
-            <h2 className="text-[1.75rem] font-display font-bold text-[var(--text-primary)] tracking-tight leading-tight">
+          <div className="hidden lg:block mb-8">
+            <h2 className="text-[1.875rem] font-display font-bold text-[var(--text-primary)] tracking-tight leading-tight mb-2">
               Welcome back
             </h2>
-            <p className="text-[var(--text-muted)] mt-2 text-[15px] leading-relaxed">
-              Sign in to manage your agricultural operations
+            <p className="text-[var(--text-muted)] text-[15px] leading-relaxed">
+              Sign in to access your dashboard
             </p>
           </div>
 
+          {/* First time user hint */}
+          <div className="mb-6 p-4 rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/30 dark:bg-blue-900/10">
+            <div className="flex gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                <div className="w-5 h-5 rounded-full bg-blue-500/10 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+              <div>
+                <p className="text-[13px] font-medium text-blue-900 dark:text-blue-200 mb-1">
+                  First time here?
+                </p>
+                <p className="text-[12px] text-blue-700 dark:text-blue-300">
+                  If you don't have an account yet, please{" "}
+                  <a href="/sign-up" className="font-semibold underline hover:text-blue-900 dark:hover:text-blue-100">
+                    sign up first
+                  </a>{" "}
+                  before trying to sign in.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Clerk sign-in */}
-          <div className="rounded-2xl border border-[var(--border)] p-6 shadow-sm" style={{ background: "var(--surface)" }}>
+          <div className="rounded-2xl border border-[var(--border)] p-8 shadow-lg" style={{ background: "var(--surface)" }}>
             <SignIn
               path="/login"
               routing="path"
@@ -136,16 +161,35 @@ export default function LoginPage() {
                   card: "shadow-none border-0 p-0 bg-transparent",
                   headerTitle: "hidden",
                   headerSubtitle: "hidden",
-                  socialButtonsBlockButton: "border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] rounded-xl h-12 font-medium transition-all hover:shadow-sm",
-                  formFieldInput: "input h-12",
-                  formButtonPrimary: "btn btn-primary h-12 w-full text-sm font-semibold",
-                  footerActionLink: "text-emerald-600 hover:text-emerald-700 font-semibold",
-                  footer: "pt-4",
+                  socialButtonsBlockButton: "border-2 border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] hover:border-emerald-500/30 text-[var(--text-primary)] rounded-xl h-12 font-medium transition-all duration-200 hover:shadow-md",
+                  socialButtonsBlockButtonText: "font-semibold text-sm",
+                  formFieldInput: "input h-12 text-sm rounded-xl",
+                  formFieldLabel: "text-sm font-medium text-[var(--text-secondary)] mb-2",
+                  formButtonPrimary: "btn btn-primary h-12 w-full text-sm font-semibold rounded-xl shadow hover:shadow-md transition-all duration-200",
+                  footerActionLink: "text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold transition-colors",
+                  footer: "pt-6",
                   dividerLine: "bg-[var(--border)]",
-                  dividerText: "text-[var(--text-muted)] text-xs",
+                  dividerText: "text-[var(--text-muted)] text-xs font-medium",
+                  identityPreviewEditButtonIcon: "text-[var(--text-muted)]",
+                  formFieldInputShowPasswordButton: "text-[var(--text-muted)] hover:text-[var(--text-primary)]",
+                  formResendCodeLink: "text-emerald-600 hover:text-emerald-700 dark:text-emerald-400",
+                  otpCodeFieldInput: "border-2 border-[var(--border)] rounded-lg",
+                  formFieldErrorText: "text-xs mt-1",
+                  alertText: "text-xs",
+                  alert: "rounded-xl border-l-4",
                 }
               }}
             />
+          </div>
+
+          {/* Help text */}
+          <div className="mt-6 text-center">
+            <p className="text-[13px] text-[var(--text-muted)]">
+              Having trouble signing in?{" "}
+              <a href="/sign-up" className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold transition-colors">
+                Create an account instead
+              </a>
+            </p>
           </div>
 
           {/* Trust footer */}

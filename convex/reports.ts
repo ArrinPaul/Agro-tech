@@ -405,15 +405,6 @@ export const getDashboardSummary = query({
       utilization: w.totalCapacity > 0 ? Math.round((w.usedCapacity / w.totalCapacity) * 100) : 0,
     }));
     
-    // Resource stock levels
-    const resourceStockLevels = resources.map(r => ({
-      id: r._id,
-      name: r.name,
-      type: r.type,
-      stock: r.stockQuantity,
-      status: r.stockQuantity === 0 ? "depleted" : r.stockQuantity < 50 ? "low" : "adequate",
-    }));
-    
     // Allocation trend (last 30 days)
     const thirtyDaysAgo = Date.now() - 30 * 86400000;
     const recentAllocations = allocations.filter(a => a.createdAt >= thirtyDaysAgo);
@@ -432,16 +423,26 @@ export const getDashboardSummary = query({
       HARVESTED: crops.filter(c => c.status === "HARVESTED").length,
       STORED: crops.filter(c => c.status === "STORED").length,
     };
-    
+
+    const avgUtilization = warehouses.length > 0
+      ? warehouses.reduce((sum, w) => sum + (w.totalCapacity > 0 ? (w.usedCapacity / w.totalCapacity) * 100 : 0), 0) / warehouses.length
+      : 0;
+
+    const resourceStatus = {
+      inStock: resources.filter(r => r.stockQuantity >= 50).length,
+      lowStock: resources.filter(r => r.stockQuantity > 0 && r.stockQuantity < 50).length,
+      outOfStock: resources.filter(r => r.stockQuantity === 0).length,
+    };
+
     return {
-      counts: {
-        warehouses: warehouses.length,
-        crops: crops.length,
-        resources: resources.length,
-        allocations: allocations.length,
+      summary: {
+        totalWarehouses: warehouses.length,
+        totalCrops: crops.length,
+        totalAllocations: allocations.length,
+        avgUtilization,
       },
       warehouseUtilization,
-      resourceStockLevels,
+      resourceStatus,
       allocationTrend: Object.entries(allocationTrend)
         .map(([date, count]) => ({ date, count }))
         .sort((a, b) => a.date.localeCompare(b.date)),
