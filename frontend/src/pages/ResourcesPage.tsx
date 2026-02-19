@@ -172,16 +172,16 @@ export default function ResourcesPage() {
     }, 1000);
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     if (!deleteTarget) return;
-    const err = deleteResource(deleteTarget._id);
+    const err = await deleteResource(deleteTarget._id);
     if (err) { addToast(err, "error"); return; }
     addToast("Resource deleted", "success");
   }
 
-  function handleAdjust(delta: number) {
+  async function handleAdjust(delta: number) {
     if (!adjustTarget) return;
-    const err = adjustStock(adjustTarget._id, delta);
+    const err = await adjustStock(adjustTarget._id, delta);
     if (err) { addToast(err, "error"); return; }
     addToast(`Stock ${delta >= 0 ? "added" : "deducted"}`, "success");
   }
@@ -203,12 +203,12 @@ export default function ResourcesPage() {
     }
   }
 
-  function handleBulkDelete() {
+  async function handleBulkDelete() {
     const errors: string[] = [];
-    selectedResources.forEach(id => {
-      const err = deleteResource(id);
+    for (const id of selectedResources) {
+      const err = await deleteResource(id);
       if (err) errors.push(err);
-    });
+    }
     if (errors.length > 0) {
       addToast(`Some resources couldn't be deleted. ${errors[0]}`, "error");
     } else {

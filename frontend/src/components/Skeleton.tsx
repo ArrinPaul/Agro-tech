@@ -15,12 +15,12 @@ export function Skeleton({ className = "", style }: SkeletonProps) {
 
 export function SkeletonCard() {
     return (
-        <div className="card" style={{ padding: "1.25rem" }}>
+        <div className="card relative overflow-hidden" style={{ padding: "1.25rem" }}>
             <div className="flex items-center" style={{ gap: "1rem" }}>
-                <Skeleton className="w-12 h-12" style={{ borderRadius: "var(--radius-xl)" }} />
+                <Skeleton className="w-12 h-12" style={{ borderRadius: "0.875rem" }} />
                 <div className="flex-1" style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                    <Skeleton className="h-5 w-20" />
-                    <Skeleton className="h-3 w-32" />
+                    <Skeleton className="h-5 w-24" style={{ borderRadius: "0.5rem" }} />
+                    <Skeleton className="h-3 w-36" style={{ borderRadius: "0.375rem" }} />
                 </div>
             </div>
         </div>

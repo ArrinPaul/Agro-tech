@@ -146,9 +146,9 @@ export default function WarehousesPage() {
     setEditTarget(null);
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     if (!deleteTarget) return;
-    const err = deleteWarehouse(deleteTarget._id);
+    const err = await deleteWarehouse(deleteTarget._id);
     if (err) { addToast(err, "error"); return; }
     addToast("Warehouse deleted", "success");
   }
@@ -170,12 +170,12 @@ export default function WarehousesPage() {
     }
   }
 
-  function handleBulkDelete() {
+  async function handleBulkDelete() {
     const errors: string[] = [];
-    selectedWarehouses.forEach(id => {
-      const err = deleteWarehouse(id);
+    for (const id of selectedWarehouses) {
+      const err = await deleteWarehouse(id);
       if (err) errors.push(err);
-    });
+    }
     if (errors.length > 0) {
       addToast(`Some warehouses couldn't be deleted. ${errors[0]}`, "error");
     } else {

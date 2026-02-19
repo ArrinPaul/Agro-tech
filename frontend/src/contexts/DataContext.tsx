@@ -29,37 +29,37 @@ export function useData() {
   const auditLogs: AuditLog[] = ctx.auditLogs ?? [];
   const suggestions: Suggestion[] = ctx.suggestions ?? [];
 
-  // Wrap async void functions to return error strings for backward compatibility
-  const deleteWarehouse = useCallback((id: string): string | null => {
+  // Wrap async void functions with proper error handling
+  const deleteWarehouse = useCallback(async (id: string): Promise<string | null> => {
     try {
-      ctx.deleteWarehouse(id as never);
+      await ctx.deleteWarehouse(id as never);
       return null;
     } catch (e) {
       return (e as Error).message;
     }
   }, [ctx]);
 
-  const deleteCrop = useCallback((id: string): string | null => {
+  const deleteCrop = useCallback(async (id: string): Promise<string | null> => {
     try {
-      ctx.deleteCrop(id as never);
+      await ctx.deleteCrop(id as never);
       return null;
     } catch (e) {
       return (e as Error).message;
     }
   }, [ctx]);
 
-  const deleteResource = useCallback((id: string): string | null => {
+  const deleteResource = useCallback(async (id: string): Promise<string | null> => {
     try {
-      ctx.deleteResource(id as never);
+      await ctx.deleteResource(id as never);
       return null;
     } catch (e) {
       return (e as Error).message;
     }
   }, [ctx]);
 
-  const adjustStock = useCallback((id: string, delta: number): string | null => {
+  const adjustStock = useCallback(async (id: string, delta: number): Promise<string | null> => {
     try {
-      ctx.adjustStock(id as never, delta);
+      await ctx.adjustStock(id as never, delta);
       return null;
     } catch (e) {
       return (e as Error).message;
@@ -67,9 +67,9 @@ export function useData() {
   }, [ctx]);
 
   // Wrap allocate to return error string
-  const allocate = useCallback((cropId: string, warehouseId: string, quantity: number): string | null => {
+  const allocate = useCallback(async (cropId: string, warehouseId: string, quantity: number): Promise<string | null> => {
     try {
-      ctx.allocate(cropId as never, warehouseId as never, quantity);
+      await ctx.allocate(cropId as never, warehouseId as never, quantity);
       return null;
     } catch (e) {
       return (e as Error).message;

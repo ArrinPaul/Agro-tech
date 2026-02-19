@@ -164,9 +164,9 @@ export default function MainLayout() {
           {expanded ? (
             <button
               onClick={toggleTheme}
-              className="flex items-center gap-2.5 w-full px-2 py-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--surface-hover)] transition-all"
+              className="flex items-center gap-2.5 w-full px-2 py-2 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-xl hover:bg-[var(--surface-hover)] transition-all group"
             >
-              <div className="w-8 h-8 rounded-lg bg-[var(--surface-hover)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-[var(--surface-hover)] group-hover:bg-[var(--surface)] flex items-center justify-center transition-colors">
                 {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
               </div>
               <span className="text-[13px]">{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>

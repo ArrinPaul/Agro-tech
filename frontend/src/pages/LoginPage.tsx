@@ -1,108 +1,171 @@
 import { SignIn } from "@clerk/clerk-react";
-import { Leaf, BarChart3, Shield, Cpu } from "lucide-react";
+import { Leaf, BarChart3, Shield, Cpu, Zap, Globe } from "lucide-react";
 
 const FEATURES = [
-  { icon: BarChart3, label: "Real-time Analytics", desc: "Live dashboards & reports" },
-  { icon: Shield, label: "Enterprise Security", desc: "Role-based access control" },
-  { icon: Cpu, label: "AI-Powered Insights", desc: "Smart crop recommendations" },
+  { icon: BarChart3, label: "Real-time Analytics", desc: "Live dashboards tracking every metric across your operation" },
+  { icon: Shield, label: "Enterprise Security", desc: "Role-based access with organization-level data isolation" },
+  { icon: Cpu, label: "AI-Powered Insights", desc: "Smart recommendations for crop allocation & resource optimization" },
+  { icon: Zap, label: "Instant Sync", desc: "Real-time database with zero-latency updates across all devices" },
+];
+
+const STATS = [
+  { value: "99.9%", label: "Uptime" },
+  { value: "50ms", label: "Avg Latency" },
+  { value: "10K+", label: "Farms" },
 ];
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex mesh-gradient">
-      {/* Left panel — branding */}
-      <div className="hidden lg:flex lg:w-[45%] xl:w-[40%] relative overflow-hidden flex-col justify-between p-10 xl:p-14">
-        {/* Background decoration */}
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800" />
-        <div className="absolute inset-0 opacity-10 dot-pattern" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-teal-400/10 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4" />
+    <div className="min-h-screen flex" style={{ background: "var(--bg-primary)" }}>
+      {/* Left panel — immersive branding */}
+      <div className="hidden lg:flex lg:w-[52%] xl:w-[48%] relative overflow-hidden flex-col">
+        {/* Layered background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-teal-800 to-emerald-950" />
+        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }} />
+        
+        {/* Glowing orbs */}
+        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-emerald-400/8 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-15%] left-[-10%] w-[600px] h-[600px] bg-teal-300/6 rounded-full blur-[140px]" />
+        <div className="absolute top-[40%] left-[30%] w-[300px] h-[300px] bg-emerald-500/5 rounded-full blur-[100px]" />
+        
+        {/* Floating geometric accents */}
+        <div className="absolute top-24 right-16 w-20 h-20 border border-white/[0.06] rounded-2xl rotate-12 animate-float" />
+        <div className="absolute bottom-32 right-28 w-14 h-14 border border-emerald-400/[0.08] rounded-xl -rotate-6" style={{ animation: "float 4s ease-in-out 1s infinite" }} />
+        <div className="absolute top-[45%] left-12 w-8 h-8 bg-emerald-400/[0.06] rounded-lg rotate-45" />
 
-        {/* Logo */}
-        <div className="relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/15 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
-              <Leaf size={22} className="text-white" />
+        {/* Content */}
+        <div className="relative z-10 flex flex-col justify-between h-full p-10 xl:p-14">
+          {/* Logo */}
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/[0.15] shadow-lg shadow-black/10">
+              <Leaf size={22} className="text-emerald-300" />
             </div>
-            <span className="text-white font-display font-bold text-xl tracking-tight">AgroTech</span>
+            <div>
+              <span className="text-white font-display font-bold text-lg tracking-tight">AgroTech</span>
+              <span className="text-emerald-400/60 text-[10px] font-medium ml-2 tracking-widest uppercase">Platform</span>
+            </div>
           </div>
-        </div>
 
-        {/* Hero text */}
-        <div className="relative z-10 space-y-6">
-          <h1 className="text-4xl xl:text-5xl font-display font-bold text-white leading-[1.1] tracking-tight">
-            Smart Crop &<br />Warehouse<br />Management
-          </h1>
-          <p className="text-emerald-100/80 text-lg max-w-md leading-relaxed">
-            AI-powered platform for modern agricultural operations. Optimize resources, reduce waste, and maximize yield.
-          </p>
-        </div>
-
-        {/* Features */}
-        <div className="relative z-10 space-y-4">
-          {FEATURES.map(({ icon: Icon, label, desc }) => (
-            <div key={label} className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/10 flex-shrink-0">
-                <Icon size={18} className="text-emerald-200" />
+          {/* Hero section */}
+          <div className="space-y-8 max-w-lg">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/[0.08] backdrop-blur-sm">
+                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                <span className="text-emerald-300/80 text-[11px] font-medium tracking-wide uppercase">Intelligent Agriculture</span>
               </div>
-              <div>
-                <p className="text-white font-medium text-sm">{label}</p>
-                <p className="text-emerald-200/60 text-xs">{desc}</p>
-              </div>
+              <h1 className="text-[3.25rem] xl:text-[3.75rem] font-display font-bold text-white leading-[1.05] tracking-tight">
+                Precision Farming,
+                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-200 to-emerald-400 animate-gradient">
+                  Amplified.
+                </span>
+              </h1>
+              <p className="text-emerald-100/50 text-base leading-relaxed max-w-sm">
+                The AI-native platform for agricultural teams who demand real-time control over crops, warehouses, and resources.
+              </p>
             </div>
-          ))}
+
+            {/* Feature grid */}
+            <div className="grid grid-cols-2 gap-3">
+              {FEATURES.map(({ icon: Icon, label, desc }) => (
+                <div key={label} className="group p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.1] transition-all duration-300">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-2.5 group-hover:bg-emerald-500/15 transition-colors">
+                    <Icon size={15} className="text-emerald-400" />
+                  </div>
+                  <p className="text-white/90 font-medium text-[13px] mb-0.5">{label}</p>
+                  <p className="text-emerald-200/30 text-[11px] leading-relaxed">{desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom stats */}
+          <div className="flex items-center gap-8">
+            {STATS.map(({ value, label }) => (
+              <div key={label}>
+                <p className="text-white font-display font-bold text-xl tracking-tight">{value}</p>
+                <p className="text-emerald-300/40 text-[11px] font-medium mt-0.5">{label}</p>
+              </div>
+            ))}
+            <div className="ml-auto flex items-center gap-2 text-emerald-300/30 text-[11px]">
+              <Globe size={12} />
+              <span>Available worldwide</span>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Right panel — auth form */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-10">
-        <div className="w-full max-w-[420px] animate-slide-up">
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-10 relative">
+        {/* Subtle background pattern for right side */}
+        <div className="absolute inset-0 opacity-30 mesh-gradient" />
+        
+        <div className="w-full max-w-[420px] relative z-10 animate-slide-up">
           {/* Mobile logo */}
           <div className="text-center mb-10 lg:hidden">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl mb-5 shadow-lg shadow-emerald-500/20">
-              <Leaf className="h-7 w-7 text-white" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl mb-5 shadow-xl shadow-emerald-500/20">
+              <Leaf className="h-8 w-8 text-white" />
             </div>
             <h1 className="text-2xl font-display font-bold text-[var(--text-primary)] tracking-tight">
-              Welcome to AgroTech
+              AgroTech
             </h1>
             <p className="text-[var(--text-muted)] mt-2 text-sm">
-              Smart Crop & Warehouse Management Platform
+              Precision Farming, Amplified.
             </p>
           </div>
 
           {/* Desktop heading */}
           <div className="hidden lg:block mb-10">
-            <h2 className="text-2xl font-display font-bold text-[var(--text-primary)] tracking-tight">
+            <h2 className="text-[1.75rem] font-display font-bold text-[var(--text-primary)] tracking-tight leading-tight">
               Welcome back
             </h2>
-            <p className="text-[var(--text-muted)] mt-1.5 text-sm">
-              Sign in to your account to continue
+            <p className="text-[var(--text-muted)] mt-2 text-[15px] leading-relaxed">
+              Sign in to manage your agricultural operations
             </p>
           </div>
 
-          <SignIn
-            path="/login"
-            routing="path"
-            signUpUrl="/sign-up"
-            afterSignInUrl="/"
-            appearance={{
-              elements: {
-                rootBox: "mx-auto w-full",
-                card: "shadow-none border-0 p-0 bg-transparent",
-                headerTitle: "hidden",
-                headerSubtitle: "hidden",
-                socialButtonsBlockButton: "border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] rounded-xl h-11 font-medium transition-all",
-                formFieldInput: "input",
-                formButtonPrimary: "btn btn-primary h-11 w-full text-sm",
-                footerActionLink: "text-emerald-600 hover:text-emerald-700 font-medium",
-              }
-            }}
-          />
+          {/* Clerk sign-in */}
+          <div className="rounded-2xl border border-[var(--border)] p-6 shadow-sm" style={{ background: "var(--surface)" }}>
+            <SignIn
+              path="/login"
+              routing="path"
+              signUpUrl="/sign-up"
+              afterSignInUrl="/"
+              appearance={{
+                elements: {
+                  rootBox: "mx-auto w-full",
+                  card: "shadow-none border-0 p-0 bg-transparent",
+                  headerTitle: "hidden",
+                  headerSubtitle: "hidden",
+                  socialButtonsBlockButton: "border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] rounded-xl h-12 font-medium transition-all hover:shadow-sm",
+                  formFieldInput: "input h-12",
+                  formButtonPrimary: "btn btn-primary h-12 w-full text-sm font-semibold",
+                  footerActionLink: "text-emerald-600 hover:text-emerald-700 font-semibold",
+                  footer: "pt-4",
+                  dividerLine: "bg-[var(--border)]",
+                  dividerText: "text-[var(--text-muted)] text-xs",
+                }
+              }}
+            />
+          </div>
 
-          <div className="mt-10 pt-6 border-t border-[var(--border)]">
-            <p className="text-center text-xs text-[var(--text-muted)]">
-              Trusted by agricultural operations worldwide
-            </p>
+          {/* Trust footer */}
+          <div className="mt-8 pt-6 border-t border-[var(--border)]">
+            <div className="flex items-center justify-center gap-6">
+              <div className="flex items-center gap-1.5 text-[11px] text-[var(--text-muted)]">
+                <Shield size={11} className="text-emerald-500" />
+                <span>SOC 2 Compliant</span>
+              </div>
+              <div className="w-px h-3 bg-[var(--border)]" />
+              <div className="flex items-center gap-1.5 text-[11px] text-[var(--text-muted)]">
+                <Zap size={11} className="text-amber-500" />
+                <span>99.9% Uptime</span>
+              </div>
+              <div className="w-px h-3 bg-[var(--border)]" />
+              <div className="flex items-center gap-1.5 text-[11px] text-[var(--text-muted)]">
+                <Globe size={11} className="text-blue-500" />
+                <span>GDPR Ready</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

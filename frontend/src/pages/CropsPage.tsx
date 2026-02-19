@@ -198,9 +198,9 @@ export default function CropsPage() {
     setEditTarget(null);
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     if (!deleteTarget) return;
-    const err = deleteCrop(deleteTarget._id);
+    const err = await deleteCrop(deleteTarget._id);
     if (err) { addToast(err, "error"); return; }
     addToast("Crop deleted", "success");
   }
@@ -254,12 +254,12 @@ export default function CropsPage() {
     setBulkSelectMode(false);
   }
 
-  function handleBulkDelete() {
+  async function handleBulkDelete() {
     const errors: string[] = [];
-    selectedCrops.forEach(cropId => {
-      const err = deleteCrop(cropId);
+    for (const cropId of selectedCrops) {
+      const err = await deleteCrop(cropId);
       if (err) errors.push(err);
-    });
+    }
     
     if (errors.length > 0) {
       addToast(`Some crops couldn deleting. ${errors[0]}`, "error");
@@ -284,7 +284,7 @@ export default function CropsPage() {
     
     const csvContent = [headers, ...rows]
       .map(row => row.map(cell => `"${cell}"`).join(","))
-      .join("\\n");
+      .join("\n");
     
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = URL.createObjectURL(blob);

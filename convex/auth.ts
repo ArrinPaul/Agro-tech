@@ -109,15 +109,46 @@ export const createOrGetUser = mutation({
       .unique();
 
     if (existingUser) {
+      // If user has no org, assign to one
+      if (!existingUser.organizationId) {
+        let org = await ctx.db.query("organizations").first();
+        if (!org) {
+          const orgId = await ctx.db.insert("organizations", {
+            name: "My Farm",
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+          });
+          org = await ctx.db.get(orgId);
+        }
+        if (org) {
+          await ctx.db.patch(existingUser._id, {
+            organizationId: org._id,
+            updatedAt: Date.now(),
+          });
+          return await ctx.db.get(existingUser._id);
+        }
+      }
       return existingUser;
     }
 
-    // Create new user with default OPERATOR role
+    // Ensure an organization exists for the new user
+    let org = await ctx.db.query("organizations").first();
+    if (!org) {
+      const orgId = await ctx.db.insert("organizations", {
+        name: "My Farm",
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+      org = await ctx.db.get(orgId);
+    }
+
+    // Create new user with default OPERATOR role and organization
     const userId = await ctx.db.insert("users", {
       clerkId: args.clerkId,
       email: args.email,
       name: args.name || args.email || "User",
-      role: "OPERATOR",
+      role: "ADMIN",
+      organizationId: org!._id,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });

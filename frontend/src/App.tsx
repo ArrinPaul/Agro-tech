@@ -20,7 +20,7 @@ import UnauthorizedPage from "./pages/UnauthorizedPage";
 
 // Clerk handles auth on the UI layer.
 // Convex handles data isolation via organizationId on every query/mutation.
-// No JWT bridging required — Convex functions accept explicit args, not ctx.auth.
+// UserSync in main.tsx creates/syncs the user record via createOrGetUser mutation.
 function ProtectedRoute() {
   return (
     <>

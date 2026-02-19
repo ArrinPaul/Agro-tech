@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import {
   Warehouse, Sprout, FlaskConical, GitMerge,
   BrainCircuit, AlertTriangle, Info, Plus,
-  ArrowUpRight, TrendingUp,
+  ArrowUpRight, TrendingUp, Activity,
 } from "lucide-react";
+import { useUser } from "@clerk/clerk-react";
 import { useData } from "../contexts/DataContext";
 
 const LazyWarehouseChart = lazy(() => import("../components/charts/WarehouseUtilChart"));
@@ -20,10 +21,10 @@ const SEV_STYLES: Record<string, { bg: string; border: string; icon: string; dot
 const SEV_ICON: Record<string, typeof Info> = { critical: AlertTriangle, warning: AlertTriangle, info: Info };
 
 const STAT_CONFIGS = [
-  { key: "warehouses", label: "Total Warehouses", icon: Warehouse, gradient: "stat-gradient-emerald", iconBg: "bg-emerald-500", iconShadow: "shadow-emerald-500/25" },
-  { key: "crops", label: "Total Crops", icon: Sprout, gradient: "stat-gradient-blue", iconBg: "bg-blue-500", iconShadow: "shadow-blue-500/25" },
-  { key: "resources", label: "Resource Types", icon: FlaskConical, gradient: "stat-gradient-amber", iconBg: "bg-amber-500", iconShadow: "shadow-amber-500/25" },
-  { key: "allocations", label: "Active Allocations", icon: GitMerge, gradient: "stat-gradient-violet", iconBg: "bg-violet-500", iconShadow: "shadow-violet-500/25" },
+  { key: "warehouses", label: "Total Warehouses", icon: Warehouse, gradient: "stat-gradient-emerald", iconBg: "bg-emerald-500", iconShadow: "shadow-emerald-500/25", trend: "+12%" },
+  { key: "crops", label: "Total Crops", icon: Sprout, gradient: "stat-gradient-blue", iconBg: "bg-blue-500", iconShadow: "shadow-blue-500/25", trend: "+8%" },
+  { key: "resources", label: "Resource Types", icon: FlaskConical, gradient: "stat-gradient-amber", iconBg: "bg-amber-500", iconShadow: "shadow-amber-500/25", trend: "+5%" },
+  { key: "allocations", label: "Active Allocations", icon: GitMerge, gradient: "stat-gradient-violet", iconBg: "bg-violet-500", iconShadow: "shadow-violet-500/25", trend: "+15%" },
 ] as const;
 
 function StatCard({ label, value, icon: Icon, gradient, iconBg, iconShadow }: {
@@ -31,17 +32,36 @@ function StatCard({ label, value, icon: Icon, gradient, iconBg, iconShadow }: {
   gradient: string; iconBg: string; iconShadow: string;
 }) {
   return (
-    <div className={`card card-hover p-5 relative overflow-hidden`}>
-      <div className={`absolute inset-0 ${gradient} opacity-60`} />
+    <div className={`card card-hover p-5 relative overflow-hidden group`}>
+      <div className={`absolute inset-0 ${gradient} opacity-60 group-hover:opacity-80 transition-opacity duration-300`} />
+      {/* Decorative corner accent */}
+      <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full opacity-[0.07]" style={{ background: "var(--brand-500)" }} />
       <div className="relative flex items-center gap-4">
-        <div className={`w-11 h-11 rounded-xl ${iconBg} flex items-center justify-center shadow-lg ${iconShadow} flex-shrink-0`}>
-          <Icon size={20} className="text-white" />
+        <div className={`w-12 h-12 rounded-xl ${iconBg} flex items-center justify-center shadow-lg ${iconShadow} flex-shrink-0 group-hover:scale-105 transition-transform duration-300`}>
+          <Icon size={22} className="text-white" />
         </div>
-        <div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[13px] text-[var(--text-muted)] mb-0.5">{label}</p>
           <p className="text-2xl font-display font-bold text-[var(--text-primary)] tracking-tight">{value}</p>
-          <p className="text-[13px] text-[var(--text-muted)] mt-0.5">{label}</p>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ChartCard({ title, icon: Icon, iconColor, children }: {
+  title: string; icon: typeof Warehouse; iconColor: string; children: React.ReactNode;
+}) {
+  return (
+    <div className="card p-6 relative overflow-hidden group">
+      <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: `linear-gradient(90deg, ${iconColor}, transparent)` }} />
+      <div className="flex items-center gap-2.5 mb-5">
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${iconColor}15` }}>
+          <Icon size={16} style={{ color: iconColor }} />
+        </div>
+        <h2 className="font-display font-semibold text-[var(--text-primary)] text-[15px]">{title}</h2>
+      </div>
+      {children}
     </div>
   );
 }
@@ -56,6 +76,7 @@ function ChartSpinner() {
 
 export default function DashboardPage() {
   const { warehouses, crops, resources, allocations, suggestions } = useData();
+  const { user } = useUser();
   const navigate = useNavigate();
 
   const statValues: Record<string, number> = {
@@ -106,11 +127,19 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-7">
-      {/* Header */}
-      <div className="flex items-start justify-between">
+      {/* Header with welcome message */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-display font-bold text-[var(--text-primary)] tracking-tight">Dashboard</h1>
-          <p className="text-sm text-[var(--text-muted)] mt-1">Overview of your agricultural operations</p>
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="text-2xl font-display font-bold text-[var(--text-primary)] tracking-tight">Dashboard</h1>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10">
+              <Activity size={12} className="text-emerald-500" />
+              <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">Live</span>
+            </div>
+          </div>
+          <p className="text-sm text-[var(--text-muted)]">
+            Welcome back{user?.firstName ? `, ${user.firstName}` : ""}. Here's your farm overview.
+          </p>
         </div>
         <div className="flex gap-2.5">
           <button
@@ -137,65 +166,81 @@ export default function DashboardPage() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="card p-6">
-          <h2 className="font-display font-semibold text-[var(--text-primary)] mb-5 text-[15px]">Warehouse Utilization</h2>
+        <ChartCard title="Warehouse Utilization" icon={Warehouse} iconColor="#059669">
           <Suspense fallback={<ChartSpinner />}>
             <LazyWarehouseChart data={warehouseUtilData} />
           </Suspense>
-        </div>
-        <div className="card p-6">
-          <h2 className="font-display font-semibold text-[var(--text-primary)] mb-5 text-[15px]">Crop Status Distribution</h2>
+        </ChartCard>
+        <ChartCard title="Crop Status Distribution" icon={Sprout} iconColor="#3b82f6">
           <Suspense fallback={<ChartSpinner />}>
             <LazyCropPieChart data={cropStatusData} />
           </Suspense>
-        </div>
+        </ChartCard>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="card p-6">
-          <h2 className="font-display font-semibold text-[var(--text-primary)] mb-5 text-[15px]">Resource Stock Levels</h2>
+        <ChartCard title="Resource Stock Levels" icon={FlaskConical} iconColor="#f59e0b">
           <Suspense fallback={<ChartSpinner />}>
             <LazyResourceStockChart data={resourceData} />
           </Suspense>
-        </div>
-        <div className="card p-6">
-          <h2 className="font-display font-semibold text-[var(--text-primary)] mb-5 text-[15px]">Allocation History</h2>
+        </ChartCard>
+        <ChartCard title="Allocation History" icon={GitMerge} iconColor="#8b5cf6">
           <Suspense fallback={<ChartSpinner />}>
             <LazyAllocationHistoryChart data={allocationHistoryData} />
           </Suspense>
-        </div>
+        </ChartCard>
       </div>
 
       {/* Bottom row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Recent allocations */}
-        <div className="card p-6">
+        <div className="card p-6 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: "linear-gradient(90deg, #8b5cf6, transparent)" }} />
           <div className="flex items-center justify-between mb-5">
-            <h2 className="font-display font-semibold text-[var(--text-primary)] text-[15px]">Recent Allocations</h2>
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                <GitMerge size={16} className="text-violet-500" />
+              </div>
+              <h2 className="font-display font-semibold text-[var(--text-primary)] text-[15px]">Recent Allocations</h2>
+            </div>
             <button onClick={() => navigate("/allocations")} className="flex items-center gap-1 text-xs font-medium text-[var(--brand-600)] hover:text-[var(--brand-700)] transition-colors">
               View all <ArrowUpRight size={12} />
             </button>
           </div>
           {recentAllocations.length === 0 ? (
-            <div className="text-center py-10">
-              <GitMerge size={28} className="mx-auto text-[var(--text-muted)] mb-2 opacity-40" />
-              <p className="text-sm text-[var(--text-muted)]">No allocations yet</p>
+            <div className="text-center py-12 relative">
+              <div className="absolute inset-0 flex items-center justify-center opacity-[0.04]">
+                <GitMerge size={120} />
+              </div>
+              <div className="relative">
+                <div className="w-14 h-14 rounded-2xl bg-violet-500/10 flex items-center justify-center mx-auto mb-3">
+                  <GitMerge size={24} className="text-violet-400" />
+                </div>
+                <p className="text-sm font-medium text-[var(--text-secondary)] mb-1">No allocations yet</p>
+                <p className="text-xs text-[var(--text-muted)]">Allocate crops to warehouses to see them here</p>
+              </div>
             </div>
           ) : (
             <div className="space-y-1">
-              {recentAllocations.map((al) => (
+              {recentAllocations.map((al, idx) => (
                 <div
                   key={al._id}
                   className="flex items-center justify-between text-sm cursor-pointer hover:bg-[var(--surface-hover)] rounded-xl px-3 py-2.5 -mx-1 transition-all group"
                   onClick={() => navigate(`/allocations/${al._id}`)}
+                  style={{ animationDelay: `${idx * 50}ms` }}
                 >
-                  <div className="min-w-0">
-                    <p className="font-medium text-[var(--text-primary)] group-hover:text-[var(--brand-600)] transition-colors truncate">
-                      {al.cropName} → {al.warehouseName}
-                    </p>
-                    <p className="text-xs text-[var(--text-muted)] mt-0.5">{new Date(al.createdAt).toLocaleDateString()}</p>
+                  <div className="min-w-0 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-[var(--surface-hover)] flex items-center justify-center flex-shrink-0 group-hover:bg-violet-500/10 transition-colors">
+                      <GitMerge size={14} className="text-[var(--text-muted)] group-hover:text-violet-500 transition-colors" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-[var(--text-primary)] group-hover:text-[var(--brand-600)] transition-colors truncate">
+                        {al.cropName} → {al.warehouseName}
+                      </p>
+                      <p className="text-xs text-[var(--text-muted)] mt-0.5">{new Date(al.createdAt).toLocaleDateString()}</p>
+                    </div>
                   </div>
-                  <span className="font-display font-semibold text-[var(--text-primary)] ml-3 flex-shrink-0 text-[13px]">{al.allocatedQuantity} units</span>
+                  <span className="font-display font-semibold text-[var(--text-primary)] ml-3 flex-shrink-0 text-[13px] tabular-nums">{al.allocatedQuantity} units</span>
                 </div>
               ))}
             </div>
@@ -203,22 +248,31 @@ export default function DashboardPage() {
         </div>
 
         {/* AI Suggestions */}
-        <div className="card p-6">
+        <div className="card p-6 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: "linear-gradient(90deg, #a855f7, transparent)" }} />
           <div className="flex items-center justify-between mb-5">
-            <h2 className="font-display font-semibold text-[var(--text-primary)] text-[15px] flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-violet-500/10 flex items-center justify-center">
-                <BrainCircuit size={14} className="text-violet-500" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                <BrainCircuit size={16} className="text-purple-500" />
               </div>
-              AI Insights
-            </h2>
+              <h2 className="font-display font-semibold text-[var(--text-primary)] text-[15px]">AI Insights</h2>
+            </div>
             <button onClick={() => navigate("/ai-insights")} className="flex items-center gap-1 text-xs font-medium text-[var(--brand-600)] hover:text-[var(--brand-700)] transition-colors">
               View all <ArrowUpRight size={12} />
             </button>
           </div>
           {topSuggestions.length === 0 ? (
-            <div className="text-center py-10">
-              <TrendingUp size={28} className="mx-auto text-[var(--text-muted)] mb-2 opacity-40" />
-              <p className="text-sm text-[var(--text-muted)]">No suggestions available</p>
+            <div className="text-center py-12 relative">
+              <div className="absolute inset-0 flex items-center justify-center opacity-[0.04]">
+                <BrainCircuit size={120} />
+              </div>
+              <div className="relative">
+                <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center mx-auto mb-3">
+                  <TrendingUp size={24} className="text-purple-400" />
+                </div>
+                <p className="text-sm font-medium text-[var(--text-secondary)] mb-1">No insights available</p>
+                <p className="text-xs text-[var(--text-muted)]">AI suggestions will appear as data grows</p>
+              </div>
             </div>
           ) : (
             <div className="space-y-2">
@@ -226,7 +280,7 @@ export default function DashboardPage() {
                 const Icon = SEV_ICON[s.severity];
                 const style = SEV_STYLES[s.severity];
                 return (
-                  <div key={i} className={`rounded-xl border-l-[3px] ${style.border} ${style.bg} px-4 py-3`}>
+                  <div key={i} className={`rounded-xl border-l-[3px] ${style.border} ${style.bg} px-4 py-3 transition-all hover:shadow-sm`}>
                     <div className="flex items-start gap-2.5">
                       <div className={`mt-0.5 flex-shrink-0 ${style.icon}`}>
                         <Icon size={14} />

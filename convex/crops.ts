@@ -65,11 +65,18 @@ export const updateCrop = mutation({
     id: v.id("crops"),
     name: v.optional(v.string()),
     quantity: v.optional(v.number()),
+    status: v.optional(v.union(
+      v.literal("PLANTED"),
+      v.literal("GROWING"),
+      v.literal("HARVESTED"),
+      v.literal("STORED")
+    )),
   },
   handler: async (ctx, args) => {
     const updates: any = { updatedAt: Date.now() };
     
     if (args.name !== undefined) updates.name = args.name;
+    if (args.status !== undefined) updates.status = args.status;
     if (args.quantity !== undefined) {
       if (args.quantity < 0) {
         throw new Error("Quantity cannot be negative");

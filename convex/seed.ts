@@ -21,19 +21,34 @@ export const seedData = mutation({
   handler: async (ctx, args) => {
     const { organizationId } = args;
     
-    // Get current user
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
+    // Get current user — try auth first, fall back to first user in org
+    let user = null;
+    try {
+      const identity = await ctx.auth.getUserIdentity();
+      if (identity) {
+        user = await ctx.db
+          .query("users")
+          .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+          .unique();
+      }
+    } catch {
+      // auth not configured
     }
     
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
+    if (!user) {
+      const orgUsers = await ctx.db
+        .query("users")
+        .withIndex("by_organization", (q) => q.eq("organizationId", organizationId))
+        .collect();
+      user = orgUsers[0] ?? null;
+    }
     
     if (!user) {
-      throw new Error("User not found");
+      user = await ctx.db.query("users").first();
+    }
+    
+    if (!user) {
+      throw new Error("No users exist. Please sign up first.");
     }
 
     console.log("Starting data seeding for org:", organizationId);
@@ -218,9 +233,9 @@ export const seedData = mutation({
       updatedAt: Date.now(),
     });
 
-    // Deduct resources
+    // Deduct resources (capped at 0 to avoid negative stock)
     await ctx.db.patch(resource1, {
-      stockQuantity: 120 - (2 * 200), // 2 kg per unit * 200 units
+      stockQuantity: Math.max(0, 120 - (2 * 200)),
       updatedAt: Date.now(),
     });
 
@@ -240,9 +255,9 @@ export const seedData = mutation({
       updatedAt: Date.now(),
     });
 
-    // Deduct resources
+    // Deduct resources (capped at 0 to avoid negative stock)
     await ctx.db.patch(resource3, {
-      stockQuantity: 50 - (2 * 150),
+      stockQuantity: Math.max(0, 50 - (2 * 150)),
       updatedAt: Date.now(),
     });
 
@@ -303,7 +318,7 @@ export const createDefaultOrganization = mutation({
   },
 });
 
-// All-in-one setup: create org and seed data
+// All-in-one setup: create org, seed data — no auth required
 export const setupTestEnvironment = mutation({
   args: {
     organizationName: v.optional(v.string()),
@@ -328,20 +343,30 @@ export const setupTestEnvironment = mutation({
     }
     
     // Get current user and assign to org
-    const identity = await ctx.auth.getUserIdentity();
-    if (identity) {
-      const user = await ctx.db
-        .query("users")
-        .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-        .unique();
-      
-      if (user && !user.organizationId) {
-        await ctx.db.patch(user._id, {
-          organizationId: orgId,
-          updatedAt: Date.now(),
-        });
-        console.log("✓ Assigned user to organization");
+    let user = null;
+    try {
+      const identity = await ctx.auth.getUserIdentity();
+      if (identity) {
+        user = await ctx.db
+          .query("users")
+          .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+          .unique();
       }
+    } catch {
+      // auth not configured
+    }
+    
+    if (!user) {
+      user = await ctx.db.query("users").first();
+    }
+    
+    if (user && !user.organizationId) {
+      await ctx.db.patch(user._id, {
+        organizationId: orgId,
+        role: "ADMIN",
+        updatedAt: Date.now(),
+      });
+      console.log("✓ Assigned user to organization as ADMIN");
     }
     
     // Check if data already exists
@@ -358,12 +383,208 @@ export const setupTestEnvironment = mutation({
       };
     }
     
-    // Temporarily expose seedData functionality inline
-    // (Since we can't call exported mutations from other mutations directly)
+    // ── Inline seed (avoids calling another mutation) ──
+    const userId = user?._id;
+    
+    // Create warehouses
+    const warehouse1 = await ctx.db.insert("warehouses", {
+      name: "Central Silo A",
+      location: "North Field",
+      totalCapacity: 1000,
+      usedCapacity: 0,
+      organizationId: orgId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    const warehouse2 = await ctx.db.insert("warehouses", {
+      name: "Cold Storage B",
+      location: "South Complex",
+      totalCapacity: 500,
+      usedCapacity: 0,
+      organizationId: orgId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    const warehouse3 = await ctx.db.insert("warehouses", {
+      name: "Grain Depot C",
+      location: "East Wing",
+      totalCapacity: 2000,
+      usedCapacity: 0,
+      organizationId: orgId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    await ctx.db.insert("warehouses", {
+      name: "Open Yard D",
+      location: "West Perimeter",
+      totalCapacity: 800,
+      usedCapacity: 0,
+      organizationId: orgId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    console.log("✓ Created 4 warehouses");
+
+    // Create crops
+    const crop1 = await ctx.db.insert("crops", {
+      name: "Wheat",
+      quantity: 500,
+      status: "HARVESTED",
+      organizationId: orgId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    const crop2 = await ctx.db.insert("crops", {
+      name: "Rice",
+      quantity: 300,
+      status: "GROWING",
+      organizationId: orgId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    const crop3 = await ctx.db.insert("crops", {
+      name: "Corn",
+      quantity: 700,
+      status: "PLANTED",
+      organizationId: orgId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    const crop4 = await ctx.db.insert("crops", {
+      name: "Soybean",
+      quantity: 200,
+      status: "STORED",
+      organizationId: orgId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    const crop5 = await ctx.db.insert("crops", {
+      name: "Barley",
+      quantity: 400,
+      status: "GROWING",
+      organizationId: orgId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    const crop6 = await ctx.db.insert("crops", {
+      name: "Sunflower",
+      quantity: 150,
+      status: "PLANTED",
+      organizationId: orgId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    console.log("✓ Created 6 crops");
+
+    // Create resources
+    const resource1 = await ctx.db.insert("resources", {
+      name: "NPK Fertilizer",
+      type: "FERTILIZER",
+      stockQuantity: 500,
+      unit: "kg",
+      organizationId: orgId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    const resource2 = await ctx.db.insert("resources", {
+      name: "Urea",
+      type: "FERTILIZER",
+      stockQuantity: 800,
+      unit: "kg",
+      organizationId: orgId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    const resource3 = await ctx.db.insert("resources", {
+      name: "Glyphosate",
+      type: "PESTICIDE",
+      stockQuantity: 200,
+      unit: "L",
+      organizationId: orgId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    const resource4 = await ctx.db.insert("resources", {
+      name: "Chlorpyrifos",
+      type: "PESTICIDE",
+      stockQuantity: 150,
+      unit: "L",
+      organizationId: orgId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    const resource5 = await ctx.db.insert("resources", {
+      name: "Potash",
+      type: "FERTILIZER",
+      stockQuantity: 350,
+      unit: "kg",
+      organizationId: orgId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    console.log("✓ Created 5 resources");
+
+    // Link resources to crops
+    await ctx.db.insert("cropResources", { cropId: crop1, resourceId: resource1, requiredQuantity: 2, createdAt: Date.now() });
+    await ctx.db.insert("cropResources", { cropId: crop1, resourceId: resource3, requiredQuantity: 1, createdAt: Date.now() });
+    await ctx.db.insert("cropResources", { cropId: crop2, resourceId: resource2, requiredQuantity: 1, createdAt: Date.now() });
+    await ctx.db.insert("cropResources", { cropId: crop3, resourceId: resource1, requiredQuantity: 3, createdAt: Date.now() });
+    await ctx.db.insert("cropResources", { cropId: crop3, resourceId: resource4, requiredQuantity: 1, createdAt: Date.now() });
+    await ctx.db.insert("cropResources", { cropId: crop4, resourceId: resource3, requiredQuantity: 2, createdAt: Date.now() });
+    await ctx.db.insert("cropResources", { cropId: crop5, resourceId: resource5, requiredQuantity: 2, createdAt: Date.now() });
+    await ctx.db.insert("cropResources", { cropId: crop6, resourceId: resource2, requiredQuantity: 1, createdAt: Date.now() });
+    console.log("✓ Linked resources to crops");
+
+    // Create allocations (only if we have a user)
+    if (userId) {
+      const alloc1 = await ctx.db.insert("allocations", {
+        cropId: crop1,
+        warehouseId: warehouse1,
+        allocatedQuantity: 200,
+        createdBy: userId,
+        organizationId: orgId,
+        createdAt: Date.now() - 86400000 * 7,
+      });
+      await ctx.db.patch(warehouse1, { usedCapacity: 200, updatedAt: Date.now() });
+      await ctx.db.patch(resource1, { stockQuantity: 500 - (2 * 200), updatedAt: Date.now() });
+      await ctx.db.patch(resource3, { stockQuantity: 200 - (1 * 200), updatedAt: Date.now() });
+
+      const alloc2 = await ctx.db.insert("allocations", {
+        cropId: crop4,
+        warehouseId: warehouse2,
+        allocatedQuantity: 100,
+        createdBy: userId,
+        organizationId: orgId,
+        createdAt: Date.now() - 86400000 * 3,
+      });
+      await ctx.db.patch(warehouse2, { usedCapacity: 100, updatedAt: Date.now() });
+
+      const alloc3 = await ctx.db.insert("allocations", {
+        cropId: crop2,
+        warehouseId: warehouse3,
+        allocatedQuantity: 150,
+        createdBy: userId,
+        organizationId: orgId,
+        createdAt: Date.now() - 86400000 * 1,
+      });
+      await ctx.db.patch(warehouse3, { usedCapacity: 150, updatedAt: Date.now() });
+
+      // Resource usage history
+      await ctx.db.insert("resourceUsageHistory", { resourceId: resource1, quantityUsed: 400, allocationId: alloc1, cropId: crop1, organizationId: orgId, timestamp: Date.now() - 86400000 * 7 });
+      await ctx.db.insert("resourceUsageHistory", { resourceId: resource3, quantityUsed: 200, allocationId: alloc1, cropId: crop1, organizationId: orgId, timestamp: Date.now() - 86400000 * 7 });
+
+      // Audit logs
+      await ctx.db.insert("auditLogs", { action: "ALLOCATION_CREATED", entityType: "allocation", entityId: alloc1, performedBy: userId, organizationId: orgId, details: { cropId: crop1, warehouseId: warehouse1, quantity: 200 }, timestamp: Date.now() - 86400000 * 7 });
+      await ctx.db.insert("auditLogs", { action: "ALLOCATION_CREATED", entityType: "allocation", entityId: alloc2, performedBy: userId, organizationId: orgId, details: { cropId: crop4, warehouseId: warehouse2, quantity: 100 }, timestamp: Date.now() - 86400000 * 3 });
+      await ctx.db.insert("auditLogs", { action: "ALLOCATION_CREATED", entityType: "allocation", entityId: alloc3, performedBy: userId, organizationId: orgId, details: { cropId: crop2, warehouseId: warehouse3, quantity: 150 }, timestamp: Date.now() - 86400000 * 1 });
+      await ctx.db.insert("auditLogs", { action: "SEED_DATA", entityType: "system", entityId: orgId, performedBy: userId, organizationId: orgId, details: { warehouses: 4, crops: 6, resources: 5, allocations: 3 }, timestamp: Date.now() });
+      
+      console.log("✓ Created 3 allocations & audit logs");
+    }
     
     return {
       success: true,
-      message: "Organization created. Use seedData mutation with this organizationId to populate data.",
+      message: `Seeded ${orgName} with 4 warehouses, 6 crops, 5 resources, and 3 allocations.`,
       organizationId: orgId,
     };
   },

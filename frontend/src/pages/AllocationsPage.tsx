@@ -54,7 +54,7 @@ function NewAllocationForm({ onClose }: { onClose: () => void }) {
 
     setIsSubmitting(true);
     try {
-      const err = allocate(cropId, warehouseId, qty);
+      const err = await allocate(cropId, warehouseId, qty);
       if (err) { addToast(err, "error"); return; }
       addToast("Allocation created successfully", "success");
       onClose();
