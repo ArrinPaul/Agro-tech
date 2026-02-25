@@ -1,8 +1,7 @@
 // Helper functions for role-based access control
-// Auth is provided by Clerk on the frontend (UI gating).
+// Auth is provided by Clerk on the frontend and verified via auth.config.ts.
 // Convex data isolation is enforced via organizationId on every query/mutation.
-// ctx.auth.getUserIdentity() is available when auth.config.ts is configured —
-// without it, these helpers return null gracefully so deploys always succeed.
+// ctx.auth.getUserIdentity() returns the Clerk JWT identity when auth.config.ts is configured.
 
 import type { QueryCtx, MutationCtx } from "../_generated/server";
 

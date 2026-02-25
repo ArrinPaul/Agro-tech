@@ -94,7 +94,7 @@ export const getCurrentUser = query({
 });
 
 // Create or get user — called from frontend after Clerk sign-in
-// Accepts explicit args since ctx.auth is not configured (no auth.config.ts)
+// Accepts explicit args for flexibility — also works via ctx.auth when auth.config.ts is configured
 export const createOrGetUser = mutation({
   args: {
     clerkId: v.string(),

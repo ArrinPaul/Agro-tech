@@ -45,23 +45,23 @@ AgroTech is a comprehensive, enterprise-grade agricultural resource management p
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        CLIENT LAYER                          │
+│                        CLIENT LAYER                         │
 │  React 19 + TypeScript + Tailwind CSS + React Router        │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │   Pages      │  │  Components  │  │   Contexts   │      │
-│  │  (Views)     │→ │   (UI)       │→ │   (State)    │      │
-│  └──────────────┘  └──────────────┘  └──────────────┘      │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
+│  │   Pages      │  │  Components  │  │   Contexts   │       │
+│  │  (Views)     │→ │   (UI)       │→ │   (State)    │       │
+│  └──────────────┘  └──────────────┘  └──────────────┘       │
 └───────────────────────────┬─────────────────────────────────┘
                             │ Convex Client SDK
                             │ (Real-time WebSocket)
 ┌───────────────────────────▼─────────────────────────────────┐
-│                      CONVEX LAYER                            │
-│  Serverless Functions + Real-Time Database                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │   Queries    │  │  Mutations   │  │   HTTP       │      │
-│  │  (Reads)     │  │  (Writes)    │  │  (Webhooks)  │      │
-│  └──────────────┘  └──────────────┘  └──────────────┘      │
-│                                                               │
+│                      CONVEX LAYER                           │
+│  Serverless Functions + Real-Time Database                  │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
+│  │   Queries    │  │  Mutations   │  │   HTTP       │       │
+│  │  (Reads)     │  │  (Writes)    │  │  (Webhooks)  │       │
+│  └──────────────┘  └──────────────┘  └──────────────┘       │
+│                                                             │
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │         Convex Database (Serverless)                 │   │
 │  │  • Organizations  • Warehouses  • Crops              │   │
@@ -71,9 +71,9 @@ AgroTech is a comprehensive, enterprise-grade agricultural resource management p
 └───────────────────────────┬─────────────────────────────────┘
                             │ Clerk Webhook
 ┌───────────────────────────▼─────────────────────────────────┐
-│                      AUTH LAYER                              │
-│  Clerk Authentication Service                                │
-│  • Email/Password    • Google OAuth    • JWT Tokens          │
+│                      AUTH LAYER                             │
+│  Clerk Authentication Service                               │
+│  • Email/Password    • Google OAuth    • JWT Tokens         │
 └─────────────────────────────────────────────────────────────┘
 ```
 
