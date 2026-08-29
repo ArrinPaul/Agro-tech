@@ -98,9 +98,9 @@ export const getAllocationReport = query({
     // Enrich with related data
     const enrichedAllocations = await Promise.all(
       allocations.map(async (allocation) => {
-        const crop = await ctx.db.get(allocation.cropId);
-        const warehouse = await ctx.db.get(allocation.warehouseId);
-        const user = await ctx.db.get(allocation.createdBy);
+        const crop = allocation.cropId ? await ctx.db.get(allocation.cropId) : null;
+        const warehouse = allocation.warehouseId ? await ctx.db.get(allocation.warehouseId) : null;
+        const user = allocation.createdBy ? await ctx.db.get(allocation.createdBy) : null;
         
         return {
           allocationId: allocation._id,
@@ -214,7 +214,7 @@ export const getResourceUsageReport = query({
             const consumed = link.requiredQuantity * allocation.allocatedQuantity;
             totalConsumed += consumed;
             
-            const crop = await ctx.db.get(allocation.cropId);
+            const crop = allocation.cropId ? await ctx.db.get(allocation.cropId) : null;
             const cropName = crop?.name || "Unknown";
             if (!consumptionByCrop[cropName]) {
               consumptionByCrop[cropName] = { cropName, consumed: 0, allocations: 0 };
@@ -316,7 +316,7 @@ export const getCropReport = query({
         
         const resourceRequirements = await Promise.all(
           resourceLinks.map(async (link) => {
-            const resource = await ctx.db.get(link.resourceId);
+            const resource = link.resourceId ? await ctx.db.get(link.resourceId) : null;
             return {
               resourceName: resource?.name || "Unknown",
               requiredPerUnit: link.requiredQuantity,

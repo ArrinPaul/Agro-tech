@@ -62,7 +62,7 @@ export const listAuditLogs = query({
     // Enrich with user details
     const enriched = await Promise.all(
       logs.map(async (log) => {
-        const user = await ctx.db.get(log.performedBy);
+        const user = log.performedBy ? await ctx.db.get(log.performedBy) : null;
         return {
           ...log,
           performedByName: user?.name || "Unknown",

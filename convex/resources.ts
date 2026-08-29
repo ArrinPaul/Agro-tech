@@ -198,7 +198,7 @@ export const getResourcesForCrop = query({
     
     const resources = await Promise.all(
       links.map(async (link) => {
-        const resource = await ctx.db.get(link.resourceId);
+        const resource = link.resourceId ? await ctx.db.get(link.resourceId) : null;
         return {
           ...resource,
           requiredQuantity: link.requiredQuantity,
@@ -222,7 +222,7 @@ export const getCropsForResource = query({
     
     const crops = await Promise.all(
       links.map(async (link) => {
-        const crop = await ctx.db.get(link.cropId);
+        const crop = link.cropId ? await ctx.db.get(link.cropId) : null;
         return {
           ...crop,
           requiredQuantity: link.requiredQuantity,

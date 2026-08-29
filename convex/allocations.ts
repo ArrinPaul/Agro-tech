@@ -254,9 +254,9 @@ export const listAllocations = query({
     // Enrich with crop and warehouse details
     const enriched = await Promise.all(
       allocations.map(async (allocation) => {
-        const crop = await ctx.db.get(allocation.cropId);
-        const warehouse = await ctx.db.get(allocation.warehouseId);
-        const user = await ctx.db.get(allocation.createdBy);
+        const crop = allocation.cropId ? await ctx.db.get(allocation.cropId) : null;
+        const warehouse = allocation.warehouseId ? await ctx.db.get(allocation.warehouseId) : null;
+        const user = allocation.createdBy ? await ctx.db.get(allocation.createdBy) : null;
         
         return {
           ...allocation,
@@ -282,8 +282,8 @@ export const getAllocationsForWarehouse = query({
     
     const enriched = await Promise.all(
       allocations.map(async (allocation) => {
-        const crop = await ctx.db.get(allocation.cropId);
-        const user = await ctx.db.get(allocation.createdBy);
+        const crop = allocation.cropId ? await ctx.db.get(allocation.cropId) : null;
+        const user = allocation.createdBy ? await ctx.db.get(allocation.createdBy) : null;
         
         return {
           ...allocation,
@@ -308,8 +308,8 @@ export const getAllocationsForCrop = query({
     
     const enriched = await Promise.all(
       allocations.map(async (allocation) => {
-        const warehouse = await ctx.db.get(allocation.warehouseId);
-        const user = await ctx.db.get(allocation.createdBy);
+        const warehouse = allocation.warehouseId ? await ctx.db.get(allocation.warehouseId) : null;
+        const user = allocation.createdBy ? await ctx.db.get(allocation.createdBy) : null;
         
         return {
           ...allocation,
@@ -330,9 +330,9 @@ export const getAllocation = query({
     const allocation = await ctx.db.get(args.id);
     if (!allocation) return null;
     
-    const crop = await ctx.db.get(allocation.cropId);
-    const warehouse = await ctx.db.get(allocation.warehouseId);
-    const user = await ctx.db.get(allocation.createdBy);
+    const crop = allocation.cropId ? await ctx.db.get(allocation.cropId) : null;
+    const warehouse = allocation.warehouseId ? await ctx.db.get(allocation.warehouseId) : null;
+    const user = allocation.createdBy ? await ctx.db.get(allocation.createdBy) : null;
     
     return {
       ...allocation,

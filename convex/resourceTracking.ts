@@ -53,7 +53,7 @@ export const getResourceUsageHistory = query({
     const usage = await Promise.all(
       relevantAllocations.map(async (allocation) => {
         const link = cropResourceLinks.find(l => l.cropId === allocation.cropId);
-        const crop = await ctx.db.get(allocation.cropId);
+        const crop = allocation.cropId ? await ctx.db.get(allocation.cropId) : null;
         
         return {
           timestamp: allocation.createdAt,
