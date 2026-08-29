@@ -154,6 +154,7 @@ export default function LoginPage() {
               path="/login"
               routing="path"
               signUpUrl="/sign-up"
+              fallbackRedirectUrl="/"
               afterSignInUrl="/"
               appearance={{
                 elements: {

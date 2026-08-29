@@ -3,8 +3,6 @@ import { createRoot } from 'react-dom/client'
 import { ClerkProvider, useAuth, useUser } from '@clerk/clerk-react'
 import { ConvexProviderWithClerk } from 'convex/react-clerk'
 import { ConvexReactClient, useMutation } from 'convex/react'
-import { OrganizationProvider } from './contexts/OrganizationContext.tsx'
-import { DataProvider } from './contexts/ConvexDataContext.tsx'
 import { ThemeProvider } from './contexts/ThemeContext.tsx'
 import { api } from '../../convex/_generated/api'
 import './index.css'
@@ -50,14 +48,11 @@ createRoot(document.getElementById('root')!).render(
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
         <UserSync />
-        <OrganizationProvider>
-          <DataProvider>
-            <ThemeProvider>
-              <App />
-            </ThemeProvider>
-          </DataProvider>
-        </OrganizationProvider>
+        <ThemeProvider>
+          <App />
+        </ThemeProvider>
       </ConvexProviderWithClerk>
     </ClerkProvider>
   </StrictMode>,
 )
+

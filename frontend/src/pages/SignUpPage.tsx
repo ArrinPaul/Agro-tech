@@ -133,6 +133,7 @@ export default function SignUpPage() {
               path="/sign-up"
               routing="path"
               signInUrl="/login"
+              fallbackRedirectUrl="/"
               afterSignUpUrl="/"
               appearance={{
                 elements: {

@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
-import { SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
+import { useAuth } from "@clerk/clerk-react";
+import { OrganizationProvider } from "./contexts/OrganizationContext";
+import { DataProvider } from "./contexts/ConvexDataContext";
 import { ToastProvider } from "./components/Toast";
 import ErrorBoundary from "./components/ErrorBoundary";
 import MainLayout from "./layouts/MainLayout";
@@ -18,26 +20,43 @@ import SignUpPage from "./pages/SignUpPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 
-// Clerk handles auth on the UI layer.
-// Convex handles data isolation via organizationId on every query/mutation.
-// UserSync in main.tsx creates/syncs the user record via createOrGetUser mutation.
-function ProtectedRoute() {
+function LoadingFallback() {
   return (
-    <>
-      <SignedIn>
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg-primary)" }}>
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+        <span className="text-xs text-[var(--text-muted)] font-medium">Loading AgroTech...</span>
+      </div>
+    </div>
+  );
+}
+
+function ProtectedRoute() {
+  const { isLoaded, isSignedIn } = useAuth();
+
+  if (!isLoaded) {
+    return <LoadingFallback />;
+  }
+
+  if (!isSignedIn) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return (
+    <OrganizationProvider>
+      <DataProvider>
         <Outlet />
-      </SignedIn>
-      <SignedOut>
-        <Navigate to="/login" replace />
-      </SignedOut>
-    </>
+      </DataProvider>
+    </OrganizationProvider>
   );
 }
 
 function PublicRoute() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isLoaded, isSignedIn } = useAuth();
 
-  if (!isLoaded) return null;
+  if (!isLoaded) {
+    return <LoadingFallback />;
+  }
 
   return isSignedIn ? <Navigate to="/" replace /> : <Outlet />;
 }
