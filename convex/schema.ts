@@ -159,4 +159,6 @@ export default defineSchema({
     windowEnd: v.number(),
   })
     .index("by_key", ["key"]),
-});
+}, { schemaValidation: false });
+
+
